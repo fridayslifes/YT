@@ -280,7 +280,6 @@ def render_30s_riddle_hd_with_audio(output_path: Path, fps: int = 30) -> Path:
         build_master_audio_track,
         get_font,
         reencode_broadcast_mp4_with_audio,
-        render_caption_pill,
         synthesize_studio_speech,
     )
     from tools import riddle_director

@@ -153,6 +153,29 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 
 ---
 
+## 5. Work Execution Log
+
+### Task 0: Audit & Baseline Verification [COMPLETED]
+- Seeded `UPGRADE_STATE.md`.
+- Verified 5 claims marked DONE via targeted CLI/test runs: variant registry (7 variants), `--variant`/`--channel` CLI flags (116 orchestrator tests passed), zero `edge_tts` imports, `colab_server` endpoints (3 tests passed), and Analytics API v2 in `analyze_channel_monetization`.
+- Committed as `f200d64` and pushed to remote `origin/main` (`2ca982d`).
+
+### Extra Instruction 1: Normalize only declared CLI flags & preserve absolute Linux paths [COMPLETED]
+- Fixed flag heuristic in `tools/pipeline.py` which was rewriting nonexistent Linux paths like `/tmp/evidence.json` to `--tmp/evidence.json`. Replaced with strict membership check against declared `--flags`.
+- Added regression test `test_pipeline_cli_preserves_nonexistent_absolute_linux_paths` in `tests/test_legacy_upload_routes.py`.
+- Verified `./check.sh all` on Mac (974 tests passed) and Linux Docker container (9/9 legacy upload tests passed).
+- Committed locally as `93b6c79`.
+
+### Task 1.0: Universal Engine Decoupling, Typed Errors, and Demo Migration [COMPLETED]
+- Created `tools/errors.py` with typed exceptions: `FrameForgeError`, `StageError`, `MissingInputError`, `RenderingError`, `AudioDesignError`, `PolicyGateError`, `UniquenessGateError`.
+- Moved showcase demo scripts from `demos/` to `tests/fixtures/archetype_demos.py` and deleted the `demos/` directory so demos are never imported by production code.
+- Removed hardcoded `_default_scenes_for_topic` in `tools/universal_engine.py` and replaced with `plan_scenes_from_script(script, topic=topic, title=title, variant=variant)` which raises `MissingInputError` if `script` is missing or empty.
+- Removed legacy demo CLI flags (`--all-30s`, `--demo`, `--photobook-30s`, etc.) from `tools/universal_engine.py`.
+- Updated `tools/orchestrator/impact.py` to index both `tools/` and `tests/` into `index.modules` so test fixture imports resolve cleanly.
+- Verified: `./check.sh all` passed with 0 ruff errors, 974 passing tests, 0 dangling references, and all guard gates passing.
+
+---
+
 ## 5. Master Task DAG & Implementation Order
 
 ```

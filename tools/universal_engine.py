@@ -26,13 +26,14 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import wave
 
 import cv2
@@ -47,6 +48,7 @@ from tools import build_video  # noqa: E402
 from tools.audio_bank import SFX_DIR, ensure_studio_sfx_pack  # noqa: E402
 from tools.build_video import _synthesize_kokoro, _validate_kokoro_voice  # noqa: E402
 from tools.render_manifest import RenderManifest, scene_fingerprint  # noqa: E402
+from tools.errors import AudioDesignError, MissingInputError, RenderingError, StageError  # noqa: E402
 from tools.schemas import (  # noqa: E402
     PROJECT_SCHEMA_VERSION,
     SUPPORTED_VARIANTS,
@@ -62,13 +64,22 @@ ANTON = FONT_DIR / "Anton-Regular.ttf"
 
 
 def get_font(path: Path, size: int) -> ImageFont.FreeTypeFont:
-    """Safely loads FreeType font with fallback to default PIL font."""
-    if path.exists():
-        try:
-            return ImageFont.truetype(str(path), size)
-        except Exception:
-            pass
-    return ImageFont.load_default()
+    """Loads required FreeType font; raises MissingInputError if missing or invalid."""
+    if not path.exists():
+        raise MissingInputError(
+            stage="font_load",
+            artifact=path,
+            cause=f"Required font file missing: {path}",
+        )
+    try:
+        return ImageFont.truetype(str(path), size)
+    except Exception as e:
+        raise StageError(
+            stage="font_load",
+            artifact=path,
+            cause=e,
+            details=f"Failed loading font {path} at size {size}",
+        ) from e
 
 
 def reencode_broadcast_mp4(src_path: Path, dst_path: Path, fps: int = 30, bitrate: str = "8M") -> bool:
@@ -261,7 +272,11 @@ def build_master_audio_track(
     for sfx_name, at_sec, vol in (sfx_events or []):
         sfx_path = SFX_DIR / sfx_name
         if not sfx_path.exists():
-            continue
+            raise MissingInputError(
+                stage="audio_mix",
+                artifact=sfx_path,
+                cause=f"Required SFX event audio file missing: {sfx_name}",
+            )
         try:
             with wave.open(str(sfx_path), "rb") as wf:
                 raw = wf.readframes(wf.getnframes())
@@ -274,8 +289,13 @@ def build_master_audio_track(
             i0 = int(at_sec * sr)
             i1 = min(total_samples, i0 + len(arr))
             master[i0:i1] += arr[:i1 - i0] * vol
-        except Exception:
-            pass
+        except Exception as e:
+            raise AudioDesignError(
+                stage="audio_mix",
+                artifact=sfx_path,
+                cause=e,
+                details=f"Failed mixing SFX event {sfx_name} at {at_sec}s",
+            ) from e
 
     peak = np.max(np.abs(master))
     if peak > 0.95:
@@ -371,29 +391,7 @@ def render_hybrid_from_scratch(output_path: Path, duration: float = 3.5, fps: in
     return output_path
 
 
-def render_30s_photobook_hd_with_audio(output_path: Path, fps: int = 30) -> Path:
-    from demos.archetype_demos import render_30s_photobook_hd_with_audio as _demo
-    return _demo(output_path, fps=fps)
 
-
-def render_30s_riddle_hd_with_audio(output_path: Path, fps: int = 30) -> Path:
-    from demos.archetype_demos import render_30s_riddle_hd_with_audio as _demo
-    return _demo(output_path, fps=fps)
-
-
-def render_30s_stickman_hd_with_audio(output_path: Path, fps: int = 30) -> Path:
-    from demos.archetype_demos import render_30s_stickman_hd_with_audio as _demo
-    return _demo(output_path, fps=fps)
-
-
-def render_30s_hybrid_hd_with_audio(output_path: Path, fps: int = 30) -> Path:
-    from demos.archetype_demos import render_30s_hybrid_hd_with_audio as _demo
-    return _demo(output_path, fps=fps)
-
-
-def generate_all_4_archetype_demos(demo_dir: Path) -> Dict[str, Path]:
-    from demos.archetype_demos import generate_all_4_archetype_demos as _demos
-    return _demos(demo_dir)
 
 
 # ===========================================================================
@@ -1042,7 +1040,6 @@ class CutoutCartoonEngine(VariantEngine):
         **_: Any,
     ) -> bool:
         from tools.cutout_engine import cutout_director
-        from tools.sound_architect import DECIBEL_BUDGET, db_to_linear
 
         sprites_dir = _ensure_cutout_sprites(project_dir / "images" / "cutouts" / "normalized", proj_data)
         poses = ("idle", "pointing", "thinking", "shocked", "shrugging", "running")
@@ -1108,30 +1105,13 @@ class CutoutCartoonEngine(VariantEngine):
                 height=height,
                 fps=fps,
             )
-        except subprocess.CalledProcessError:
-            if not temp_raw.exists():
-                raise
-            drone_vol = db_to_linear(DECIBEL_BUDGET["ambient_bed"])
-            cmd_fallback = [
-                "ffmpeg", "-y",
-                "-i", str(temp_raw),
-                "-i", str(tmp_wav),
-                "-i", str(drone_bed),
-                "-filter_complex",
-                f"[1:a]volume=1.0[v];[2:a]volume={drone_vol:.4f}[d];[v][d]amix=inputs=2:normalize=0,loudnorm=I=-14.0:TP=-1.5:LRA=7.0[aout]",
-                "-map", "0:v",
-                "-map", "[aout]",
-                "-c:v", "libx264",
-                "-crf", "18",
-                "-preset", "fast",
-                "-pix_fmt", "yuv420p",
-                "-c:a", "aac",
-                "-b:a", "320k",
-                "-ar", "48000",
-                "-shortest",
-                str(target_vid),
-            ]
-            subprocess.run(cmd_fallback, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        except Exception as e:
+            raise RenderingError(
+                stage="cutout_render",
+                artifact=target_vid,
+                cause=e,
+                details="render_cutout_short_video failed",
+            ) from e
         finally:
             tmp_wav.unlink(missing_ok=True)
             temp_raw.unlink(missing_ok=True)
@@ -1188,31 +1168,107 @@ def find_project_dir(slug: str) -> Optional[Path]:
     return None
 
 
-def _default_scenes_for_topic(topic: str, title: str, variant: str, count: int = 8) -> List[Dict[str, Any]]:
-    """Builds 8 schema-valid, topic-specific default scenes when scaffolding a new project."""
-    clean_topic = topic.strip() or "Cognitive Science"
-    clean_title = title.strip() or clean_topic.title()
-    beats = [
-        f"When you encounter {clean_topic} in everyday life, why does your first instinct feel so certain yet miss the hidden pattern?",
-        f"Behavioral researchers studying {clean_topic} noticed that people consistently misread the earliest signal under time pressure.",
-        f"In controlled experiments on {clean_topic}, participants focused on the loudest cue while ignoring the baseline rate right in front of them.",
-        f"That single shift in attention explains how {clean_topic} quietly reshapes decisions before conscious reasoning even starts.",
-        f"Notice what happens when you slow the sequence down and compare each assumption in {clean_topic} against measurable evidence.",
-        f"Once the underlying mechanism of {clean_topic} becomes visible, the original paradox stops looking mysterious and starts looking predictable.",
-        f"You can test {clean_topic} yourself today by writing down your first prediction before checking the outcome.",
-        f"Where have you noticed {clean_topic} in your own decisions? Drop your example in the comments and subscribe for the next breakdown.",
-    ]
-    scenes: List[Dict[str, Any]] = []
-    for i in range(max(8, count)):
-        sc_id = f"s{i + 1:02d}"
-        text = beats[i % len(beats)]
+def plan_scenes_from_script(
+    script: Optional[Union[str, Sequence[str], Sequence[Dict[str, Any]]]],
+    *,
+    topic: str,
+    title: str,
+    variant: str,
+    target_count: int = 8,
+) -> List[Dict[str, Any]]:
+    """Plans schema-valid scenes directly from the script without hardcoded beats or fallbacks.
+
+    Raises MissingInputError if script is missing or empty.
+    Raises MissingInputError if topic or variant is missing or invalid.
+    """
+    if not topic or not topic.strip():
+        raise MissingInputError(
+            stage="scene_plan",
+            artifact="topic",
+            cause="Cannot plan scenes: topic must be non-empty and grounded",
+        )
+    if variant not in UNIVERSAL_VARIANTS:
+        raise MissingInputError(
+            stage="scene_plan",
+            artifact="variant",
+            cause=f"Unknown variant '{variant}'",
+        )
+
+    if script is None:
+        raise MissingInputError(
+            stage="scene_plan",
+            artifact="script",
+            cause="Cannot plan scenes: script is None (Rule B prohibited fallback)",
+        )
+
+    clean_topic = topic.strip()
+    clean_title = (title or clean_topic).strip()
+
+    # Case 1: Sequence of pre-structured scene dictionaries
+    if isinstance(script, (list, tuple)) and script and isinstance(script[0], dict):
+        scenes: List[Dict[str, Any]] = []
+        for idx, item in enumerate(script, 1):
+            sc_id = f"s{idx:02d}"
+            text = str(item.get("text", "")).strip()
+            if not text:
+                raise MissingInputError(
+                    stage="scene_plan",
+                    artifact=f"scene_{idx}",
+                    cause=f"Scene {idx} missing narration text",
+                )
+            caption = str(item.get("caption", text)).strip()
+            prompt = str(
+                item.get(
+                    "prompt",
+                    f"{clean_title} ({variant}) - scene {idx}: {clean_topic} documentary plate {idx}",
+                )
+            )
+            scenes.append({
+                "id": sc_id,
+                "text": text,
+                "caption": caption,
+                "prompt": prompt,
+                "image": str(item.get("image", f"images/{sc_id}.jpg")),
+            })
+        return scenes
+
+    # Case 2: Sequence of spoken sentences / strings
+    if isinstance(script, (list, tuple)):
+        beats = [str(s).strip() for s in script if str(s).strip()]
+    elif isinstance(script, str):
+        raw = script.strip()
+        if not raw:
+            raise MissingInputError(
+                stage="scene_plan",
+                artifact="script",
+                cause="Cannot plan scenes: script string is empty (Rule B prohibited fallback)",
+            )
+        raw_beats = [b.strip() for b in re.split(r"(?<=[.!?])\s+|\n+", raw) if b.strip()]
+        beats = raw_beats if raw_beats else [raw]
+    else:
+        raise MissingInputError(
+            stage="scene_plan",
+            artifact="script",
+            cause=f"Invalid script type: {type(script).__name__}",
+        )
+
+    if not beats:
+        raise MissingInputError(
+            stage="scene_plan",
+            artifact="script",
+            cause="Cannot plan scenes: script contains 0 beats (Rule B prohibited fallback)",
+        )
+
+    scenes = []
+    for idx, beat in enumerate(beats, 1):
+        sc_id = f"s{idx:02d}"
+        prompt = f"{clean_title} ({variant}) - scene {idx}: {clean_topic} documentary plate {idx}"
         scenes.append({
             "id": sc_id,
-            "text": text,
-            "caption": text,
-            "prompt": f"{clean_title} ({variant}) visual plate {i + 1}: {clean_topic} documentary evidence scene {i + 1}",
+            "text": beat,
+            "caption": beat,
+            "prompt": prompt,
             "image": f"images/{sc_id}.jpg",
-            "duration": 4.2,
         })
     return scenes
 
@@ -1221,19 +1277,30 @@ def create_project(
     slug: str,
     variant: str = "storybook_picturebook",
     format_type: str = "long",
-    topic: str = "Untitled Project",
+    topic: str = "",
     title: str = "",
     *,
     video_id: Optional[str] = None,
     channel_id: str = "cognitive_core",
     voice: str = "kokoro",
     scenes: Optional[List[Dict[str, Any]]] = None,
+    script: Optional[Union[str, List[str], List[Dict[str, Any]]]] = None,
     base_dir: Optional[Path] = None,
 ) -> Path:
     """Scaffolds a standardized Schema v2 project structure and validates it before writing."""
+    if not topic or not topic.strip():
+        raise MissingInputError(
+            stage="project_create",
+            artifact="topic",
+            cause="topic is required to create a project (no fallback allowed)",
+        )
     if variant not in UNIVERSAL_VARIANTS:
         valid_keys = ", ".join(UNIVERSAL_VARIANTS.keys())
-        raise ValueError(f"Unknown variant '{variant}'. Must be one of: {valid_keys}")
+        raise MissingInputError(
+            stage="project_create",
+            artifact="variant",
+            cause=f"Unknown variant '{variant}'. Must be one of: {valid_keys}",
+        )
 
     fmt_norm = "short" if format_type.lower() in {"short", "shorts"} else "long"
     validated_voice = _validate_kokoro_voice(voice)
@@ -1246,7 +1313,16 @@ def create_project(
         digest_num = int(hashlib.sha256(slug.encode("utf-8")).hexdigest()[:4], 16) % 90 + 10
         video_id = f"{prefix}-{digest_num}"
 
-    scene_list = [dict(s) for s in scenes] if scenes is not None else _default_scenes_for_topic(topic, title, variant)
+    if scenes is not None:
+        scene_list = [dict(s) for s in scenes]
+    elif script is not None:
+        scene_list = plan_scenes_from_script(script, topic=topic, title=title, variant=variant)
+    else:
+        raise MissingInputError(
+            stage="project_create",
+            artifact=f"{slug}/project.json",
+            cause="Cannot create project: neither scenes nor script was provided. Hardcoded default scenes are deleted per Rule A and Rule B.",
+        )
 
     project_data: Dict[str, Any] = {
         "schema_version": PROJECT_SCHEMA_VERSION,
@@ -1378,19 +1454,8 @@ def main() -> int:
     parser.add_argument("--title", type=str, default="", help="Display title of the video")
     parser.add_argument("--dry-run", action="store_true", help="Perform a dry-run check without deleting or rendering files")
 
-    # Legacy showcase demo flags (routed to demos/archetype_demos.py)
-    parser.add_argument("--all-30s", action="store_true", help="Generate all archetypes as 30s broadcast Full HD demo videos")
-    parser.add_argument("--demo", action="store_true", help="Generate quick probe demos")
-    parser.add_argument("--photobook-30s", action="store_true", help="Render 30s broadcast Full HD photobook demo")
-    parser.add_argument("--riddle-30s", action="store_true", help="Render 30s broadcast Full HD riddle demo")
-    parser.add_argument("--stickman-30s", action="store_true", help="Render 30s broadcast Full HD stickman demo")
-    parser.add_argument("--hybrid-30s", action="store_true", help="Render 30s broadcast Full HD hybrid demo")
-    parser.add_argument("--archetype", choices=["photobook", "riddle", "stickman", "hybrid"], help="Generate a specific archetype probe")
     parser.add_argument("-o", "--output", type=str, help="Output MP4 file path")
-    parser.add_argument("-d", "--duration", type=float, default=3.5, help="Duration in seconds (default 3.5)")
     args = parser.parse_args()
-
-    demo_dir = PROJECT_ROOT / "demos"
 
     if args.list_variants:
         list_variants()
@@ -1422,51 +1487,6 @@ def main() -> int:
             print("Error: --slug is required to clean a project")
             return 1
         clean_project(args.slug, dry_run=args.dry_run)
-        return 0
-
-    if args.all_30s:
-        results = generate_all_4_archetype_demos(demo_dir)
-        for name, path in results.items():
-            print(f"  * {name.upper()}: {path} ({path.stat().st_size / 1e6:.2f} MB)")
-        return 0
-
-    if args.photobook_30s:
-        out = Path(args.output) if args.output else demo_dir / "demo_01_photobook_30s_hd.mp4"
-        render_30s_photobook_hd_with_audio(out)
-        return 0
-
-    if args.riddle_30s:
-        out = Path(args.output) if args.output else demo_dir / "demo_02_riddle_30s_hd.mp4"
-        render_30s_riddle_hd_with_audio(out)
-        return 0
-
-    if args.stickman_30s:
-        out = Path(args.output) if args.output else demo_dir / "demo_03_stickman_30s_hd.mp4"
-        render_30s_stickman_hd_with_audio(out)
-        return 0
-
-    if args.hybrid_30s:
-        out = Path(args.output) if args.output else demo_dir / "demo_04_hybrid_30s_hd.mp4"
-        render_30s_hybrid_hd_with_audio(out)
-        return 0
-
-    if args.demo:
-        render_photobook_from_scratch(demo_dir / "demo_01_photobook.mp4")
-        render_riddle_from_scratch(demo_dir / "demo_02_riddle.mp4")
-        render_stickman_from_scratch(demo_dir / "demo_03_stickman.mp4")
-        render_hybrid_from_scratch(demo_dir / "demo_04_hybrid.mp4")
-        return 0
-
-    if args.archetype:
-        out = Path(args.output) if args.output else demo_dir / f"demo_{args.archetype}.mp4"
-        if args.archetype == "photobook":
-            render_photobook_from_scratch(out, duration=args.duration)
-        elif args.archetype == "riddle":
-            render_riddle_from_scratch(out, duration=args.duration)
-        elif args.archetype == "stickman":
-            render_stickman_from_scratch(out, duration=args.duration)
-        elif args.archetype == "hybrid":
-            render_hybrid_from_scratch(out, duration=args.duration)
         return 0
 
     parser.print_help()

@@ -8,8 +8,9 @@ import cv2
 import numpy as np
 import pytest
 
-from demos import archetype_demos
+from tests.fixtures import archetype_demos
 from tools import picture_book_engine, schemas, universal_engine
+from tools.errors import MissingInputError
 
 
 def _write_test_wav(path: Path, duration_sec: float = 0.25, freq_hz: float = 440.0, sr: int = 24000) -> Path:
@@ -70,9 +71,10 @@ def _make_schema_v2_project(
     }
 
 
-def test_get_font_fallback():
-    font = universal_engine.get_font(Path("/nonexistent/font.ttf"), 24)
-    assert font is not None
+def test_get_font_raises_on_missing_font():
+    with pytest.raises(MissingInputError) as exc_info:
+        universal_engine.get_font(Path("/nonexistent/font.ttf"), 24)
+    assert exc_info.value.stage == "font_load"
 
 
 def test_universal_variants_and_registry_match_schema_v2():
@@ -111,6 +113,7 @@ def test_synthesize_studio_speech_enforces_strict_kokoro_voices(tmp_path):
 def test_create_project_emits_valid_schema_v2_for_all_variants(tmp_path):
     for idx, variant in enumerate(sorted(schemas.SUPPORTED_VARIANTS)):
         fmt = "short" if idx % 2 == 0 else "long"
+        script = [f"Beat {i+1} analyzing empirical evidence for {variant}." for i in range(8)]
         proj_dir = universal_engine.create_project(
             slug=f"proj_{variant}",
             variant=variant,
@@ -118,6 +121,7 @@ def test_create_project_emits_valid_schema_v2_for_all_variants(tmp_path):
             topic=f"Topic {variant}",
             title=f"Title {variant}",
             channel_id="cognitive_core",
+            script=script,
             base_dir=tmp_path,
         )
         p_path = proj_dir / "project.json"
@@ -189,7 +193,7 @@ def test_render_all_archetypes_short_probe():
         assert p4.stat().st_size > 500
 
 
-def test_demos_extracted_to_demos_module():
+def test_demos_relocated_to_test_fixtures():
     assert hasattr(archetype_demos, "render_30s_photobook_hd_with_audio")
     assert hasattr(archetype_demos, "render_30s_riddle_hd_with_audio")
     assert hasattr(archetype_demos, "render_30s_stickman_hd_with_audio")

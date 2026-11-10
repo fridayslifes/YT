@@ -83,13 +83,13 @@ def _walk(root: Path, suffixes: tuple[str, ...]) -> list[Path]:
 
 
 def _module_exists(index: "Index", dotted: str) -> bool:
-    """Whether a dotted `tools.*` name resolves. Anything outside tools/ is out of scope."""
+    """Whether a dotted `tools.*` or `tests.*` name resolves. Anything else is out of scope."""
     if not dotted:
         return True
     head = dotted.split(".")[0]
     if head not in {"tools", "tests", "test"}:
         return True
-    if dotted == "tools":  # PEP 420 namespace package: has no __init__.py by design.
+    if dotted in {"tools", "tests", "test"}:  # PEP 420 namespace package: has no __init__.py by design.
         return True
     if any(mod == dotted or mod.startswith(f"{dotted}.") for mod in index.modules):
         return True
@@ -97,7 +97,7 @@ def _module_exists(index: "Index", dotted: str) -> bool:
     # namespace does not count as that parent, or every `from tools import gone` would be excused.
     while "." in dotted:
         dotted = dotted.rsplit(".", 1)[0]
-        if dotted == "tools":
+        if dotted in {"tools", "tests", "test"}:
             return False
         if dotted in index.modules or any(mod.startswith(f"{dotted}.") for mod in index.modules):
             return True
@@ -143,7 +143,7 @@ class Index:
     def _build(self) -> None:
         for path in self.py_files:
             rel = path.relative_to(self.root).as_posix()
-            if rel.startswith("tools/"):
+            if rel.startswith(("tools/", "tests/")):
                 mod = rel[:-3].replace("/", ".")
                 self.modules.add(mod[: -len(".__init__")] if mod.endswith(".__init__") else mod)
             self._index_python(path, rel)
