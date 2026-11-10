@@ -1,7 +1,7 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** STEP 0 COMPLETE (Seeded & Verified Baseline). Awaiting user `proceed`.  
-**Last Updated:** 2026-11-11 02:40:00 UTC  
+**Status:** PHASE 1 IN PROGRESS (Extra Instruction 1 Fixed; Phase 3 Thumbnail Policy Locked; Executing Rule B & Rule A cleanup).  
+**Last Updated:** 2026-11-11 02:56:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
 
@@ -136,19 +136,24 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
    - `tests/test_pipeline_validation.py::test_synthesize_kokoro_uses_exact_voice_styles_and_only_blends_explicit_kokoro` (FAILED): `ModuleNotFoundError: No module named 'kokoro_onnx'` (Optional neural TTS package not installed).
    - *Note on `tests/test_guard.py`:* Succeeded in container because `tools/kokoro_models/` weights were mounted from host. If weights are missing, it fails closed as expected.
 
-2. **Real Codebase Bugs (Cross-Platform / Path Normalization Defect):**
-   - `tests/test_legacy_upload_routes.py::test_pipeline_upload_forwards_release_inputs` (FAILED)
-   - `tests/test_legacy_upload_routes.py::test_pipeline_rejects_upload_mixed_with_production` (FAILED)  
-     **Diagnosis:** In `tools/pipeline.py:1199`, CLI normalization checks:
-     ```python
-     if arg.startswith("/") and len(arg) > 1 and not (arg.startswith("/Users") or arg.startswith("/private") or Path(arg).exists()):
-         norm_argv.append("--" + arg.lstrip("/"))
-     ```
-     This assumes non-existent paths on non-macOS platforms are slash-style flags (e.g. `/auto` -> `--auto`). When passing a non-existent Linux path such as `/tmp/pytest-of-root/.../evidence.json`, it converts it into `--tmp/...`, which causes argparse to fail with `argument --evidence: expected one argument`.
+2. **Real Codebase Bugs (Cross-Platform / Path Normalization Defect) [RESOLVED]:**
+   - `tests/test_legacy_upload_routes.py::test_pipeline_upload_forwards_release_inputs`
+   - `tests/test_legacy_upload_routes.py::test_pipeline_rejects_upload_mixed_with_production`
+   - `tests/test_legacy_upload_routes.py::test_pipeline_cli_preserves_nonexistent_absolute_linux_paths`  
+     **Diagnosis & Resolution:** Replaced heuristic slash normalization at `tools/pipeline.py:1199` with exact validation against declared `ap._actions` `--flags`. Added regression test `test_pipeline_cli_preserves_nonexistent_absolute_linux_paths` asserting nonexistent absolute Linux paths (`/tmp/...`, `/var/...`) are strictly preserved. Verified on both Darwin and Linux Debian Bookworm container (`9 passed in 0.17s`).
 
 ---
 
-## 4. Master Task DAG & Implementation Order (Post "Proceed")
+## 4. User Decisions & Architectural Alignment
+
+### Phase 3 Thumbnail Policy (Decided by User 2026-11-11):
+- **Shorts:** Strictly zero thumbnails. Feed previews are selected from video frames by YouTube.
+- **Long-Form (16:9):** Custom thumbnails are explicitly permitted and supported via `render_longform_thumbnail()`. Must pass through policy gate (no misleading imagery, zero real-person likeness).
+- **Documentation & Impact Alignment:** Update `tests/test_impact.py`, `AGENTS.md`, `GEMINI.md`, and `VIDEO_GUIDE_SHORTS_AND_LONG.md` to forbid Shorts thumbnail pipelines while allowing long-form thumbnails. Run `master.py impact --all` after updating.
+
+---
+
+## 5. Master Task DAG & Implementation Order
 
 ```
 [Phase 1: Rule B & Rule A Elimination]

@@ -106,3 +106,31 @@ def test_legacy_agent_cli_rejects_upload_outside_run(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["agents.py", "--status", "--upload"])
 
     assert agents.main() == 2
+
+
+def test_pipeline_cli_preserves_nonexistent_absolute_linux_paths(monkeypatch):
+    """Regression test: CLI normalization must never treat non-existent absolute Linux paths as flags."""
+    from pathlib import Path
+
+    calls = []
+    nonexistent_project = Path("/tmp/nonexistent/pytest-linux-env/project_slug")
+    nonexistent_evidence = Path("/var/data/nonexistent/proofs/2026/evidence_file.json")
+
+    monkeypatch.setattr(
+        cli, "legacy_upload_command",
+        lambda project, evidence_path, **kwargs: calls.append((project, evidence_path, kwargs)) or 1,
+    )
+    monkeypatch.setattr(
+        sys, "argv", [
+            "pipeline.py",
+            "--upload-api", str(nonexistent_project),
+            "--evidence", str(nonexistent_evidence),
+            "--yes",
+            "--public",
+        ],
+    )
+
+    assert pipeline.main() == 1
+    assert calls == [(nonexistent_project.resolve(), nonexistent_evidence, {"public": True, "approve": True})]
+
+

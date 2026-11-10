@@ -1192,21 +1192,7 @@ def verify_all_projects() -> int:
     return code
 
 
-def main() -> int:
-    # Normalize slash-style CLI flags (/auto, /public, /verify-all, etc.) to --flags.
-    norm_argv = [sys.argv[0]]
-    for arg in sys.argv[1:]:
-        if arg.startswith("/") and len(arg) > 1 and not (arg.startswith("/Users") or arg.startswith("/private") or Path(arg).exists()):
-            norm_argv.append("--" + arg.lstrip("/"))
-        else:
-            norm_argv.append(arg)
-    sys.argv = norm_argv
-
-    argv = list(sys.argv)
-    if len(argv) > 1 and argv[1] == "build":
-        argv[1] = "--build"
-    sys.argv = argv
-
+def build_arg_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--configure", action="store_true")
     ap.add_argument("--verify-all", action="store_true")
@@ -1239,6 +1225,36 @@ def main() -> int:
     ap.add_argument("--chapters", type=Path, help="Generate and validate YouTube chapters from transcript")
     ap.add_argument("--swipe", type=Path, help="Find viral outlier videos beating channel median")
     ap.add_argument("--min-multiple", type=float, default=1.5, help="Multiplier threshold for viral outliers")
+    return ap
+
+
+def main() -> int:
+    ap = build_arg_parser()
+
+    # Normalize slash-style CLI flags (/auto, /public, /verify-all, etc.) to standard --flags.
+    # Only known declared flags are converted; filesystem paths (including non-existent absolute
+    # paths on Linux, macOS, or Windows) are strictly preserved as-is.
+    valid_slash_flags = {
+        opt.lstrip("-")
+        for action in ap._actions
+        for opt in action.option_strings
+        if opt.startswith("--")
+    }
+    norm_argv = [sys.argv[0]]
+    for arg in sys.argv[1:]:
+        if arg.startswith("/") and not arg.startswith("//"):
+            candidate = arg[1:].split("=", 1)[0]
+            if candidate in valid_slash_flags:
+                norm_argv.append("--" + arg[1:])
+                continue
+        norm_argv.append(arg)
+    sys.argv = norm_argv
+
+    argv = list(sys.argv)
+    if len(argv) > 1 and argv[1] == "build":
+        argv[1] = "--build"
+    sys.argv = argv
+
     args = ap.parse_args()
 
     upload_requested = args.upload is not None or args.upload_api is not None
