@@ -644,6 +644,7 @@ def generate_scene_image(
     lora_style: str | None = None,
     negative_prompt: str | None = None,
     auto_sharpen: bool = False,
+    genre: str | None = None,
 ) -> bool:
     """Generate an image via Apple Silicon MLX FLUX, retrying the same seed under lighter memory.
 
@@ -652,9 +653,9 @@ def generate_scene_image(
 
     `steps` defaults to the checkpoint's own distilled count, so callers should leave it unset
     unless they have a specific reason to deviate. `negative_prompt` is forwarded as
-    `--negative-prompt` (typically from `genre_director.get_negative_prompt(genre)`) on families
-    that accept it, and dropped with a log line on those that hard-reject it. `auto_sharpen` is
-    opt-in only: unrequested UnsharpMasking is what put ringing halos into clean FLUX frames.
+    `--negative-prompt` on families that accept it. On models rejecting `--negative-prompt`
+    (e.g. FLUX.3), `NegativePromptAgent` automatically converts negative constraints into
+    affirmative optical anchors and sanitizes negation traps.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     width = max(512, (width // 16) * 16)
@@ -663,6 +664,26 @@ def generate_scene_image(
     renderer = _renderer_for(model)
     if steps is None:
         steps = renderer.steps
+
+    effective_prompt = prompt
+    effective_negative = negative_prompt
+    inversion_applied = False
+    if not renderer.supports_negative_prompt:
+        try:
+            from tools.negative_prompt_agent import NegativePromptAgent
+            neg_agent = NegativePromptAgent()
+            custom_negs = [tok.strip() for tok in negative_prompt.split(",") if tok.strip()] if negative_prompt else None
+            res = neg_agent.process(
+                prompt=prompt,
+                genre=genre or "cinematic_35mm",
+                target_model=model,
+                custom_negatives=custom_negs,
+            )
+            effective_prompt = res.optimized_prompt
+            effective_negative = None
+            inversion_applied = True
+        except Exception as exc:
+            print(f"  [NegativePromptAgent Warning] Failed to invert negative constraints: {exc}")
 
     is_jpeg = output_path.suffix.lower() in [".jpg", ".jpeg"]
     actual_mflux_output = output_path.with_suffix(".png") if is_jpeg else output_path
@@ -687,7 +708,7 @@ def generate_scene_image(
             "--width", str(width),
             "--height", str(height),
             "--steps", str(cfg["steps"]),
-            "--prompt", prompt,
+            "--prompt", effective_prompt,
             "--output", str(actual_mflux_output),
         ]
         if lora_style:
@@ -696,12 +717,11 @@ def generate_scene_image(
         # saved seed still predicts the frame. Re-rolling would silently restage the scene.
         if seed is not None:
             cmd.extend(["--seed", str(seed)])
-        if negative_prompt:
-            if renderer.supports_negative_prompt:
-                cmd.extend(["--negative-prompt", negative_prompt])
-            elif attempt == 1:
-                print(f"  [MLX FLUX] {renderer.binary.name} rejects --negative-prompt, so the genre "
-                      f"negatives are dropped for this model.")
+        if effective_negative and renderer.supports_negative_prompt:
+            cmd.extend(["--negative-prompt", effective_negative])
+        elif attempt == 1 and inversion_applied:
+            print(f"  [NegativePromptAgent] {renderer.binary.name} rejects raw --negative-prompt; "
+                  f"constraints inverted into affirmative optical anchors.")
 
         print(f"  [{renderer.binary.name}] Attempt {attempt}/{len(configs)}: {output_path.name} "
               f"({width}x{height}, steps={cfg['steps']}, tile={cfg['tile']}, {cfg['why']})...")
@@ -814,6 +834,7 @@ def process_project(
             lora_style=sc.get("lora_style", lora_style),
             seed=idx * 17 + 42,
             negative_prompt=sc.get("negative_prompt") or project_negative,
+            genre=proj_data.get("genre"),
         ):
             success_count += 1
 

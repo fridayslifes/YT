@@ -1,0 +1,23 @@
+{
+  "id": "alex",
+  "name": "Alex",
+  "role": "The Knowledge Worker / Protagonist",
+  "age": "early 30s",
+  "wardrobe": "charcoal textured crewneck sweater, dark tailored trousers",
+  "facial_features": "short dark hair, determined thoughtful gaze, subtle stubble",
+  "style_lock": "35mm photorealistic film grain, authentic skin pores, volumetric natural lighting",
+  "fixed_seed": 42109,
+  "negative_anchors": [
+    "plastic skin",
+    "cartoon",
+    "anime",
+    "airbrushed",
+    "deformed fingers",
+    "oversaturated"
+  ],
+  "positive_anchors": [
+    "Subject: Alex, early 30s, wearing charcoal textured crewneck sweater, short dark hair, thoughtful gaze",
+    "Kodak Portra 400 tonal curve, authentic 35mm optical capture",
+    "natural volumetric lighting, subtle chiaroscuro shadows"
+  ]
+}

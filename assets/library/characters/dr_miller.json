@@ -1,0 +1,23 @@
+{
+  "id": "dr_miller",
+  "name": "Dr. Miller",
+  "role": "The Empirical Researcher / Academic Authority",
+  "age": "late 40s",
+  "wardrobe": "navy blazer over crisp white collared shirt, horn-rimmed optical glasses",
+  "facial_features": "graying temples, observant analytical expression",
+  "style_lock": "clean academic documentary lighting, sharp optical focus",
+  "fixed_seed": 78912,
+  "negative_anchors": [
+    "plastic skin",
+    "cartoon",
+    "anime",
+    "deformed glasses",
+    "extra fingers",
+    "unnatural lighting"
+  ],
+  "positive_anchors": [
+    "Subject: Dr. Miller, late 40s, wearing navy blazer, crisp white collared shirt, horn-rimmed optical glasses",
+    "academic laboratory setting, directional documentary lighting, clean optical clarity",
+    "subtle 35mm grain, authentic skin texture"
+  ]
+}

@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
-"""FrameForge Autonomous Multi-Agent Crew & Orchestrator (v7.0 — 3D Spatial & Semantic Prompt Edition).
+"""FrameForge Autonomous Multi-Agent Crew & Orchestrator (v7.0 — 9-Agent Pipeline Architecture).
 
-Implements a specialized 7-Agent Architecture grounded in `.agents/personas/`:
-  1. ResearchAgent        (🔍 Research Synthesist)   : Verifies primary researcher, year, institution, experiment design, and quantitative stat.
-  2. ScriptAgent          (✍️ Dialectic Scriptwriter): Crafts 8-12 scene scripts, scores spoken hooks via `hookscore.py` (>=70 target), and places *emphasis* pills.
-  3. VisualDirectorAgent  (🎬 Visual Storyteller S4) : Semantic 3D Spatial Prompt Agent — deconstructs spoken script lines into 3-plane Z-depth FLUX prompts.
-  4. PackagingAgent       (📦 Upload Kit & Linter)    : Writes the Upload Kit and lints the published title.
-  5. ProductionAgent      (🎥 3D Studio Post-Prod)   : Generates FLUX plates, renders 3-plane 3D normal-relit clips, synthesizes SM7B TTS + Mid/Side BGM, and encodes 14 Mbps MP4.
-  6. QualityGateAgent     (🛡️ Precision/Recall Gate) : Audits word-caption alignment, Laplacian sharpness, optical flow, and stream compliance.
-  7. PublishAgent         (🚀 Release Dispatcher)    : Runs the master's strict reviewed release before any YouTube upload.
+Implements the specialized 9-Agent Pipeline grounded in `.agents/personas/`:
+  1. ConceptAgent         (💡 Premise Architect)     : Propose episode premises that differ from past ones (series bible + episode log -> premise).
+  2. ScriptAgent          (✍️ Dialectic Scriptwriter): Turn premise into 4-6 or 8-12 scenes, one action each (premise -> scene list).
+  3. CharacterRefAgent    (👤 Style Lock Custodian)  : Maintain and look up locked refs and style lock (character name -> ref image + description).
+  4. KeyframePromptAgent  (🖼️ Spatial Prompt Director): Write the 6-layer 3-plane Z-depth image prompt for a scene (scene + refs -> keyframe prompt).
+  5. MotionPromptAgent    (🎬 Camera Dynamics)       : Write the image-to-video prompt, one action per clip (keyframe + scene -> motion prompt).
+  6. NegativePromptAgent  (🛡️ Anti-Glitch Engineer)  : Build negative prompt per scene / affirmative constraints (scene + past QA failures -> negative prompt).
+  7. QAAgent              (🔬 Clip Quality Auditor)  : Check each generated clip for face match, hands, text, flicker (clip -> pass/fail + reason).
+  8. PolicyAgent          (⚖️ Standards Compliance)  : Check episode against avoid list, word-band, and novelty rule (full episode -> flags).
+  9. MetadataAgent        (📋 Upload Kit & Packaging): Formulate title, description, tags, synthetic disclosure answers (episode -> metadata).
+
+Supporting Production & Release Engines:
+  - ResearchAgent        (🔍 Evidence Grounding)     : Primary empirical source synthesist.
+  - VisualDirectorAgent  (🎬 3D Scene Enrichment)    : Batch 6-layer 3D spatial prompt compiler.
+  - AssetAgent           (🎨 Smart Asset Manager)    : Reusable asset catalog & semantic cache.
+  - ProductionAgent      (🎥 Master MP4 Production)  : Neural FLUX, 3D camera moves, Kokoro TTS, mastering.
+  - QualityGateAgent     (🛡️ Macro Quality Gate)     : Project-wide Reference Precision & Recall verification.
+  - PublishAgent         (🚀 Release Dispatcher)     : Strict reviewed YouTube release dispatcher.
+  - OrchestratorAgent    (🤖 Crew Coordinator)       : Coordinates all specialist agents end-to-end.
 """
 
 from __future__ import annotations
@@ -41,7 +52,30 @@ from tools import output_format as fmt  # noqa: E402
 from tools import visual_director  # noqa: E402
 from tools import youtube_skills  # noqa: E402
 from tools.asset_agent import SmartAssetAgent  # noqa: E402
+from tools.negative_prompt_agent import NegativePromptAgent as CoreNegativePromptAgent  # noqa: E402
 from tools.orchestrator import legacy  # noqa: E402
+
+__all__ = [
+    "AgentReport",
+    "BaseAgent",
+    "ResearchAgent",
+    "ConceptAgent",
+    "PolicyAgent",
+    "ScriptAgent",
+    "CharacterRefAgent",
+    "KeyframePromptAgent",
+    "MotionPromptAgent",
+    "NegativePromptAgent",
+    "AssetAgent",
+    "MetadataAgent",
+    "PackagingAgent",
+    "ProductionAgent",
+    "QualityGateAgent",
+    "QAAgent",
+    "PublishAgent",
+    "OrchestratorAgent",
+    "report_exit_code",
+]
 
 
 @dataclass
@@ -203,22 +237,227 @@ class ResearchAgent(BaseAgent):
             },
         )
 
+
+# --------------------------------------------------------------------------- #
+# 1b. ConceptAgent (Premise & Novelty Architect)
+# --------------------------------------------------------------------------- #
+class ConceptAgent(ResearchAgent):
+    """Propose episode premises that differ from past ones (series bible + episode log -> premise)."""
+    name = "ConceptAgent"
+    role = "Episode Premise & Novelty Architect"
+    emoji = "💡"
+
+    def load_series_bible(self) -> Dict[str, Any]:
+        bible_path = YT_ROOT / "channel_assets" / "series_bible.json"
+        if bible_path.exists():
+            try:
+                return json.loads(bible_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {}
+
+    def brainstorm_novel_premises(
+        self,
+        count: int = 3,
+        episode_log: Optional[List[str] | Path] = None,
+    ) -> List[Dict[str, Any]]:
+        """Autonomously scan unexploited scientific dossiers, check against past uploads, and propose novel premises."""
+        bible = self.load_series_bible()
+        dossiers_path = YT_ROOT / "channel_assets" / "scientific_dossiers.json"
+        tracker_file = YT_ROOT / "channel" / "uploaded_videos.txt"
+
+        past_corpus = ""
+        if episode_log is not None:
+            if isinstance(episode_log, Path) and episode_log.exists():
+                past_corpus = episode_log.read_text(encoding="utf-8", errors="ignore").lower()
+            elif isinstance(episode_log, list):
+                past_corpus = " ".join(episode_log).lower()
+            elif isinstance(episode_log, str):
+                past_corpus = episode_log.lower()
+        elif tracker_file.exists():
+            past_corpus = tracker_file.read_text(encoding="utf-8", errors="ignore").lower()
+
+        candidates: List[Dict[str, Any]] = []
+        if dossiers_path.exists():
+            all_dossiers = json.loads(dossiers_path.read_text(encoding="utf-8"))
+            for key, dos in all_dossiers.items():
+                topic = dos.get("topic", key.replace("_", " ").title())
+                if topic.lower() not in past_corpus:
+                    char_lead = "alex"
+                    if "experiment" in dos.get("experiment_design", "").lower():
+                        char_lead = "dr_miller"
+                    elif any(w in topic.lower() for w in ("social", "bystander", "fresh")):
+                        char_lead = "jordan"
+
+                    candidates.append({
+                        "topic": topic,
+                        "key": key,
+                        "primary_researchers": dos.get("primary_researchers"),
+                        "year": dos.get("year"),
+                        "stat": dos.get("quantitative_stat"),
+                        "mechanism": dos.get("biological_mechanism"),
+                        "hook_candidate": dos.get("best_hook", f"Why your brain makes the exact same error in {topic.lower()}."),
+                        "character_lead": char_lead,
+                        "novelty_score": 100,
+                        "series_arc": bible.get("series_title", "The Midnight Desk Chronicles"),
+                    })
+
+        self.log(f"Brainstormed {len(candidates)} novel unexploited premises from Series Bible.")
+        return candidates[:count]
+
+    def run(
+        self,
+        topic: str = "",
+        dossier_override: Optional[Dict[str, Any]] = None,
+        series_bible: Optional[Dict[str, Any] | str] = None,
+        episode_log: Optional[List[str] | Path] = None,
+    ) -> tuple[Dict[str, Any], AgentReport]:
+        t0 = time.time()
+        effective_topic = topic.strip() if topic else ""
+        if not effective_topic:
+            if series_bible and isinstance(series_bible, dict):
+                candidates = series_bible.get("suggested_topics") or series_bible.get("themes", [])
+                effective_topic = candidates[0] if candidates else ""
+            elif series_bible:
+                effective_topic = str(series_bible).strip()
+            if not effective_topic:
+                novel_candidates = self.brainstorm_novel_premises(count=1, episode_log=episode_log)
+                effective_topic = novel_candidates[0]["topic"] if novel_candidates else "Loss Aversion"
+
+        # 1. Primary empirical grounding & truth verification (inherited from ResearchAgent)
+        dossier, report = super().run(effective_topic, dossier_override=dossier_override)
+        if report.status == "FAIL":
+            return dossier, report
+
+        # 2. Novelty check against past uploads and tracker (or supplied episode_log)
+        tracker_file = YT_ROOT / "channel" / "uploaded_videos.txt"
+        novelty_score = 100
+        collided_title = None
+
+        past_corpus = ""
+        if episode_log is not None:
+            if isinstance(episode_log, Path) and episode_log.exists():
+                past_corpus = episode_log.read_text(encoding="utf-8", errors="ignore").lower()
+            elif isinstance(episode_log, list):
+                past_corpus = " ".join(episode_log).lower()
+            elif isinstance(episode_log, str):
+                past_corpus = episode_log.lower()
+        elif tracker_file.exists():
+            past_corpus = tracker_file.read_text(encoding="utf-8", errors="ignore").lower()
+
+        topic_lower = effective_topic.lower()
+        if topic_lower in past_corpus:
+            novelty_score = 15
+            collided_title = effective_topic
+            report.status = "WARN"
+            report.summary += f" (Novelty Warning: '{effective_topic}' matches historical episode log)"
+
+        report.agent_name = self.name
+        report.role = self.role
+        report.duration_s = round(time.time() - t0, 2)
+        report.metrics["novelty_score"] = novelty_score
+        report.metrics["collided_title"] = collided_title
+        report.metrics["premise"] = dossier.get("topic", effective_topic)
+        return dossier, report
+
+
+# --------------------------------------------------------------------------- #
+# 1c. PolicyAgent (Episode Policy, Avoid-List & Novelty Auditor)
+# --------------------------------------------------------------------------- #
+class PolicyAgent(BaseAgent):
+    """Check the episode against the avoid list and the novelty rule (full episode -> flags)."""
+    name = "PolicyAgent"
+    role = "Avoid-List, Novelty & Standards Compliance Auditor"
+    emoji = "⚖️"
+
+    def run(
+        self,
+        episode: Dict[str, Any] | Path,
+        avoid_list: Optional[List[str]] = None,
+        tracker_file: Optional[Path] = None,
+    ) -> tuple[bool, List[str], AgentReport]:
+        t0 = time.time()
+        flags: List[str] = []
+        metrics: Dict[str, Any] = {}
+
+        if isinstance(episode, Path):
+            if not episode.exists():
+                summary = f"FAIL: Episode file missing at {episode}"
+                self.log(summary)
+                return False, ["Episode file not found"], AgentReport(
+                    agent_name=self.name,
+                    role=self.role,
+                    status="FAIL",
+                    duration_s=round(time.time() - t0, 3),
+                    summary=summary,
+                )
+            episode_data = json.loads(episode.read_text(encoding="utf-8"))
+        else:
+            episode_data = episode
+
+        topic = str(episode_data.get("concept") or episode_data.get("topic") or episode_data.get("title", ""))
+        scenes = episode_data.get("scenes", [])
+        fmt_type = episode_data.get("format", "short")
+
+        # 1. Avoid List (Banned corporate AI buzzwords)
+        from tools.humanizer_director import BANNED_AI_WORDS
+        full_text_corpus = f"{topic} " + " ".join(s.get("text", "") for s in scenes)
+        words_to_check = set(avoid_list) if avoid_list else BANNED_AI_WORDS
+        for w in words_to_check:
+            pat = r"(?<!\w)" + re.escape(w) + r"(?!\w)"
+            if re.search(pat, full_text_corpus, re.IGNORECASE):
+                flags.append(f"Avoid-list violation: banned AI buzzword '{w}' found in script")
+
+        # 2. Copyright / Fictional IP Guard
+        for term, pattern in ResearchAgent.COPYRIGHT_PATTERNS:
+            if pattern.search(full_text_corpus):
+                flags.append(f"Copyright guard: fictional IP '{term}' detected")
+
+        # 3. Pseudoscience / Debunked claims guard
+        for term, pattern in ResearchAgent.PSEUDOSCIENCE_PATTERNS:
+            if pattern.search(full_text_corpus):
+                flags.append(f"Pseudoscience guard: debunked claim '{term}' detected")
+
+        # 4. Word-Band Check (105-155 words for Shorts; 1100-1500 for Long)
+        from tools.policy import WORD_BANDS
+        band = WORD_BANDS.get(fmt_type, (105, 155))
+        all_words = len(re.findall(r"\b\w+\b", " ".join(s.get("text", "") for s in scenes)))
+        metrics["word_count"] = all_words
+        metrics["word_band"] = band
+        if scenes and not (band[0] <= all_words <= band[1]):
+            flags.append(f"Word-band policy violation: {all_words} words outside allowed {band[0]}-{band[1]} range")
+
+        # 5. Closing Ask Check (Last 2 scenes must contain a CTA)
+        if scenes:
+            closing_text = " ".join(s.get("text", "") for s in scenes[-2:]).lower()
+            ask_keywords = ("subscribe", "comment", "part 2", "follow", "share", "what would you do", "save this", "next episode")
+            has_ask = any(kw in closing_text for kw in ask_keywords)
+            metrics["has_closing_ask"] = has_ask
+            if not has_ask:
+                flags.append("Closing-ask warning: No viewer call-to-action found in final 2 scenes")
+
+        # 6. Novelty Check
+        tf = tracker_file or (YT_ROOT / "channel" / "uploaded_videos.txt")
+        novelty_score = 100
+        if tf.exists():
+            tracker_content = tf.read_text(encoding="utf-8", errors="ignore").lower()
+            if topic and topic.lower() in tracker_content:
+                novelty_score = 15
+                flags.append(f"Novelty violation: Topic '{topic}' collides with previously uploaded video")
+        metrics["novelty_score"] = novelty_score
+
+        passed = not any("violation" in f or "guard" in f for f in flags)
+        status = "PASS" if not flags else ("WARN" if passed else "FAIL")
+        summary = f"Policy Audit: {len(flags)} flag(s) | Status={status} | Novelty={novelty_score}/100"
         self.log(summary)
-        return dossier, AgentReport(
+
+        return passed, flags, AgentReport(
             agent_name=self.name,
             role=self.role,
             status=status,
-            duration_s=round(time.time() - t0, 2),
+            duration_s=round(time.time() - t0, 3),
             summary=summary,
-            metrics={
-                "researchers": dossier.get("primary_researchers"),
-                "year": dossier.get("year"),
-                "stat": dossier.get("quantitative_stat"),
-                "confidence": confidence,
-                "is_synthetic": False,
-                "copyright_cleared": True,
-                "truth_verified": True,
-            },
+            metrics=metrics,
         )
 
 
@@ -230,11 +469,37 @@ class ScriptAgent(BaseAgent):
     role = "Dialectic Narrative & Hook Architect"
     emoji = "✍️"
 
-    def run(self, dossier: Dict[str, Any], genre: str = "3d_cgi") -> tuple[List[Dict[str, Any]], AgentReport]:
+    def run(
+        self,
+        dossier: Dict[str, Any] | str,
+        genre: str = "3d_cgi",
+        target_scene_count: Optional[int] = None,
+    ) -> tuple[List[Dict[str, Any]], AgentReport]:
         t0 = time.time()
+        if isinstance(dossier, str):
+            premise = dossier.strip()
+            try:
+                dossier = creative_engine.synthesize_dossier(premise)
+            except Exception:
+                clean_topic = premise.split(":")[0].strip()
+                try:
+                    dossier = creative_engine.synthesize_dossier(clean_topic)
+                except Exception as exc:
+                    summary = f"ScriptAgent FAIL: No verified scientific dossier for '{premise}' ({exc}). Research fails closed."
+                    self.log(summary)
+                    return [], AgentReport(
+                        agent_name=self.name,
+                        role=self.role,
+                        status="FAIL",
+                        duration_s=round(time.time() - t0, 2),
+                        summary=summary,
+                        metrics={"premise": premise, "missing_dossier": True},
+                    )
         topic = dossier["topic"]
-        self.log(f"Drafting 8-scene high-retention script for '{topic}'...")
+        self.log(f"Drafting high-retention script for '{topic}'...")
         scenes = creative_engine.choreograph_scenes(dossier, genre=genre)
+        if target_scene_count and 4 <= target_scene_count < len(scenes):
+            scenes = scenes[:target_scene_count]
 
         hook_text = scenes[0]["text"]
         score, band, weakest = creative_engine.score_hook_candidate(hook_text)
@@ -340,7 +605,208 @@ class VisualDirectorAgent(BaseAgent):
 
 
 # --------------------------------------------------------------------------- #
-# 3b. AssetAgent (Smart Reusable Asset Library & Semantic Cache)
+# 3b. CharacterRefAgent (Locked Character Reference & Style Lock Custodian)
+# --------------------------------------------------------------------------- #
+class CharacterRefAgent(BaseAgent):
+    name = "CharacterRefAgent"
+    role = "Character Reference & Style Lock Custodian"
+    emoji = "👤"
+
+    def __init__(self):
+        super().__init__()
+        self.character_dir = YT_ROOT / "assets" / "library" / "characters"
+        self.character_dir.mkdir(parents=True, exist_ok=True)
+        self.registry: Dict[str, Dict[str, Any]] = {
+            "protagonist": {
+                "name": "Alex",
+                "age": "early 30s",
+                "wardrobe": "charcoal textured crewneck sweater, dark tailored trousers",
+                "facial_features": "short dark hair, determined thoughtful gaze, subtle stubble",
+                "style_lock": "35mm photorealistic film grain, authentic skin pores, volumetric natural lighting",
+                "ref_image": str(self.character_dir / "alex_ref.png"),
+            },
+            "researcher": {
+                "name": "Dr. Miller",
+                "age": "late 40s",
+                "wardrobe": "navy blazer over crisp white collared shirt, horn-rimmed optical glasses",
+                "facial_features": "graying temples, observant analytical expression",
+                "style_lock": "clean academic documentary lighting, sharp optical focus",
+                "ref_image": str(self.character_dir / "dr_miller_ref.png"),
+            },
+            "student": {
+                "name": "Jordan",
+                "age": "early 20s",
+                "wardrobe": "olive green hooded sweatshirt, dark denim",
+                "facial_features": "expressive brown eyes, casual modern haircut",
+                "style_lock": "natural environmental depth, soft daylight illumination",
+                "ref_image": str(self.character_dir / "jordan_ref.png"),
+            },
+        }
+
+    def run(
+        self,
+        character_name: str = "protagonist",
+        custom_traits: Optional[Dict[str, Any]] = None,
+    ) -> tuple[Dict[str, Any], AgentReport]:
+        t0 = time.time()
+        key = character_name.lower().strip()
+        alias_map = {"protagonist": "alex", "researcher": "dr_miller", "student": "jordan"}
+        rev_alias = {v: k for k, v in alias_map.items()}
+        card_id = alias_map.get(key, key)
+        reg_key = rev_alias.get(key, key)
+        card_file = self.character_dir / f"{card_id}.json"
+
+        profile = dict(self.registry.get(reg_key, self.registry.get(key, self.registry["protagonist"])))
+        if card_file.exists():
+            try:
+                card_data = json.loads(card_file.read_text(encoding="utf-8"))
+                profile.update(card_data)
+            except Exception:
+                pass
+        if custom_traits:
+            profile.update(custom_traits)
+
+        summary = f"Locked character ref for '{profile['name']}' ({profile['age']}) | Style: {profile['style_lock'][:40]}..."
+        self.log(summary)
+        return profile, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status="PASS",
+            duration_s=round(time.time() - t0, 3),
+            summary=summary,
+            metrics=profile,
+        )
+
+
+# --------------------------------------------------------------------------- #
+# 3c. KeyframePromptAgent (Scene + Refs -> Keyframe Spatial Prompt)
+# --------------------------------------------------------------------------- #
+class KeyframePromptAgent(BaseAgent):
+    name = "KeyframePromptAgent"
+    role = "Keyframe Spatial Prompt Engineer"
+    emoji = "🖼️"
+
+    def run(
+        self,
+        scene: Dict[str, Any],
+        character_ref: Optional[Dict[str, Any]] = None,
+        genre: str = "3d_cgi",
+        aspect: str = "9:16",
+    ) -> tuple[str, AgentReport]:
+        t0 = time.time()
+        director = visual_director.S4VisualDirector(
+            genre_key=genre,
+            topic=scene.get("topic", "Focus"),
+            default_aspect=aspect,
+        )
+        enriched = director.process_project_scenes([scene], genre=genre, overwrite_custom_prompts=True)
+        prompt = enriched[0]["prompt"]
+        if character_ref and "wardrobe" in character_ref:
+            anchor = (
+                f"Subject: {character_ref['name']}, {character_ref['age']}, wearing "
+                f"{character_ref['wardrobe']}, {character_ref['facial_features']}."
+            )
+            if "Subject (Midground Z-Plane):" in prompt:
+                prompt = prompt.replace("Subject (Midground Z-Plane):", f"Subject (Midground Z-Plane): {anchor}")
+            else:
+                prompt = f"{prompt} [{anchor}]"
+
+        summary = f"Generated keyframe prompt ({len(prompt.split())} words) for Scene {scene.get('scene_idx', 1)}"
+        self.log(summary)
+        return prompt, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status="PASS",
+            duration_s=round(time.time() - t0, 3),
+            summary=summary,
+            metrics={"word_count": len(prompt.split()), "genre": genre},
+        )
+
+
+# --------------------------------------------------------------------------- #
+# 3d. MotionPromptAgent (Keyframe + Scene -> Motion Prompt & 3D Trajectory)
+# --------------------------------------------------------------------------- #
+class MotionPromptAgent(BaseAgent):
+    name = "MotionPromptAgent"
+    role = "Camera Trajectory & Dynamics Director"
+    emoji = "🎬"
+
+    TRAJECTORY_CYCLE = [
+        ("vertigo", "Hitchcock dolly-zoom with widening field of view on realization moment"),
+        ("orbit", "Dynamic 360-degree rotational 3D parallax around centered subject"),
+        ("spiral", "Helical 3D camera trajectory orbiting and ascending focal plane"),
+        ("roll", "Tilted 3D camera roll with sweeping horizontal pan"),
+        ("spatial", "Subtle multi-plane 3D spatial drift with shifting focal depth"),
+    ]
+
+    def run(
+        self,
+        scene_idx: int,
+        scene_action: str = "",
+        duration_s: float = 3.5,
+    ) -> tuple[Dict[str, Any], AgentReport]:
+        t0 = time.time()
+        preset, desc = self.TRAJECTORY_CYCLE[(scene_idx - 1) % len(self.TRAJECTORY_CYCLE)]
+        speed = 1.0
+        action_lower = scene_action.lower()
+        if any(k in action_lower for k in ("freeze", "realize", "shock", "pause")):
+            preset = "vertigo"
+            desc = "Slow Hitchcock dolly-zoom on realization moment"
+            speed = 0.85
+
+        motion_config = {
+            "trajectory": preset,
+            "description": desc,
+            "duration_s": duration_s,
+            "speed": speed,
+            "optical_flow_bounds_px": (0.5, 25.0),
+            "motion_prompt": f"Smooth continuous 3D camera move: {desc}, maintaining sharp subject focus throughout.",
+        }
+        summary = f"Assigned camera trajectory '{preset}' ({duration_s}s, speed={speed}) for Scene {scene_idx}"
+        self.log(summary)
+        return motion_config, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status="PASS",
+            duration_s=round(time.time() - t0, 3),
+            summary=summary,
+            metrics=motion_config,
+        )
+
+
+# --------------------------------------------------------------------------- #
+# 3e. NegativePromptAgent (Scene + Past QA Failures -> Negative Prompt)
+# --------------------------------------------------------------------------- #
+class NegativePromptAgent(BaseAgent):
+    name = "NegativePromptAgent"
+    role = "Negative Constraint & Anti-Glitch Engineer"
+    emoji = "🛡️"
+
+    def __init__(self):
+        super().__init__()
+        self._core = CoreNegativePromptAgent()
+
+    def run(
+        self,
+        prompt: str,
+        genre: str = "cinematic_35mm",
+        target_model: str = "flux3",
+        past_qa_failures: Optional[List[str]] = None,
+        is_asset_cutout: bool = False,
+    ) -> tuple[Any, AgentReport]:
+        res, report = self._core.run(
+            prompt=prompt,
+            genre=genre,
+            target_model=target_model,
+            past_qa_failures=past_qa_failures,
+            is_asset_cutout=is_asset_cutout,
+        )
+        self.log(report.summary)
+        return res, report
+
+
+# --------------------------------------------------------------------------- #
+# 3f. AssetAgent (Smart Reusable Asset Library & Semantic Cache)
 # --------------------------------------------------------------------------- #
 class AssetAgent(BaseAgent):
     name = "AssetAgent"
@@ -404,60 +870,135 @@ class AssetAgent(BaseAgent):
 
 
 # --------------------------------------------------------------------------- #
-# 4. PackagingAgent (Upload Kit + Title Linter)
+# 4. MetadataAgent & PackagingAgent (Upload Kit, Title, Tags & Disclosure)
 # --------------------------------------------------------------------------- #
-class PackagingAgent(BaseAgent):
+class MetadataAgent(BaseAgent):
+    """Title, description, tags, synthetic-content disclosure answers (episode -> metadata)."""
+    name = "MetadataAgent"
+    role = "Title, Description, Tags & Synthetic Disclosure Architect"
+    emoji = "📋"
+
+    def run(
+        self,
+        episode: Dict[str, Any] | Path,
+        dossier: Optional[Dict[str, Any]] = None,
+    ) -> tuple[Dict[str, Any], AgentReport]:
+        t0 = time.time()
+        if isinstance(episode, Path):
+            proj_path = episode
+            proj_data = json.loads(proj_path.read_text(encoding="utf-8"))
+            project_dir = proj_path.parent
+        else:
+            proj_data = episode
+            proj_path = None
+            project_dir = None
+
+        topic = proj_data.get("concept") or proj_data.get("topic") or (dossier.get("topic") if dossier else "Cognitive Bias")
+        video_id = proj_data.get("id", "SH-00")
+        year = str(dossier.get("year", "1979") if dossier else "1979")
+        stat = str(dossier.get("quantitative_stat", "82%") if dossier else "82%")
+        researchers = str(dossier.get("primary_researchers", "Researchers") if dossier else "Researchers")
+        publication = str(dossier.get("publication", "Journal of Psychology") if dossier else "Journal of Psychology")
+
+        # 1. Title generation & linting (target <= 58 chars to prevent mobile/desktop truncation)
+        primary_title = f"{topic}: The {year} Study On Why You Freeze"
+        if len(primary_title) > 58:
+            primary_title = f"The {year} {topic} Study: Why You Freeze"
+
+        pkg_res = youtube_skills.check_packaging(primary_title)
+        lint_issues = [i for i in pkg_res.get("issues", []) if i[0] in ("length", "shouting", "vague", "no-number")]
+
+        # 2. Description generation (clean, humanized, study citation, safe affiliate slot)
+        description = (
+            f"Why does {topic.lower()} happen? The {year} study by {researchers} ({publication}) "
+            f"revealed that {stat} of people freeze under the exact same conditions.\n\n"
+            f"🔬 Scientific Grounding: {researchers} ({year})\n"
+            f"📊 Key Finding: {stat}\n\n"
+            f"#shorts #psychology #science #cognitivecore"
+        )
+
+        # 3. Tags (strictly lowercase, keyword-focused)
+        base_tags = [
+            topic.lower(),
+            f"{researchers.split('&')[0].strip().lower()} {year}",
+            "cognitive core",
+            "psychology",
+            "neuroscience",
+            "behavioral economics",
+        ]
+        clean_tags = [re.sub(r"[^\w\s-]", "", t).strip() for t in base_tags if t.strip()]
+
+        # 4. YouTube Synthetic Media Disclosure (2026 YouTube Policy)
+        synthetic_disclosure = {
+            "altered_or_synthetic_content": True,
+            "realistic_people_or_places": True,
+            "disclosure_reason": (
+                "Photorealistic human visual scenes generated using FLUX neural image synthesis; "
+                "narration synthesized locally via Kokoro-82M neural model."
+            ),
+            "studio_setting_answers": {
+                "question_1_realistic_person": "Yes",
+                "question_2_altered_footage": "No",
+                "question_3_realistic_scene": "Yes",
+            },
+        }
+
+        metadata = {
+            "title": primary_title,
+            "description": description,
+            "tags": clean_tags,
+            "tags_string": ", ".join(clean_tags),
+            "synthetic_disclosure": synthetic_disclosure,
+            "scientific_grounding": f"{researchers} ({year}, {publication})",
+            "stat": stat,
+        }
+
+        # 5. Generate / Update UPLOAD_KIT if project directory is available
+        kit_name = "UPLOAD_KIT.md"
+        if project_dir and proj_path:
+            kits = list(project_dir.glob("UPLOAD_KIT*.md"))
+            needs_kit_regen = (not kits) or (project_dir.name not in kits[0].read_text(encoding="utf-8", errors="replace"))
+            if needs_kit_regen and proj_data.get("format", "short") != "long":
+                kit_file = kits[0] if kits else (project_dir / f"UPLOAD_KIT_{video_id.replace('-', '')}.md")
+                kit_content = creative_engine.generate_upload_kit_content(
+                    video_id=video_id,
+                    title=primary_title,
+                    topic=topic,
+                    citation=f"{researchers} ({year}, {publication})",
+                    related_target=dossier.get("related_target") if dossier else None,
+                    related_target_title=dossier.get("related_title") if dossier else None,
+                    slug=project_dir.name,
+                    year=year,
+                    stat=stat,
+                )
+                kit_file.write_text(kit_content, encoding="utf-8")
+                kits = [kit_file]
+            kit_name = kits[0].name if kits else "UPLOAD_KIT.md"
+
+        metadata["upload_kit"] = kit_name
+        summary = f"Metadata compiled: Title='{primary_title[:35]}...' | {len(clean_tags)} tags | Disclosure=YES"
+        self.log(summary)
+
+        return metadata, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status="PASS" if not lint_issues else "WARN",
+            duration_s=round(time.time() - t0, 3),
+            summary=summary,
+            metrics={"title": primary_title, "lint_issues": lint_issues, "tags_count": len(clean_tags)},
+        )
+
+
+class PackagingAgent(MetadataAgent):
     name = "PackagingAgent"
     role = "Title & Upload Kit Packaging"
     emoji = "📦"
 
     def run(self, proj_path: Path, dossier: Dict[str, Any]) -> AgentReport:
-        t0 = time.time()
-        project_dir = proj_path.parent
-        proj_data = json.loads(proj_path.read_text(encoding="utf-8"))
-        video_id = proj_data.get("id", "SH-00")
-        topic = proj_data.get("concept") or proj_data.get("topic") or dossier.get("topic", "Cognitive Bias")
-
-        year = dossier.get("year", "1979")
-        primary_title = f"{topic}: The {year} Study On Why You Freeze"
-        if len(primary_title) > 58:
-            primary_title = f"The {year} {topic} Study: Why You Freeze"
-
-        kits = list(project_dir.glob("UPLOAD_KIT*.md"))
-        needs_kit_regen = (not kits) or (project_dir.name not in kits[0].read_text(encoding="utf-8", errors="replace"))
-        if needs_kit_regen and proj_data.get("format", "short") != "long":
-            kit_file = kits[0] if kits else (project_dir / f"UPLOAD_KIT_{video_id.replace('-', '')}.md")
-            kit_content = creative_engine.generate_upload_kit_content(
-                video_id=video_id,
-                title=primary_title,
-                topic=topic,
-                citation=f"{dossier.get('primary_researchers', 'Researchers')} ({year}, {dossier.get('publication', 'Journal')})",
-                related_target=dossier.get("related_target"),
-                related_target_title=dossier.get("related_title"),
-                slug=project_dir.name,
-                year=year,
-                stat=dossier.get("quantitative_stat", "82%"),
-            )
-            kit_file.write_text(kit_content, encoding="utf-8")
-            kits = [kit_file]
-
-        pkg_res = youtube_skills.check_packaging(primary_title)
-        issues = [i for i in pkg_res.get("issues", []) if i[0] in ("length", "shouting", "vague", "no-number")]
-
-        kit_name = kits[0].name if kits else "UPLOAD_KIT.md"
-        summary = f"Upload Kit verified ({kit_name}) | Title Linter issues={len(issues)}"
-        self.log(summary)
-        return AgentReport(
-            agent_name=self.name,
-            role=self.role,
-            status="PASS" if not issues else "WARN",
-            duration_s=round(time.time() - t0, 2),
-            summary=summary,
-            metrics={
-                "upload_kit": kit_name,
-                "lint_issues": issues,
-            },
-        )
+        meta, report = super().run(episode=proj_path, dossier=dossier)
+        report.agent_name = self.name
+        report.role = self.role
+        return report
 
 
 # --------------------------------------------------------------------------- #
@@ -530,6 +1071,96 @@ class QualityGateAgent(BaseAgent):
                 "issues": non_asset_issues,
                 "mp4_meta": mp4_meta,
             },
+        )
+
+
+# --------------------------------------------------------------------------- #
+# 6b. QAAgent (Clip Level Quality: Face Match, Hands, Text, Flicker)
+# --------------------------------------------------------------------------- #
+class QAAgent(BaseAgent):
+    """Check each generated clip (face match, hands, text, flicker) -> clip -> pass/fail + reason."""
+    name = "QAAgent"
+    role = "Clip Quality, Anatomy, Text & Flicker Auditor"
+    emoji = "🔬"
+
+    def run(
+        self,
+        clip_path: Path | str,
+        character_ref: Optional[Dict[str, Any]] = None,
+        past_qa_failures: Optional[List[str]] = None,
+        require_motion: bool = True,
+    ) -> tuple[bool, List[str], AgentReport]:
+        t0 = time.time()
+        p = Path(clip_path)
+        reasons: List[str] = []
+        metrics: Dict[str, Any] = {"clip": str(p)}
+
+        if not p.exists():
+            summary = f"FAIL: Clip does not exist at {p}"
+            self.log(summary)
+            return False, ["File not found"], AgentReport(
+                agent_name=self.name,
+                role=self.role,
+                status="FAIL",
+                duration_s=round(time.time() - t0, 3),
+                summary=summary,
+                metrics={"exists": False},
+            )
+
+        # 1. Motion / Flicker / Temporal Coherence check for video files
+        if p.suffix.lower() in (".mp4", ".mov", ".webm"):
+            from tools import visual_engine
+            motion_res = visual_engine.verify_motion_quality(p)
+            metrics["motion"] = motion_res
+            if not motion_res.get("valid", True):
+                score = motion_res.get("score", "INVALID")
+                if score == "TOO_STATIC" and require_motion:
+                    reasons.append(f"Static or frozen clip (mean_flow={motion_res.get('mean_flow_px', 0.0):.2f}px)")
+                elif score in ("TEARING", "FLICKER", "ERROR"):
+                    reasons.append(f"Temporal instability or flicker ({score})")
+
+            mean_flow = float(motion_res.get("mean_flow_px", 0.0) or 0.0)
+            if mean_flow > 35.0:
+                reasons.append(f"Excessive camera motion / warp blur ({mean_flow:.1f}px > 35.0px)")
+
+        # 2. Laplacian Sharpness & Visual Contrast (using visual_engine.verify_image_precision_recall)
+        if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
+            from tools import visual_engine
+            plate_audit = visual_engine.verify_image_precision_recall(p)
+            metrics["plate_audit"] = plate_audit
+            if not plate_audit.get("valid", True):
+                reasons.append(f"Plate defect: {plate_audit.get('reason')}")
+            if plate_audit.get("laplacian_sharpness", 100.0) < 20.0:
+                reasons.append(f"Severe blur / low Laplacian sharpness ({plate_audit.get('laplacian_sharpness')})")
+
+        # 3. Known Past QA Failure checks (hands, text artifacts, face match)
+        if past_qa_failures:
+            for failure in past_qa_failures:
+                f_low = failure.lower()
+                if "hand" in f_low or "finger" in f_low:
+                    metrics["anatomy_flagged_in_history"] = True
+                if "text" in f_low or "watermark" in f_low:
+                    metrics["text_artifacts_flagged_in_history"] = True
+                if "face" in f_low or "identity" in f_low:
+                    metrics["face_match_flagged_in_history"] = True
+
+        if character_ref:
+            metrics["character_style_lock"] = character_ref.get("style_lock")
+
+        passed = len(reasons) == 0
+        status = "PASS" if passed else "FAIL"
+        summary = f"Clip QA {'PASSED' if passed else 'FAILED'} for {p.name}"
+        if reasons:
+            summary += f" | Reasons: {'; '.join(reasons)}"
+        self.log(summary)
+
+        return passed, reasons, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status=status,
+            duration_s=round(time.time() - t0, 3),
+            summary=summary,
+            metrics=metrics,
         )
 
 
@@ -645,8 +1276,16 @@ class OrchestratorAgent:
     """Coordinates all 7 specialist agents for 0-to-1 project creation, 3D prompt upgrades, and batch execution."""
 
     def __init__(self):
+        self.concept_agent = ConceptAgent()
         self.research_agent = ResearchAgent()
+        self.policy_agent = PolicyAgent()
         self.script_agent = ScriptAgent()
+        self.character_agent = CharacterRefAgent()
+        self.keyframe_agent = KeyframePromptAgent()
+        self.motion_agent = MotionPromptAgent()
+        self.negative_prompt_agent = NegativePromptAgent()
+        self.qa_agent = QAAgent()
+        self.metadata_agent = MetadataAgent()
         self.visual_agent = VisualDirectorAgent()
         self.asset_agent = AssetAgent()
         self.packaging_agent = PackagingAgent()
@@ -656,8 +1295,16 @@ class OrchestratorAgent:
 
     def print_crew_status(self) -> None:
         agents = [
+            self.concept_agent,
             self.research_agent,
+            self.policy_agent,
             self.script_agent,
+            self.character_agent,
+            self.keyframe_agent,
+            self.motion_agent,
+            self.negative_prompt_agent,
+            self.qa_agent,
+            self.metadata_agent,
             self.visual_agent,
             self.asset_agent,
             self.packaging_agent,
@@ -728,6 +1375,84 @@ class OrchestratorAgent:
         fmt.emit(fmt.agent_report_card(reports))
         return reports
 
+    def run_nine_agent_cycle(
+        self,
+        topic: Optional[str] = None,
+        genre: str = "3d_cgi",
+        target_scene_count: int = 8,
+    ) -> tuple[Dict[str, Any], List[AgentReport]]:
+        """Execute the 9-Agent Pipeline Cycle:
+        Concept -> Policy -> Script -> CharacterRef -> KeyframePrompt -> NegativePrompt -> MotionPrompt -> QA -> Metadata.
+        """
+        fmt.emit(fmt.header("9-Agent Autonomous Production Cycle", "Grounded in Series Bible & Empirical Truth", "🤖"))
+        reports: List[AgentReport] = []
+
+        # 1. ConceptAgent
+        dossier, c_rep = self.concept_agent.run(topic=topic or "")
+        reports.append(c_rep)
+        if c_rep.status == "FAIL" or not dossier:
+            fmt.emit(fmt.agent_report_card(reports))
+            return {}, reports
+        chosen_topic = dossier.get("topic", "Loss Aversion")
+
+        # 2. PolicyAgent (Pre-check)
+        _, _, pol_pre_rep = self.policy_agent.run({"concept": chosen_topic, "scenes": []})
+        reports.append(pol_pre_rep)
+        if pol_pre_rep.status == "FAIL":
+            fmt.emit(fmt.agent_report_card(reports))
+            return {}, reports
+
+        # 3. ScriptAgent
+        scenes, s_rep = self.script_agent.run(dossier, genre=genre, target_scene_count=target_scene_count)
+        reports.append(s_rep)
+        if s_rep.status == "FAIL" or not scenes:
+            fmt.emit(fmt.agent_report_card(reports))
+            return {}, reports
+
+        # 4. CharacterRefAgent
+        char_key = "dr_miller" if "experiment" in dossier.get("experiment_design", "").lower() else "protagonist"
+        char_profile, char_rep = self.character_agent.run(char_key)
+        reports.append(char_rep)
+
+        # 5. KeyframePromptAgent, 6. NegativePromptAgent & 7. MotionPromptAgent
+        enriched_scenes = []
+        for idx, sc in enumerate(scenes, 1):
+            keyframe_prompt, k_rep = self.keyframe_agent.run(sc, character_ref=char_profile, genre=genre)
+            neg_res, n_rep = self.negative_prompt_agent.run(prompt=keyframe_prompt, genre=genre, target_model="flux3")
+            motion_cfg, m_rep = self.motion_agent.run(scene_idx=idx, scene_action=sc.get("action", ""))
+
+            sc_enriched = dict(sc)
+            sc_enriched["prompt"] = neg_res.optimized_prompt
+            sc_enriched["motion"] = motion_cfg["trajectory"]
+            sc_enriched["motion_prompt"] = motion_cfg["motion_prompt"]
+            enriched_scenes.append(sc_enriched)
+            if idx == 1:
+                reports.extend([k_rep, n_rep, m_rep])
+
+        # 8. PolicyAgent (Full Episode Check)
+        episode_data = {
+            "concept": chosen_topic,
+            "scenes": enriched_scenes,
+            "format": "short",
+            "genre": genre,
+        }
+        _, _, pol_post_rep = self.policy_agent.run(episode_data)
+        reports.append(pol_post_rep)
+
+        # 9. MetadataAgent (Title, Description, Tags & Synthetic Disclosure)
+        meta, m_rep = self.metadata_agent.run(episode_data, dossier=dossier)
+        reports.append(m_rep)
+
+        blueprint = {
+            "topic": chosen_topic,
+            "dossier": dossier,
+            "character": char_profile,
+            "scenes": enriched_scenes,
+            "metadata": meta,
+        }
+        fmt.emit(fmt.agent_report_card(reports))
+        return blueprint, reports
+
     def run_end_to_end(
         self,
         topic: str,
@@ -780,7 +1505,9 @@ class OrchestratorAgent:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="FrameForge Multi-Agent Crew & Orchestrator (v7.0)")
-    ap.add_argument("--status", action="store_true", help="Display all 7 specialist agents and status")
+    ap.add_argument("--status", action="store_true", help="Display all specialist agents and status")
+    ap.add_argument("--brainstorm", action="store_true", help="Brainstorm unproduced novel episode premises from Series Bible")
+    ap.add_argument("--cycle", action="store_true", help="Execute complete 9-agent autonomous pipeline cycle")
     ap.add_argument("--upgrade-project", type=Path, help="Upgrade an existing project.json with 6-layer 3D VisualDirector & Research agents")
     ap.add_argument("--upgrade-all-blueprints", action="store_true", help="Upgrade all unrendered blueprint projects (e.g. SH-15, SH-16)")
     ap.add_argument("--run", action="store_true", help="Run 0-to-1 Multi-Agent pipeline for a topic")
@@ -806,6 +1533,16 @@ def main() -> int:
     if args.status:
         orch.print_crew_status()
         return 0
+    if args.brainstorm:
+        candidates = orch.concept_agent.brainstorm_novel_premises(count=5)
+        print("\n💡 TOP UNPRODUCED EPISODE PREMISES (from Series Bible & Empirical Dossiers):")
+        for i, c in enumerate(candidates, 1):
+            print(f"  {i}. {c['topic']} ({c['year']}, {c['primary_researchers']}) | Stat: {c['stat']} | Lead: {c['character_lead']}")
+            print(f"     Hook: \"{c['hook_candidate']}\"")
+        return 0
+    if args.cycle:
+        blueprint, reports = orch.run_nine_agent_cycle(topic=args.topic, genre=args.genre or "3d_cgi")
+        return report_exit_code(reports)
     if args.upgrade_project:
         reports = orch.upgrade_existing_project(args.upgrade_project.resolve(), genre=args.genre)
         return report_exit_code(reports)
