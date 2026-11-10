@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "status": "reviewed",
+  "video_id": "SH-20",
+  "topic": "Implementation Intentions",
+  "primary_source": {
+    "title": "Implementation Intentions: Strong Effects of Simple Plans",
+    "authors": [
+      "Peter M. Gollwitzer"
+    ],
+    "year": 1999,
+    "publication": "American Psychologist 54(7), 493-503",
+    "url": "https://www.prospectivepsych.org/sites/default/files/pictures/Gollwitzer_Implementation-intentions-1999.pdf"
+  },
+  "reviewed_at": "2026-11-05",
+  "review_method": "Verified against Peter M. Gollwitzer (1999), American Psychologist 54(7), 493-503, reviewing empirical trials by Gollwitzer & Brandstätter (1997). Study 2 tasked university students with writing an extensive report on Christmas Eve within 48 hours. Participants who formed concrete implementation intentions (specifying when and where) completed it at a 71% rate, compared to 32% for participants with only a bare goal intention. The psychological mechanism is perceptual readiness and automatic action initiation triggered by situational cues without deliberation. No brain imaging was performed in this study.",
+  "claims": [
+    {
+      "id": "holiday_report_seventy_one_vs_thirty_two_percent",
+      "paraphrase": "71% of participants with implementation intentions finished a difficult report within 48 hours, compared to 32% with only a goal.",
+      "printed_page_locator": "496",
+      "support_summary": "p. 496: In Study 2 examining difficult goals (writing a holiday report within 48 hours), 'a full 71% of the participants who had formed implementation intentions did so, whereas only 32% of the participants who had only formed goal intentions succeeded.' (Gollwitzer 1999). 1999 study year on p. 493.",
+      "used_by": [
+        "scene_1_hook",
+        "scene_1_overlay",
+        "scene_3_data",
+        "scene_3_stat_card",
+        "scene_5_consequence"
+      ]
+    },
+    {
+      "id": "action_initiation_delegated_to_cue",
+      "paraphrase": "Implementation intentions link situational cues to action initiation, handing control to the environment instead of deliberation.",
+      "printed_page_locator": "494",
+      "support_summary": "p. 494: 'By forming implementation intentions, people can strategically switch from conscious and effortful control of their goal-directed behaviors to being automatically controlled by selected situational cues.' Linking cues to actions eliminates deliberation.",
+      "used_by": [
+        "scene_2_false_assumption",
+        "scene_4_mechanism"
+      ]
+    },
+    {
+      "id": "action_slip_and_hesitation_tax",
+      "paraphrase": "Holding only a goal intention leaves individuals vulnerable to hesitation, getting derailed by competing demands within 48 hours, or missing opportune moments to act.",
+      "printed_page_locator": "495",
+      "support_summary": "p. 495: Holding only a goal intention leaves people vulnerable to hesitation, forgetting, or procrastinating over tasks within 48 hours or during busy periods.",
+      "used_by": [
+        "scene_5_consequence",
+        "scene_6_trap"
+      ]
+    },
+    {
+      "id": "situational_cue_specification",
+      "paraphrase": "Implementation intentions require specifying when and where an action will occur, such as choosing 8 a.m. at a desk.",
+      "printed_page_locator": "494",
+      "support_summary": "p. 494: Implementation intentions have the structure 'If situation X arises (such as 8 a.m. at my desk), then I will perform response Y!' forming a strong mental link between the specified cue and response initiation.",
+      "used_by": [
+        "scene_7_override"
+      ]
+    }
+  ],
+  "editorial_suggestions": [
+    {
+      "id": "monday_freezing_framing",
+      "text": "\"You waste your Monday freezing at your desk\" is our editorial narrative hook, not a finding of the 1999 paper. The paper tested holiday report completion rates, not Monday morning work sessions.",
+      "status": "creator editorial framing, not a finding of Gollwitzer (1999)",
+      "used_by": [
+        "scene_1_hook"
+      ]
+    },
+    {
+      "id": "monday_blueprint_rearranging_tabs",
+      "text": "\"You write 'finish the blueprint' on Monday, yet spend 48 minutes rearranging tabs\" is an editorial dramatization illustrating the delay in action initiation. The paper tested writing a report within 48 hours.",
+      "status": "creator editorial dramatization",
+      "used_by": [
+        "scene_5_consequence"
+      ]
+    },
+    {
+      "id": "five_second_trigger_reset",
+      "text": "The \"five-second If-Then lock\" is our channel's behavioral heuristic for applying Gollwitzer's implementation intentions to daily work. The 1999 paper tested if-then plans generally, not a five-second rule.",
+      "status": "creator editorial, not a finding of Gollwitzer (1999)",
+      "used_by": [
+        "scene_7_override"
+      ]
+    }
+  ],
+  "dossier": {
+    "topic": "Implementation Intentions",
+    "cluster": "Cluster 2 (Habits & Goal Pursuit)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 7,
+    "chapter_title": "Chapter 7: The Monday Trap",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-19",
+    "next_episode": "LV-02",
+    "primary_researchers": "Peter M. Gollwitzer",
+    "institution": "New York University & University of Konstanz",
+    "year": "1999",
+    "publication": "American Psychologist",
+    "primary_source": {
+      "title": "Implementation Intentions: Strong Effects of Simple Plans",
+      "authors": [
+        "Peter M. Gollwitzer"
+      ],
+      "year": 1999,
+      "publication": "American Psychologist 54(7), 493-503",
+      "url": "https://www.prospectivepsych.org/sites/default/files/pictures/Gollwitzer_Implementation-intentions-1999.pdf"
+    },
+    "experiment_design": "Controlled goal-pursuit trials and experiments reviewed by Gollwitzer (1999): participants asked to write a holiday report within 48 hours completed it 71% of the time when they formed an If-Then implementation intention specifying exact time and place, compared to 32% of participants who only set a bare goal intention.",
+    "quantitative_stat": "71% vs 32% Completion",
+    "stat_subtitle": "If-Then Plan vs Bare Goal (Gollwitzer 1999, p. 496)",
+    "comparison_text": "the If-Then planners finished on time *71%* of the time, versus *32%* with only a goal",
+    "broken_assumption": "You set your Monday goal and still freeze at your desk—because deciding *what* you want never tells your mind *when* to start.",
+    "biological_mechanism": "Linking a situational cue to a concrete action hands initiation over to the environment instead of deliberation.",
+    "real_world_tax": "You write 'finish the blueprint' on Monday, yet spend *48* minutes rearranging tabs before drawing a line.",
+    "willpower_trap": "Repeating a vague wish at midnight only deepens hesitation when morning friction hits.",
+    "five_second_override": "The *five-second* If-Then lock? Write: *If* it is 8 a.m. at my desk, *then* I draw the *first* line. Comment below your trigger.",
+    "best_hook": "You waste your Monday freezing at your desk—a 1999 study proved 71% finish on time, and here is why.",
+    "hook_formula": "The Statistic / Contrarian Flip",
+    "loop_bridge": "Because the moment you mistake a bare Monday wish for a plan...",
+    "overlay_text": "THE 71% TRIGGER",
+    "related_target": "LV-02",
+    "related_title": "The 3 Hidden Brain Traps Destroying Your Focus",
+    "_verified": true,
+    "_synthetic": false,
+    "_source": "channel_assets/scientific_dossiers.json#implementation_intentions"
+  },
+  "script_sha256": "558ced59612432f48e7c7c2f5f0df6da47e8a24c3b36ea61e3d195160fc15cc2"
+}

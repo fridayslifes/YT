@@ -1,0 +1,50 @@
+# requirements.txt - FrameForge / YouTube render pipeline
+#
+# PROVENANCE (read this first): every line below was discovered by grepping the real
+# `import` statements in tools/**/*.py, then pinned to the version currently installed in
+# .venv (read with importlib.metadata, since this venv has no `pip` binary).
+# Nothing here is a generic guess; nothing here is a package tools/ does not import.
+#
+# This file is the CORE layer only: the packages that tools/*.py imports at module scope
+# with no try/except around them. Without these, `import tools.<anything>` fails outright.
+# Heavy / feature-gated dependencies (torch, transformers, rembg, onnxruntime,
+# faster-whisper, kokoro-onnx, google-api-python-client, depthflow, Blender) live in
+# requirements-optional.txt and degrade per-feature instead of breaking the repo.
+#
+#   uv pip install --python .venv/bin/python -r requirements.txt          # core + test tooling
+#   uv pip install --python .venv/bin/python -r requirements-optional.txt # full render/upload env
+#   (`python -m pip` does not work here: this venv was created without a pip binary.)
+#
+# Python: 3.11 (the venv is 3.11.14). System binaries are NOT pip-installable, see bottom.
+
+# --- Core: required at module import time -------------------------------------
+# Imported at module scope, unguarded, by tools/pipeline.py, tools/build_video.py,
+# tools/visual_engine.py, tools/branding_engine.py and tools/build_avatar.py, plus
+# tools/orchestrator/verifiers.py. Cited by module rather than by line number: a
+# line-number note rots the moment the file is edited, which is what made the old ones wrong.
+numpy==2.4.6
+Pillow==13.0.0              # imported as `PIL`
+opencv-python==4.11.0.86    # imported as `cv2`
+
+# --- Narration TTS: required by the render path -------------------------------
+# tools/build_video.py:60 (module scope, unguarded). Cloud voice `en-US-AndrewNeural`.
+# Without it: no narration synthesis at all (the local Kokoro fallback in
+# requirements-optional.txt is itself optional). Needs network access at render time.
+edge-tts==7.3.1
+
+# --- Dev / CI: what `./check.sh` and `pytest` run with ------------------------
+# Not imported by tools/. Pinned so CI lint results are byte-reproducible.
+pytest==9.1.1
+ruff==0.15.21
+
+# --- System binaries (NOT in pip; the pipeline shells out to these) ----------
+# ffmpeg / ffprobe 9.0.1  -> /opt/homebrew/bin/ffmpeg (visual_engine.py:158 probes
+#                            `h264_videotoolbox` and self-heals to libx264 High Profile)
+# Blender                  -> OPTIONAL and currently MISSING on this machine.
+#                            tools/visual_engine.py:1408 runs `[blender_bin, "-b", "-P", ...]`
+#                            behind BlenderBridge.is_available(); without it the true-3D
+#                            studio camera paths are skipped, 2.5D parallax still renders.
+# Node/npx                 -> present but NOT used: the "Remotion" caption springs are a
+#                            pure-Python reimplementation (visual_engine.py:86 remotion_spring).
+# Local model weights      -> tools/kokoro_models/kokoro-v1.0.onnx + voices-v1.0.bin
+#                            (.gitignore'd; git-lfs/manual fetch, see requirements-optional.txt)

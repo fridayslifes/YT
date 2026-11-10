@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "video_id": "SH-13",
+  "operation_key": "93697308b1bd24a2c8999a83a6ea1005561e95063959efbdda6f888971dbf98b",
+  "media_sha256": "a571c015dbb2e78fd4401fc06022367837fcabc1b81364ff4fe9aaa3fa0f5ede",
+  "metadata_sha256": "9edde52b1088ba57a71f05d7cd82a319d11e369d9d69b7b553a8867dc18c9916",
+  "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+  "privacy": "unlisted",
+  "contains_synthetic_media": true,
+  "self_declared_made_for_kids": false,
+  "state": "verified",
+  "created_at": "2026-11-01T20:28:19+00:00",
+  "remote_verification": {
+    "checked_at": "2026-11-01T20:28:35+00:00",
+    "id": "L2KEsuz8oQs",
+    "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+    "title": "Dunning-Kruger: Why 12th Felt Like 62nd",
+    "privacy": "unlisted",
+    "containsSyntheticMedia": "unknown",
+    "selfDeclaredMadeForKids": false,
+    "status": {
+      "uploadStatus": "uploaded",
+      "privacyStatus": "unlisted",
+      "license": "youtube",
+      "embeddable": true,
+      "publicStatsViewable": true,
+      "madeForKids": false,
+      "selfDeclaredMadeForKids": false
+    },
+    "contentDetails": {
+      "duration": "P0D",
+      "dimension": "2d",
+      "definition": "sd",
+      "caption": "false",
+      "licensedContent": false,
+      "contentRating": {},
+      "projection": "rectangular",
+      "hasCustomThumbnail": false
+    },
+    "processingDetails": {
+      "processingStatus": "processing",
+      "fileDetailsAvailability": "inProgress",
+      "processingIssuesAvailability": "inProgress",
+      "tagSuggestionsAvailability": "inProgress",
+      "editorSuggestionsAvailability": "inProgress",
+      "thumbnailsAvailability": "inProgress"
+    }
+  },
+  "notes": [],
+  "updated_at": "2026-11-01T20:28:35+00:00",
+  "upload_started_at": "2026-11-01T20:28:19+00:00",
+  "remote_id": "L2KEsuz8oQs",
+  "remote_url": "https://youtu.be/L2KEsuz8oQs",
+  "uploaded_at": "2026-11-01T20:28:35+00:00",
+  "verified_at": "2026-11-01T20:28:35+00:00"
+}

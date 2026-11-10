@@ -1,0 +1,45 @@
+# Orchestrator run ledgers and reports
+.orchestrator/
+
+# OAuth credentials must never be committed
+channel_assets/client_secrets.json
+*.token.json
+
+# Python & Virtual Environments
+.venv/
+.venv-flux2/
+__pycache__/
+*.py[cod]
+*$py.class
+.ruff_cache/
+.pytest_cache/
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Heavy Local AI Model Weights & Binaries (fetched/installed locally)
+models/
+tools/kokoro_models/*.onnx
+tools/kokoro_models/*.bin
+tools/ntsc-rs.app/
+
+# Rendered Video Outputs, Per-Scene Caches & Scratch Experiments
+shorts/*/output/*.mp4
+shorts/*/output/*.wav
+shorts/*/videos/*.mp4
+shorts/*/cache/
+long_form/*/output/*.mp4
+long_form/*/output/*.wav
+long_form/*/videos/*.mp4
+long_form/*/cache/
+demos/*.mp4
+scratch/
+*.tmp
+
+# Google OAuth secrets (never commit)
+client_secrets.json
+channel_assets/client_secrets.json
+.yt_oauth_token.json
+.yt_client_secrets.json

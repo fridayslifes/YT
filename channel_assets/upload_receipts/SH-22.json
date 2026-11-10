@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "video_id": "SH-22",
+  "operation_key": "91d0f1a7e3ac1f7f2cc523d85886ea8202e68844fa3a62a0300f4cb2a90db5c1",
+  "media_sha256": "5537d7f3dffc74e21af67c9d951dce67c37b13c287c83e62c8536e7035b8791d",
+  "metadata_sha256": "2553161a3081d11e282be4dce04371a5b97866ae0047bc6e41122c71dd63ff5c",
+  "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+  "privacy": "public",
+  "contains_synthetic_media": false,
+  "self_declared_made_for_kids": false,
+  "state": "verified",
+  "created_at": "2026-11-07T19:53:45+00:00",
+  "remote_verification": {
+    "checked_at": "2026-11-07T19:54:06+00:00",
+    "id": "Hhrull2A988",
+    "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+    "title": "Why Clouds Don't Fall (1,100,000 Lbs) #shorts",
+    "privacy": "public",
+    "containsSyntheticMedia": "unknown",
+    "selfDeclaredMadeForKids": false,
+    "status": {
+      "uploadStatus": "uploaded",
+      "privacyStatus": "public",
+      "license": "youtube",
+      "embeddable": true,
+      "publicStatsViewable": true,
+      "madeForKids": false,
+      "selfDeclaredMadeForKids": false
+    },
+    "contentDetails": {
+      "duration": "P0D",
+      "dimension": "2d",
+      "definition": "sd",
+      "caption": "false",
+      "licensedContent": false,
+      "contentRating": {},
+      "projection": "rectangular",
+      "hasCustomThumbnail": false
+    },
+    "processingDetails": {
+      "processingStatus": "processing",
+      "fileDetailsAvailability": "inProgress",
+      "processingIssuesAvailability": "inProgress",
+      "tagSuggestionsAvailability": "inProgress",
+      "editorSuggestionsAvailability": "inProgress",
+      "thumbnailsAvailability": "inProgress"
+    }
+  },
+  "notes": [],
+  "updated_at": "2026-11-07T19:54:06+00:00",
+  "upload_started_at": "2026-11-07T19:53:45+00:00",
+  "remote_id": "Hhrull2A988",
+  "remote_url": "https://youtu.be/Hhrull2A988",
+  "uploaded_at": "2026-11-07T19:54:05+00:00",
+  "verified_at": "2026-11-07T19:54:06+00:00"
+}

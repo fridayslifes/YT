@@ -1,0 +1,43 @@
+# pyproject.toml - tooling configuration for the FrameForge render pipeline
+#
+# DELIBERATELY NOT AN INSTALLABLE PACKAGE. There is no [build-system] and no [project]
+# table on purpose: tools/ is a PEP 420 implicit namespace package (there is no
+# tools/__init__.py) that every entry point runs straight from the repo root after
+# inserting it on sys.path (tools/master.py, tools/pipeline.py, tools/studio_3d.py, ...).
+# Installing a copy of it would shadow the live tree and split module identity from the
+# files being edited - the same split that once made a heavy model load twice, because a
+# module reachable as both `visual_engine` and `tools.visual_engine` keeps two sets of
+# module-level state. Every intra-repo import therefore goes through the `tools.` name.
+# `pytest` gets the repo root on sys.path via `pythonpath` below, so `import tools.x` works
+# in tests exactly the way it works in the pipeline, with nothing installed.
+#
+# Dependency truth lives in requirements.txt (core: imported at module scope, unguarded)
+# and requirements-optional.txt (feature-gated lazy imports + what degrades without them).
+# Versions there are pinned to .venv as of this writing (Python 3.11.14).
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+# Repo root on sys.path -> `from tools import youtube_skills` resolves as a namespace
+# package, same as it does at runtime. Also makes `pytest -q` work from a clean checkout
+# with no installed distribution.
+pythonpath = ["."]
+addopts = "-ra --strict-markers -o cache_dir=/tmp/.pytest_cache"
+xfail_strict = true
+markers = [
+    "media: offline CPU-only acceptance checks requiring local FFmpeg and FFprobe",
+    "contract: data-driven check over shorts/*/project.json and long_form/*/project.json",
+]
+# Media tests encode and decode real local fixtures; they do not invoke models or the network.
+
+[tool.ruff]
+# Explicit rather than implicit, so ./check.sh lint results do not drift with ruff defaults.
+target-version = "py311"
+line-length = 120
+src = ["tools", "tests"]
+
+[tool.ruff.lint]
+# ruff's own default set (pycodestyle E4/E7/E9 + pyflakes F), stated explicitly so the
+# signal does not drift with ruff defaults. Deliberately NO per-file-ignores for tools/:
+# the findings there are real and belong to the tools/ owners, not to be silenced here.
+select = ["E4", "E7", "E9", "F"]

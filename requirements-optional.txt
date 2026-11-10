@@ -1,0 +1,80 @@
+# requirements-optional.txt - heavy / feature-gated dependencies
+#
+# Every package here is imported LAZILY inside tools/*.py (inside a function, usually
+# inside try/except). Missing one does NOT break `import tools.*` or the test suite;
+# it silently downgrades exactly the feature named under it. Versions are pinned to what
+# is installed in .venv today, so `pip install -r requirements-optional.txt` reproduces
+# this machine rather than a guess.
+#
+# Installed-but-unused honesty note: depthflow==1.0.1 IS present in this venv, but no file
+# under tools/ imports it. The `depthflow_spiral` / `depthflow_vertigo` / ... strings in
+# genre_director.py and project.json are preset NAMES; the parallax motion is computed by
+# tools/visual_engine.py with torch + transformers. Kept below under [3d] for that reason,
+# and flagged as "not imported by tools/" so nobody deletes it thinking it is dead weight
+# without checking Blender/CLI usage first.
+
+# --- 2.5D depth parallax (the default motion engine) -------------------------
+# tools/visual_engine.py:121 and :209 (torch), :210 `from transformers import pipeline`
+# (Depth-Anything-V2 on MPS, device fallback ["mps","cpu"] at :210-219).
+# WITHOUT: no depth-based 2.5D parallax clips -> GEMINI.md section 2 "every scene must be
+# a dynamic motion video" can only be met by the procedural/spring camera moves, and
+# visual_engine's memory-heal path (torch.mps.empty_cache) is skipped.
+torch==2.14.1
+transformers==5.20.2
+
+# --- Apple Silicon Metal cache flush ----------------------------------------
+# tools/visual_engine.py:127 `import mlx.core as mx` (guard: hasattr clear_cache).
+# WITHOUT: _heal_gpu_memory() only flushes PyTorch + GC; long renders may hold Metal memory.
+# macOS-arm64 only - do not install this on Linux.
+mlx==0.32.4
+
+# --- Subject cutout / silhouette compositing --------------------------------
+# tools/visual_engine.py (`import rembg`, guarded). Cited by module, not by line: a
+# line-number note goes stale the moment the file is edited.
+# WITHOUT: avatar/silhouette cutout steps are skipped and the render falls back to the
+# un-keyed plate. rembg needs onnxruntime + a downloaded u2net model on first use.
+rembg==2.0.86
+onnxruntime==1.24.4
+
+# --- Local (offline) neural TTS fallback ------------------------------------
+# tools/build_video.py:181 `from kokoro_onnx import Kokoro`, :182 `import soundfile as sf`.
+# Requires the weight files tools/kokoro_models/kokoro-v1.0.onnx and voices-v1.0.bin,
+# which are .gitignore'd and must be fetched separately.
+# WITHOUT: only edge-tts (network) can produce narration; the am_adam + bm_george local
+# blend described in GEMINI.md section 3 is unavailable offline.
+kokoro-onnx==0.6.1
+soundfile==0.14.0
+
+# --- Transcript-driven editing skills (dead air, chapters, retention) -------
+# tools/build_video.py:135 `from faster_whisper import WhisperModel`.
+# WITHOUT: no ASR from an .mp4/.wav. tools/youtube_skills/{deadair,chapters}.py still work,
+# but you must hand them an SRT/VTT/whisper.json produced elsewhere (`--deadair`, `--chapters`).
+faster-whisper==1.1.0
+
+# --- Inpaint / outpaint for frame edge extension -----------------------------
+# tools/visual_engine.py `from simple_lama_inpainting import SimpleLama`.
+# WITHOUT: edge extension / object removal falls back to plain padding+blur.
+simple-lama-inpainting==0.1.2
+
+# --- Scientific signal maths ------------------------------------------------
+# tools/visual_engine.py `import scipy` (guarded availability probe).
+# WITHOUT: that specific analysis path degrades; nothing else in the repo needs scipy.
+scipy==1.17.1
+
+# --- YouTube Data API v3: upload, comments, stats sync ----------------------
+# tools/upload_api.py:44-47 and :180 (all inside functions).
+# Needs channel_assets/client_secrets.json + a one-time OAuth token cache.
+# WITHOUT: `pipeline.py --upload`, `--upload-api` and `--sync-stats` are unavailable;
+# CONTENT_TRACKER.md must be updated by hand. Everything up to render still works.
+google-api-python-client==2.201.0
+google-auth==2.55.2
+google-auth-oauthlib==1.5.0
+
+# --- DepthFlow (present, not imported by tools/*.py) ------------------------
+# See the honesty note at the top of this file. Pinned so a rebuild of this venv keeps it.
+depthflow==1.0.1
+
+# --- FLUX local Apple Silicon Metal plate generation ------------------------
+# tools/visual_engine.py FLUX2_BIN and FLUX3_BIN.
+# Invokes mflux CLI for distilled FLUX plate generation.
+mflux==0.24.0

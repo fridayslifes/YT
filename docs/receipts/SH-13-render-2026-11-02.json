@@ -1,0 +1,877 @@
+{
+  "schema_version": 1,
+  "video_id": "SH-13",
+  "status": "independently_verified",
+  "created_at": "2026-11-01T20:22:58.071110+00:00",
+  "builder_identity": "Codex subagent /root/sh13_render_builder",
+  "independent_verifier": "Codex subagent /root/sh13_media_reverify",
+  "independent_release_acceptance": "passed",
+  "artifacts": {
+    "project": {
+      "path": "shorts/short_13_dunning_kruger/project.json",
+      "size_bytes": 7973,
+      "sha256": "9773d39673ccca50baabfa0a6e12ed30dca2f0b37a024829e1b46d72fe7a8d40"
+    },
+    "evidence": {
+      "path": "channel_assets/evidence/SH-13-dunning-kruger.json",
+      "size_bytes": 5475,
+      "sha256": "4f6bf53570008c58ea2a38f47b7f6d9a1e3aad567ded74ac82a1bcd2aecc05fb"
+    },
+    "upload_kit": {
+      "path": "shorts/short_13_dunning_kruger/UPLOAD_KIT_SHORT_13.md",
+      "size_bytes": 2202,
+      "sha256": "a338b1a6522b55d308a2708fac256a77aff5dc4dace306f192af5ed25c1fd61e"
+    },
+    "media": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger.mp4",
+      "size_bytes": 79704903,
+      "sha256": "a571c015dbb2e78fd4401fc06022367837fcabc1b81364ff4fe9aaa3fa0f5ede"
+    },
+    "srt": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger.srt",
+      "size_bytes": 2834,
+      "sha256": "12c331ff7e5ec8792949c96c6f2436244df9c2e7f411a992053ac5f9ac081065"
+    },
+    "cover": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger_cover.jpg",
+      "size_bytes": 485770,
+      "sha256": "e02cf7981da631e71d5b8f39f0e75e9e82e460137bbcef027b63f616b0c96c85"
+    }
+  },
+  "script_sha256": "e31a83f2eb2213c1b3b688f7240aaf4fdf3b91cedd45ba2dead882b2d68e3219",
+  "streams": {
+    "video": {
+      "codec": "h264",
+      "width": 1080,
+      "height": 1920,
+      "fps": "30/1",
+      "pixel_format": "yuv420p",
+      "frame_count": 1364
+    },
+    "audio": {
+      "codec": "aac",
+      "sample_rate": "48000",
+      "channels": 2
+    },
+    "duration_s": 45.466667,
+    "bitrate": "14024323",
+    "ffprobe_artifact": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/ffprobe.json"
+  },
+  "build": {
+    "build_id": "20261101T201716Z-SH-13-build",
+    "command": [
+      ".venv/bin/python",
+      "tools/pipeline.py",
+      "--build",
+      "shorts/short_13_dunning_kruger/project.json"
+    ],
+    "started_at": "2026-11-01T20:17:16.431483+00:00",
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-build.log",
+    "force_motion": false,
+    "independent_verification": false,
+    "exit_code": 0,
+    "finished_at": "2026-11-01T20:20:03.431064+00:00",
+    "blocked_reason": null
+  },
+  "validation_only_release": {
+    "command": [
+      ".venv/bin/python",
+      "tools/master.py",
+      "release-existing",
+      "--project",
+      "shorts/short_13_dunning_kruger/project.json",
+      "--evidence",
+      "channel_assets/evidence/SH-13-dunning-kruger.json",
+      "--privacy",
+      "unlisted"
+    ],
+    "started_at": "2026-11-01T20:21:13.545846+00:00",
+    "finished_at": "2026-11-01T20:21:23.923450+00:00",
+    "exit_code": 0,
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-release-attempt-2.log",
+    "publish": false,
+    "yes": false,
+    "independent_verification": false,
+    "attempt": 2,
+    "resumption_reason": "Controller removed false future-artifact reference from Task 4 brief; no media rebuild.",
+    "master_run_id": "20261102-015113-release-existing-d324",
+    "check_count": 43,
+    "all_checks_passed": true,
+    "task_ids": [
+      "release"
+    ],
+    "publish_task_present": false,
+    "release_fingerprints": {
+      "schema_version": 1,
+      "artifacts": {
+        "project_json": {
+          "path": "/Users/friday/Desktop/FrameForge/shorts/short_13_dunning_kruger/project.json",
+          "sha256": "9773d39673ccca50baabfa0a6e12ed30dca2f0b37a024829e1b46d72fe7a8d40"
+        },
+        "evidence": {
+          "path": "/Users/friday/Desktop/FrameForge/channel_assets/evidence/SH-13-dunning-kruger.json",
+          "sha256": "4f6bf53570008c58ea2a38f47b7f6d9a1e3aad567ded74ac82a1bcd2aecc05fb"
+        },
+        "upload_kit": {
+          "path": "/Users/friday/Desktop/FrameForge/shorts/short_13_dunning_kruger/UPLOAD_KIT_SHORT_13.md",
+          "sha256": "a338b1a6522b55d308a2708fac256a77aff5dc4dace306f192af5ed25c1fd61e"
+        },
+        "output_mp4": {
+          "path": "/Users/friday/Desktop/FrameForge/shorts/short_13_dunning_kruger/output/short_13_dunning_kruger.mp4",
+          "sha256": "a571c015dbb2e78fd4401fc06022367837fcabc1b81364ff4fe9aaa3fa0f5ede"
+        }
+      },
+      "metadata_sha256": "9edde52b1088ba57a71f05d7cd82a319d11e369d9d69b7b553a8867dc18c9916"
+    }
+  },
+  "prior_failed_validation": {
+    "command": [
+      ".venv/bin/python",
+      "tools/master.py",
+      "release-existing",
+      "--project",
+      "shorts/short_13_dunning_kruger/project.json",
+      "--evidence",
+      "channel_assets/evidence/SH-13-dunning-kruger.json",
+      "--privacy",
+      "unlisted"
+    ],
+    "started_at": "2026-11-01T20:20:14.484463+00:00",
+    "finished_at": "2026-11-01T20:20:24.101785+00:00",
+    "exit_code": 1,
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-release.log",
+    "publish": false,
+    "yes": false,
+    "independent_verification": false,
+    "master_run_id": "20261102-015014-release-existing-44fc"
+  },
+  "prior_failure_resolution": "Controller changed Task 4 brief to represent a future receipt path as components, clearing a missing-asset documentation reference; retained logs and reran validation without rebuilding or source changes.",
+  "repository_gate": {
+    "command": [
+      "./check.sh"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-11-01T20:23:05.401714+00:00",
+    "finished_at": "2026-11-01T20:23:13.231589+00:00",
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-check-attempt-3.log",
+    "attempt": 3,
+    "scope": "After receipt, report and diagnostic artifacts were created."
+  },
+  "prior_failed_repository_gate": {
+    "command": [
+      "./check.sh"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-11-01T20:20:48.662905+00:00",
+    "finished_at": "2026-11-01T20:20:56.563028+00:00",
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-check.log"
+  },
+  "old_artifacts": {
+    "media": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger.mp4",
+      "size_bytes": 86581662,
+      "sha256": "44aa2fe77b2d44e62840b6d7655ecba8ffc5a116c7e11be62ac18d540c9222a0"
+    },
+    "srt": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger.srt",
+      "size_bytes": 3197,
+      "sha256": "e325b7be891dd81452b7c8b3b82548d2782f4df2a6e00a14f1322b1ae9600a37"
+    },
+    "cover": {
+      "path": "shorts/short_13_dunning_kruger/output/short_13_dunning_kruger_cover.jpg",
+      "size_bytes": 474279,
+      "sha256": "6c2733b552f285413948e4e92d28e72a5b0b8dc67fc4b114004e2b1d16605ed4"
+    }
+  },
+  "old_artifact_backup_root": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-before",
+  "before_manifest": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-before/manifest.json",
+  "scene_asset_comparison": [
+    {
+      "scene": 1,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s01_lemon_juice_heist.jpg",
+      "size_bytes": 714984,
+      "sha256": "5a6baa81390ad66a3d53a3be001397036254ad1fe1def296c01e26c736e7fa1b",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s01_lemon_juice_heist.jpg",
+        "size_bytes": 714984,
+        "sha256": "5a6baa81390ad66a3d53a3be001397036254ad1fe1def296c01e26c736e7fa1b"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 1,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s01_lemon_juice_heist.mp4",
+      "size_bytes": 8177800,
+      "sha256": "b890cd41487c1323ae4be9085fd27b283e948d3b8cae6cf5272471c5030a699b",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s01_lemon_juice_heist.mp4",
+        "size_bytes": 8177800,
+        "sha256": "b890cd41487c1323ae4be9085fd27b283e948d3b8cae6cf5272471c5030a699b"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 2,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s02_surveillance_tape_shock.jpg",
+      "size_bytes": 660258,
+      "sha256": "de8caeee5c9d5748170f7ba7475c02cd22e4505e4003a848f36198214116021f",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s02_surveillance_tape_shock.jpg",
+        "size_bytes": 660258,
+        "sha256": "de8caeee5c9d5748170f7ba7475c02cd22e4505e4003a848f36198214116021f"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 2,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s02_surveillance_tape_shock.mp4",
+      "size_bytes": 8812495,
+      "sha256": "a9317fea62f1d32064de64918bb82b74b1f36d815d9d62ab5720c1beb3b7162a",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s02_surveillance_tape_shock.mp4",
+        "size_bytes": 8812495,
+        "sha256": "a9317fea62f1d32064de64918bb82b74b1f36d815d9d62ab5720c1beb3b7162a"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 3,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s03_dunning_kruger_cornell.jpg",
+      "size_bytes": 232394,
+      "sha256": "b72f20c7e2c2bdce5b1a2fa688d19b4af2b1fdaa4f9e71f1f502c804545154b3",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s03_dunning_kruger_cornell.jpg",
+        "size_bytes": 232394,
+        "sha256": "b72f20c7e2c2bdce5b1a2fa688d19b4af2b1fdaa4f9e71f1f502c804545154b3"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 3,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s03_dunning_kruger_cornell.mp4",
+      "size_bytes": 9537541,
+      "sha256": "3e73a5631faa4403b865f5a9922de3580f7b5e6362d54c5e07f7d14e899b6940",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s03_dunning_kruger_cornell.mp4",
+        "size_bytes": 9537541,
+        "sha256": "3e73a5631faa4403b865f5a9922de3580f7b5e6362d54c5e07f7d14e899b6940"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 4,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s04_twelfth_vs_sixtysecond_stat.jpg",
+      "size_bytes": 257104,
+      "sha256": "9300a947f461d824e97ecae1d00aca99e658c5c82a1abb3e270bad1599774697",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s04_twelfth_vs_sixtysecond_stat.jpg",
+        "size_bytes": 257104,
+        "sha256": "9300a947f461d824e97ecae1d00aca99e658c5c82a1abb3e270bad1599774697"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 4,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s04_twelfth_vs_sixtysecond_stat.mp4",
+      "size_bytes": 8160779,
+      "sha256": "2a50edab64d01502d7a9c7da4c9282127022c3607a198e1ed1e091b84064399d",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s04_twelfth_vs_sixtysecond_stat.mp4",
+        "size_bytes": 8160779,
+        "sha256": "2a50edab64d01502d7a9c7da4c9282127022c3607a198e1ed1e091b84064399d"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 5,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s05_metacognitive_blindspot.jpg",
+      "size_bytes": 252878,
+      "sha256": "437afbcc9789bb6a638a12192fefda33bdeba76ca831692dc4f0b98f50cf71c1",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s05_metacognitive_blindspot.jpg",
+        "size_bytes": 252878,
+        "sha256": "437afbcc9789bb6a638a12192fefda33bdeba76ca831692dc4f0b98f50cf71c1"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 5,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s05_metacognitive_blindspot.mp4",
+      "size_bytes": 8808289,
+      "sha256": "68e61c063dbb87d54bcb276b3321fa0166eab32771fec707d475f7b77d9afbd6",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s05_metacognitive_blindspot.mp4",
+        "size_bytes": 8808289,
+        "sha256": "68e61c063dbb87d54bcb276b3321fa0166eab32771fec707d475f7b77d9afbd6"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 6,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s06_experts_doubt_themselves.jpg",
+      "size_bytes": 290628,
+      "sha256": "6fe67c6e9bcdf38f7bcc86d2dee1bf87f9a959204777191f0d0347b6131e67ee",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s06_experts_doubt_themselves.jpg",
+        "size_bytes": 290628,
+        "sha256": "6fe67c6e9bcdf38f7bcc86d2dee1bf87f9a959204777191f0d0347b6131e67ee"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 6,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s06_experts_doubt_themselves.mp4",
+      "size_bytes": 8014017,
+      "sha256": "ac27ee448f3e308e39835955bbe34dd2e7fb263717bcb666646ac503935c2787",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s06_experts_doubt_themselves.mp4",
+        "size_bytes": 8014017,
+        "sha256": "ac27ee448f3e308e39835955bbe34dd2e7fb263717bcb666646ac503935c2787"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 7,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s07_three_argument_steelman_fix.jpg",
+      "size_bytes": 228624,
+      "sha256": "c9b246bf5df03af16431ffb72f0dc0c7aa02ba788bcbdd07299047faffeba77b",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s07_three_argument_steelman_fix.jpg",
+        "size_bytes": 228624,
+        "sha256": "c9b246bf5df03af16431ffb72f0dc0c7aa02ba788bcbdd07299047faffeba77b"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 7,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s07_three_argument_steelman_fix.mp4",
+      "size_bytes": 9939642,
+      "sha256": "7f63a5e141b157959fb1eb0ea1129bdbe42c79b057d8412ff225d860af831f76",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s07_three_argument_steelman_fix.mp4",
+        "size_bytes": 9939642,
+        "sha256": "7f63a5e141b157959fb1eb0ea1129bdbe42c79b057d8412ff225d860af831f76"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 8,
+      "kind": "image",
+      "path": "shorts/short_13_dunning_kruger/images/s08_self_deception_loop.jpg",
+      "size_bytes": 207810,
+      "sha256": "43e38c1e94b5440f79cf515571892e0047d49e1f3d6714eb2a61a36d5e4d4e44",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/images/s08_self_deception_loop.jpg",
+        "size_bytes": 207810,
+        "sha256": "43e38c1e94b5440f79cf515571892e0047d49e1f3d6714eb2a61a36d5e4d4e44"
+      },
+      "unchanged": true
+    },
+    {
+      "scene": 8,
+      "kind": "video",
+      "path": "shorts/short_13_dunning_kruger/videos/s08_self_deception_loop.mp4",
+      "size_bytes": 5639744,
+      "sha256": "8b74f7d8ba3d73169ad4c2d8e379f2aa06dab8c123218cb022643c2e1e356a25",
+      "after": {
+        "path": "shorts/short_13_dunning_kruger/videos/s08_self_deception_loop.mp4",
+        "size_bytes": 5639744,
+        "sha256": "8b74f7d8ba3d73169ad4c2d8e379f2aa06dab8c123218cb022643c2e1e356a25"
+      },
+      "unchanged": true
+    }
+  ],
+  "automatic_motion_repairs": [],
+  "generated_imagery": false,
+  "asset_comparison_artifact": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-asset-comparison.json",
+  "added_narration_cache_entries": [
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/4f0c22d54bc67ba1.json",
+      "size_bytes": 934,
+      "sha256": "766cd60d5938b158627edc9d2d1be9ad7f7644b46df4ccba530ae9590f181ff9"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/4f0c22d54bc67ba1.mp3",
+      "size_bytes": 43488,
+      "sha256": "5bccd8385c55e18b94804853876e218f6a583aa6eb5487c73879cc3b4384a4ad"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/919cb038dcb042af.json",
+      "size_bytes": 985,
+      "sha256": "05d34b8d364d8db0a0aed4eefc88d92056721aea32f0e0ae1bc5b262ea13c8cc"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/919cb038dcb042af.mp3",
+      "size_bytes": 45648,
+      "sha256": "67203313b417dcde80476c8335c8e9eee40690dd814cabde8e0f3ee59ff75143"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/a98a1cfac6e242a2.json",
+      "size_bytes": 810,
+      "sha256": "7ab02f957ea772833339bcc4b43dfdda60658cad89152a8f6dfea77dda1225fc"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/a98a1cfac6e242a2.mp3",
+      "size_bytes": 26928,
+      "sha256": "b2e78d90210a44e8b225f2a60e79f53e15a67942d11a42bcbf4dbd6a6f1c24c8"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/b8c5be7e7311209f.json",
+      "size_bytes": 556,
+      "sha256": "41b5be6086037e9923700dab488c35c9e815c00ede237bd8994f31feefe2ee43"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/b8c5be7e7311209f.mp3",
+      "size_bytes": 25056,
+      "sha256": "9898cb5e6d9db256c19ac5c7225a3036530a79eb761a5658ddc912e68a763ef2"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/ba10a780e1b691e1.json",
+      "size_bytes": 1121,
+      "sha256": "ced71744bb344d912a585956a0f172d468705108b9d99b23f257e1e26c14c43b"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/ba10a780e1b691e1.mp3",
+      "size_bytes": 40896,
+      "sha256": "c6898ec37f8196eb30ecba388be44a238b3b73c68d9f63716072f09f4d96c313"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/e0776fe44314e175.json",
+      "size_bytes": 797,
+      "sha256": "2579ad403117f783b3da4efaeb74ca88f432079c9b2e12d829d3ce06e4f6c0a6"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/e0776fe44314e175.mp3",
+      "size_bytes": 37872,
+      "sha256": "447e259b8690da90533907046f5e7c39833e73149c0dab8566e50e8289ddf977"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/f6eb6a59e8ee2ba6.json",
+      "size_bytes": 505,
+      "sha256": "3faf8716aee0e5260a303481dd63c8bc4c2c3e601ccacc65c72dd2595148af09"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/f6eb6a59e8ee2ba6.mp3",
+      "size_bytes": 18720,
+      "sha256": "9790463bc8d23abf385d0ea384093e03d8b9124680f050e813cd5f031d108bc2"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/f915234f15c4527a.json",
+      "size_bytes": 984,
+      "sha256": "903c1e0da82b314302edd2bfb7a2a5f8221db23a3f3485cca297a3b08d40da8d"
+    },
+    {
+      "path": "shorts/short_13_dunning_kruger/cache/f915234f15c4527a.mp3",
+      "size_bytes": 47232,
+      "sha256": "c5a3f3164d4f8273d670131cae4f7658aa46a4832c05cbb0d069cc4981d540ef"
+    }
+  ],
+  "srt_diagnostics": {
+    "expected_regex_words": 119,
+    "srt_regex_words": 119,
+    "exact_ordered_match": true,
+    "caption_cues": 61,
+    "pipeline_whitespace_tokens": 117
+  },
+  "scene_boundaries": [
+    {
+      "scene": 1,
+      "visual_start_s": 0.0,
+      "visual_end_s": 6.486621315192743,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-01-sample.png",
+        "requested_time_s": 1.15,
+        "frame_index": 34,
+        "frame_time_s": 1.1333333333333333
+      }
+    },
+    {
+      "scene": 2,
+      "visual_start_s": 6.486621315192743,
+      "visual_end_s": 9.325102040816327,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-02-sample.png",
+        "requested_time_s": 7.432781557067272,
+        "frame_index": 223,
+        "frame_time_s": 7.433333333333334
+      }
+    },
+    {
+      "scene": 3,
+      "visual_start_s": 9.325102040816327,
+      "visual_end_s": 13.232244897959184,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-03-sample.png",
+        "requested_time_s": 10.475102040816328,
+        "frame_index": 314,
+        "frame_time_s": 10.466666666666667
+      }
+    },
+    {
+      "scene": 4,
+      "visual_start_s": 13.232244897959184,
+      "visual_end_s": 19.265578231292515,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-04-sample.png",
+        "requested_time_s": 14.382244897959184,
+        "frame_index": 431,
+        "frame_time_s": 14.366666666666667
+      }
+    },
+    {
+      "scene": 5,
+      "visual_start_s": 19.265578231292515,
+      "visual_end_s": 26.584308390022674,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-05-sample.png",
+        "requested_time_s": 20.415578231292514,
+        "frame_index": 612,
+        "frame_time_s": 20.4
+      }
+    },
+    {
+      "scene": 6,
+      "visual_start_s": 26.584308390022674,
+      "visual_end_s": 33.534512471655326,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-06-sample.png",
+        "requested_time_s": 27.734308390022672,
+        "frame_index": 832,
+        "frame_time_s": 27.733333333333334
+      }
+    },
+    {
+      "scene": 7,
+      "visual_start_s": 33.534512471655326,
+      "visual_end_s": 41.13609977324263,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-07-sample.png",
+        "requested_time_s": 34.684512471655324,
+        "frame_index": 1041,
+        "frame_time_s": 34.7
+      }
+    },
+    {
+      "scene": 8,
+      "visual_start_s": 41.13609977324263,
+      "visual_end_s": 45.43639455782312,
+      "sample": {
+        "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-08-sample.png",
+        "requested_time_s": 42.286099773242626,
+        "frame_index": 1269,
+        "frame_time_s": 42.3
+      }
+    }
+  ],
+  "audio_diagnostics": {
+    "ffmpeg_loudnorm_input": {
+      "input_i": "-14.30",
+      "input_tp": "-1.49",
+      "input_lra": "2.00",
+      "input_thresh": "-24.46",
+      "output_i": "-14.14",
+      "output_tp": "-1.50",
+      "output_lra": "2.00",
+      "output_thresh": "-24.30",
+      "normalization_type": "dynamic",
+      "target_offset": "0.14"
+    },
+    "decoded_sample_peak": 0.842043399810791,
+    "decoded_peak_dbfs": -1.4933104784962457,
+    "decoded_rms_dbfs": -16.511141474680983,
+    "samples_at_or_over_full_scale": 0,
+    "independent_listening": "pending",
+    "independent_verification": false,
+    "diagnostic_parser_note": "Initial json.loads of ffmpeg stderr failed on trailing progress output; reused complete saved log with JSONDecoder.raw_decode. No media or source changes."
+  },
+  "builder_visual_diagnostics": "Viewed eight-scene sheet: updated percentile card, illustrative label, study note and overlays readable; independent playback/content inspection pending.",
+  "inspection_artifacts": [
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/audio-analysis.json",
+      "size_bytes": 746,
+      "sha256": "a869cffedf0a751fec4a846956e5d3cd68658e479409f8cc39a2d02da7100deb"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/audio-loudness.log",
+      "size_bytes": 1739,
+      "sha256": "84958e55a84f4ac27201fe931bcb9232af2a8d1b921abddf34b2850ac63d8496"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-01-to-02-after.png",
+      "size_bytes": 1403713,
+      "sha256": "d56d9cc6a4c1e12e7f68231ad14a29468bb903406f484b4d8cbbc1ba17aa9cc8"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-01-to-02-before.png",
+      "size_bytes": 2084385,
+      "sha256": "5695b23bfe5c30506ac38389ad91a45b105674cfc2d4eba85f913707fe0ad94d"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-01-to-02-settled.png",
+      "size_bytes": 1568078,
+      "sha256": "3d2e429635aa237f7e9c9b884b0842cb91b6c4fb6639e7e9b453ec242ff4cfbc"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-01-to-02-sheet.jpg",
+      "size_bytes": 219153,
+      "sha256": "bf9dd162623a69c4e624e69be4615560ac9d21571bd3a6b926dc0c35dd726513"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-02-to-03-after.png",
+      "size_bytes": 1276376,
+      "sha256": "f48ef0fbd4f9840e5f40500a162b464b321db927f55aa577bf36ae98afe91075"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-02-to-03-before.png",
+      "size_bytes": 1759627,
+      "sha256": "31d0516eabdf47c40c1f422cbe1be2eb329f80568050877e75689c04541c0c41"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-02-to-03-settled.png",
+      "size_bytes": 1413085,
+      "sha256": "e4a1a3b1e3bd6c5d51f88cca2821ea8612cf45f1ff93572a611efd5c5f2d0260"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-02-to-03-sheet.jpg",
+      "size_bytes": 227360,
+      "sha256": "fad0def30fc091914e1ca1b2804cc8174075be524d9de6edd6ed2f3b2fd96b61"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-03-to-04-after.png",
+      "size_bytes": 1342657,
+      "sha256": "3e3fd27da17608bc3244fc0eee06c237d85b04d2bb32b8d22f99aab45e180191"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-03-to-04-before.png",
+      "size_bytes": 1543775,
+      "sha256": "88d5f101d40d212504b3e954183a7ac58d4864174d46798ca87a5c21f9e62ea6"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-03-to-04-settled.png",
+      "size_bytes": 1459362,
+      "sha256": "cf3ed2c72f86b3486d06b9ae68326715b272298a52e5be9df6d28c01125ba403"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-03-to-04-sheet.jpg",
+      "size_bytes": 238134,
+      "sha256": "5490a0eca454000a0733b278aa7b742441ac3b04d60230cfb8a7746690773fba"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-04-to-05-after.png",
+      "size_bytes": 1614947,
+      "sha256": "c2c7720c71a84bbff0f8bf28d336f6ac578642e2043375a9f1b57e12782e2718"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-04-to-05-before.png",
+      "size_bytes": 1671355,
+      "sha256": "5fb633ba3a5d5279e47886ea7ea25128b396324d7a1c99536cbb5871c856d078"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-04-to-05-settled.png",
+      "size_bytes": 1600264,
+      "sha256": "b3d1f267d08bc7ec345f7be0b27ceb756ca082715e09d987892f5e8f2136e0dc"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-04-to-05-sheet.jpg",
+      "size_bytes": 236812,
+      "sha256": "a1c4821b056195e43cbb2544ce75478c5725c4a49346f7aba3a9c891e70ad54a"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-05-to-06-after.png",
+      "size_bytes": 1562124,
+      "sha256": "d491afa30bf3d9dbc071f75cfc4924a1ec2e1bf5d635d468ba4a4b1c8d00dd78"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-05-to-06-before.png",
+      "size_bytes": 1928753,
+      "sha256": "44369bbfbe101fa3e7bff785b2a6967bacf22085a38960b1fcf95b476c1d1bc8"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-05-to-06-settled.png",
+      "size_bytes": 1711008,
+      "sha256": "639d631fff3213a45259272db544eb115c3ca6979042a4e9f7749583a55cc64f"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-05-to-06-sheet.jpg",
+      "size_bytes": 236243,
+      "sha256": "5f2f17ae74409c1b2e1a34fe9849f5f899d26cedb7dc376eb4fbf8b198ec21b2"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-06-to-07-after.png",
+      "size_bytes": 1470754,
+      "sha256": "440015a265d47656ef49310ee55e0e8938f6b91c5a9a13a24a1825628709d9d7"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-06-to-07-before.png",
+      "size_bytes": 1905812,
+      "sha256": "3f261da11235c24152acdf85d824baf93cc8eeead0ccc09d2bbe2b2fd65403b8"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-06-to-07-settled.png",
+      "size_bytes": 1542362,
+      "sha256": "c4e559296134600fcdd820ad0213f8d92cd63bd9ad87dd4eeb98c8b11d4c5b02"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-06-to-07-sheet.jpg",
+      "size_bytes": 241053,
+      "sha256": "73d24c5d21a412a3e5caccd1b7d8a95c5831804f5b2247ed9e54096a013af89b"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-07-to-08-after.png",
+      "size_bytes": 1424223,
+      "sha256": "0afe7d81e9e42c9e14542e75b0718a7bc7895f15bfa41d69fd7a1d7249bf256c"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-07-to-08-before.png",
+      "size_bytes": 1639469,
+      "sha256": "6f2055d6d2c35c9c1dd955e70154ffbb1a4d95ba7ebcf48a5f96d035e42448cc"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-07-to-08-settled.png",
+      "size_bytes": 1434442,
+      "sha256": "8f122ea8777a95aff3822c247a766d7f65aa7374298bc4f15cca285bbbe741d2"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/boundary-07-to-08-sheet.jpg",
+      "size_bytes": 212452,
+      "sha256": "480744d484596c17bb0168c84409853adec981d7700d833aa376abd88f9ee631"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/closing-frame.png",
+      "size_bytes": 1583455,
+      "sha256": "9749aa89e0a443228ec6410ab374a3cdefb6bd7700ad304a206302f602022e32"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/eight-scene-contact-sheet.jpg",
+      "size_bytes": 1321529,
+      "sha256": "0c27d790490f2428fd2fd8c9c26edd5eba13accc96ef9f7bd3c0763c70bdd7c5"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/ffprobe.json",
+      "size_bytes": 4425,
+      "sha256": "499d10e19d111445fbd35eb2ca7dc304b61fc574cd4ce0346b48f9be029508da"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/opening-frame.png",
+      "size_bytes": 1210485,
+      "sha256": "d758f2b8468faee68d7a6d29ea9446433de2cdb2775d3f24406e032775d070c2"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-01-sample.png",
+      "size_bytes": 1889984,
+      "sha256": "abe9bd036d7dc9fc5816d2a15cfddb869b767cfcf85cfb4a8b0b5e195b6a47cb"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-02-sample.png",
+      "size_bytes": 1714209,
+      "sha256": "777962abdd818a6378842584bc1e26a5e71cf0b54624666a9a662af91ac59ca6"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-03-sample.png",
+      "size_bytes": 1523396,
+      "sha256": "be3b2f5e00d1ad85e1d09fad05b90573ff80951ef5fb8ec9db48ec84be29b74e"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-04-sample.png",
+      "size_bytes": 1654737,
+      "sha256": "3ebf29c98fdf52501b3c6488ff01d9062e778a63ab8d275c70e3ff6bdc6b8ab7"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-05-sample.png",
+      "size_bytes": 1723249,
+      "sha256": "b38e7b94de70dd790ed9a2d5d1d3a071b2755a08c60cc9367c5bd4ee5c742090"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-06-sample.png",
+      "size_bytes": 1897268,
+      "sha256": "7a7135b4379cdefdda2c5e5d6b160ddfee6e2f49efaf7cbccbd24903f913ee9f"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-07-sample.png",
+      "size_bytes": 1648128,
+      "sha256": "3994f2ac4c3f9130dd34e8c0d19fc658d77b16ee6bb1cec305f38fdd3e60eef1"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-08-sample.png",
+      "size_bytes": 1483381,
+      "sha256": "0b0f442b85bae83aab7d652d145c5664cd913337bcc14150ae648d6dacf1d249"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-boundaries.json",
+      "size_bytes": 14751,
+      "sha256": "eba4318b462fa8330b8b96ba9295891caebce2a233d6e56d956b0aea16733249"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/scene-boundaries.md",
+      "size_bytes": 560,
+      "sha256": "fa980daa59650f2381fae3dff35f79576b1447408c1683edf031a1b844eece61"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-diagnostics/srt-comparison.json",
+      "size_bytes": 3443,
+      "sha256": "51677ba8cac85550a0b9648f7895b6cd61185e9459b500318254c8497630c0b1"
+    }
+  ],
+  "scope_review": {
+    "approved_project_bytes_restored": true,
+    "approved_evidence_and_upload_kit_unchanged": true,
+    "approved_task2_files_unchanged": true,
+    "short_16": {
+      "checked": 13,
+      "changed": []
+    },
+    "shared_audio": {
+      "checked": 11,
+      "changed": []
+    },
+    "tracker_diff": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-tracker.diff",
+    "tracker_change": "SH-13 title only; existing pending-upload link and rendered state retained.",
+    "generated_cover": "Existing pipeline updated first-frame cover diagnostic; no separate image generation or thumbnail action.",
+    "youtube_authentication_or_api_calls": false,
+    "upload_or_publish": false,
+    "deletion_or_git_operation": false
+  },
+  "blocking_reason": null,
+  "independent_verification": {
+    "verified_at": "2026-11-01T20:27:07Z",
+    "media_sha256": "a571c015dbb2e78fd4401fc06022367837fcabc1b81364ff4fe9aaa3fa0f5ede",
+    "srt_sha256": "12c331ff7e5ec8792949c96c6f2436244df9c2e7f411a992053ac5f9ac081065",
+    "full_decode_passed": true,
+    "stream_checks_passed": true,
+    "visual_review_passed": true,
+    "speech_to_text_review_passed": true,
+    "srt_exact_ordered_match": true,
+    "script_regex_word_count": 119,
+    "scene_assets_verified_unchanged": 16,
+    "stale_content_absent": true,
+    "validation_only_master_run": "20261102-015113-release-existing-d324",
+    "validation_checks_passed": 43,
+    "report_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-verifier-report.md"
+  },
+  "next_action": "Publisher may upload this exact media hash as unlisted through the approved receipt-backed release path.",
+  "earlier_passed_repository_gate": {
+    "command": [
+      "./check.sh"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-11-01T20:21:17.776211+00:00",
+    "finished_at": "2026-11-01T20:21:26.534856+00:00",
+    "log_path": ".superpowers/sdd/2026-11-02-short-13-safe-release/task-3-check-attempt-2.log",
+    "attempt": 2
+  },
+  "updated_at": "2026-11-01T20:27:07Z"
+}

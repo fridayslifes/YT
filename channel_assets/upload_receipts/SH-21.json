@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "video_id": "SH-21",
+  "operation_key": "3ed786c2a7f1f5b7f468fbb13237ee8d14652e9c97d0259b52249674eda349e6",
+  "media_sha256": "0345e6593b3fdecffac512432d3765925ff69dffad7984d4c6959a544cd662b2",
+  "metadata_sha256": "2076db08f277492107f37db4471bb432f5450eb86bde02b7ad90ad45f810bdd3",
+  "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+  "privacy": "unlisted",
+  "contains_synthetic_media": true,
+  "self_declared_made_for_kids": false,
+  "state": "verified",
+  "created_at": "2026-11-06T19:27:54+00:00",
+  "remote_verification": {
+    "checked_at": "2026-11-06T19:28:10+00:00",
+    "id": "IdnZf3IT2IM",
+    "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+    "title": "The 1920 Wall Street Mystery #shorts",
+    "privacy": "unlisted",
+    "containsSyntheticMedia": "unknown",
+    "selfDeclaredMadeForKids": false,
+    "status": {
+      "uploadStatus": "uploaded",
+      "privacyStatus": "unlisted",
+      "license": "youtube",
+      "embeddable": true,
+      "publicStatsViewable": true,
+      "madeForKids": false,
+      "selfDeclaredMadeForKids": false
+    },
+    "contentDetails": {
+      "duration": "P0D",
+      "dimension": "2d",
+      "definition": "sd",
+      "caption": "false",
+      "licensedContent": false,
+      "contentRating": {},
+      "projection": "rectangular",
+      "hasCustomThumbnail": false
+    },
+    "processingDetails": {
+      "processingStatus": "processing",
+      "fileDetailsAvailability": "inProgress",
+      "processingIssuesAvailability": "inProgress",
+      "tagSuggestionsAvailability": "inProgress",
+      "editorSuggestionsAvailability": "inProgress",
+      "thumbnailsAvailability": "inProgress"
+    }
+  },
+  "notes": [],
+  "updated_at": "2026-11-06T19:28:10+00:00",
+  "upload_started_at": "2026-11-06T19:27:54+00:00",
+  "remote_id": "IdnZf3IT2IM",
+  "remote_url": "https://youtu.be/IdnZf3IT2IM",
+  "uploaded_at": "2026-11-06T19:28:10+00:00",
+  "verified_at": "2026-11-06T19:28:10+00:00"
+}

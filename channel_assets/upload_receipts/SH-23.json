@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "video_id": "SH-23",
+  "operation_key": "fa51df3c4fc3a51cab2c6c1dfd838ee9450033265e3f0ef30bf0a6eae4c678dc",
+  "media_sha256": "46a751e0a9780ef8e3830f18a74d83d332b3b124907313c11ff332dff9be47b8",
+  "metadata_sha256": "c4275511260752101d456fe9579e3cc598b54b80968a7f322928a50853633d2c",
+  "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+  "privacy": "unlisted",
+  "contains_synthetic_media": false,
+  "self_declared_made_for_kids": false,
+  "state": "verified",
+  "created_at": "2026-11-08T17:36:40+00:00",
+  "remote_verification": {
+    "checked_at": "2026-11-08T17:37:04+00:00",
+    "id": "KSw5d8We7oo",
+    "channel_id": "UC6hwVBnsfvfUGxfZi2sFT3A",
+    "title": "Where Does The Internet Actually Live? #shorts",
+    "privacy": "unlisted",
+    "containsSyntheticMedia": "unknown",
+    "selfDeclaredMadeForKids": false,
+    "status": {
+      "uploadStatus": "uploaded",
+      "privacyStatus": "unlisted",
+      "license": "youtube",
+      "embeddable": true,
+      "publicStatsViewable": true,
+      "madeForKids": false,
+      "selfDeclaredMadeForKids": false
+    },
+    "contentDetails": {
+      "duration": "P0D",
+      "dimension": "2d",
+      "definition": "sd",
+      "caption": "false",
+      "licensedContent": false,
+      "contentRating": {},
+      "projection": "rectangular",
+      "hasCustomThumbnail": false
+    },
+    "processingDetails": {
+      "processingStatus": "processing",
+      "fileDetailsAvailability": "inProgress",
+      "processingIssuesAvailability": "inProgress",
+      "tagSuggestionsAvailability": "inProgress",
+      "editorSuggestionsAvailability": "inProgress",
+      "thumbnailsAvailability": "inProgress"
+    }
+  },
+  "notes": [],
+  "updated_at": "2026-11-08T17:37:04+00:00",
+  "upload_started_at": "2026-11-08T17:36:40+00:00",
+  "remote_id": "KSw5d8We7oo",
+  "remote_url": "https://youtu.be/KSw5d8We7oo",
+  "uploaded_at": "2026-11-08T17:37:04+00:00",
+  "verified_at": "2026-11-08T17:37:04+00:00"
+}
