@@ -214,17 +214,17 @@ Automated tools ensuring high mobile CTR and algorithmic retention across both L
   ```bash
   .venv/bin/python tools/build_avatar.py
   ```
-  Generates `avatar_labyrinth_800x800.png` and `.svg` using the Labyrinth-Aperture design with heavy geometric gold arcs (`#FFB300`), electric cyan core (`#00E5FF`), and dual-mode hairline rim. Calibrated and verified for sharp visibility at 32×32 px mobile size (`channel_assets/avatar_contrast_test.png`).
+  Generates fresh vector SVG and high-res PNG avatar master on demand, calibrated for sharp visibility at 32×32 px mobile size.
 
 - **Unified Master Cinema Suite (`tools/branding_engine.py` / `pipeline.py --branding`)**:
   ```bash
   .venv/bin/python tools/pipeline.py --branding
   ```
-  Renders the complete 4-file broadcast intro & outro package:
-  1. `channel_assets/intro_16x9.mp4`: 2.5s Long-Form Stinger with volumetric cyan bloom, chromatic edge dispersion, 45Hz sub-transient + 35mm shutter.
-  2. `channel_assets/intro_9x16.mp4`: 2.0s Shorts vertical stinger.
-  3. `channel_assets/outro_16x9_endscreen.mp4`: 15.0s YouTube End Screen Master with interactive safe-zone target slots for "Next Recommended Video" and "Subscribe Avatar", with 15s ambient synthesizer drone and vinyl crackle.
-  4. `channel_assets/outro_9x16_loop.mp4`: 2.5s Shorts infinite loop bridge.
+  Renders the complete broadcast intro & outro package on demand:
+  1. 2.5s Long-Form Stinger with volumetric bloom, chromatic edge dispersion, 45Hz sub-transient + 35mm shutter.
+  2. 2.0s Shorts vertical stinger.
+  3. 15.0s YouTube End Screen Master with interactive safe-zone target slots for "Next Recommended Video" and "Subscribe Avatar", with 15s ambient synthesizer drone and vinyl crackle.
+  4. 2.5s Shorts infinite loop bridge.
 
   Every master is encoded BT.709 limited-range with the channel's loudnorm filter, and
   `branding_engine.run_branding_check()` prints the measured LUFS/dBTP after each render instead of

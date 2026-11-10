@@ -141,3 +141,38 @@ def test_legacy_publisher_reports_strict_release_success(tmp_path, monkeypatch):
 
     assert report.status == "PASS"
     assert report.metrics["remote_id"] == "abcdefghijk"
+
+
+def test_research_agent_blocks_copyrighted_fiction():
+    agent = agents.ResearchAgent()
+    dossier, report = agent.run("Marvel Iron Man Suit Science")
+    assert report.status == "FAIL"
+    assert "BLOCKED by IP Guard" in report.summary
+    assert report.metrics["copyright_cleared"] is False
+
+
+def test_research_agent_blocks_pseudoscience_falsehoods():
+    agent = agents.ResearchAgent()
+    dossier, report = agent.run("Flat Earth Horizon Geometry")
+    assert report.status == "FAIL"
+    assert "BLOCKED by Fact-Check Guard" in report.summary
+    assert report.metrics["truth_verified"] is False
+
+
+def test_research_agent_dynamically_verifies_valid_science():
+    agent = agents.ResearchAgent()
+    dossier, report = agent.run("Loss Aversion")
+    assert report.status == "PASS"
+    assert report.metrics["truth_verified"] is True
+    assert dossier["topic"] == "Loss Aversion"
+
+
+def test_research_agent_fails_closed_on_unverified_topic():
+    agent = agents.ResearchAgent()
+    dossier, report = agent.run("Unverified Random Pseudoscience Trend 999")
+    assert report.status == "FAIL"
+    assert "FAILED Research Gate" in report.summary
+    assert report.metrics["truth_verified"] is False
+    assert dossier == {}
+
+

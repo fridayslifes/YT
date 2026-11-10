@@ -65,18 +65,3 @@ Every successful upload appends a verified record with the live YouTube link.
   Video ID     : iDWfBVlhkPs
   Privacy      : PUBLIC
 --------------------------------------------------------------------------------
-[2026-11-10T08:12] SH-16 | SH-16
-  YouTube Link : https://youtu.be/dQw4w9WgXcQ
-  Video ID     : dQw4w9WgXcQ
-  Privacy      : PUBLIC
---------------------------------------------------------------------------------
-[2026-11-10T08:36] SH-16 | SH-16
-  YouTube Link : https://youtu.be/dQw4w9WgXcQ
-  Video ID     : dQw4w9WgXcQ
-  Privacy      : PUBLIC
---------------------------------------------------------------------------------
-[2026-11-10T09:01] SH-16 | SH-16
-  YouTube Link : https://youtu.be/dQw4w9WgXcQ
-  Video ID     : dQw4w9WgXcQ
-  Privacy      : PUBLIC
---------------------------------------------------------------------------------

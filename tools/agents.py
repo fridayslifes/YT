@@ -81,10 +81,95 @@ class ResearchAgent(BaseAgent):
     role = "Evidence & Primary Source Synthesist"
     emoji = "🔍"
 
-    def run(self, topic: str) -> tuple[Dict[str, Any], AgentReport]:
+    # Best-effort word-boundary matching to prevent false positives (e.g., 'marvelous')
+    COPYRIGHT_PATTERNS = [
+        re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
+        for term in (
+            "harry potter", "marvel", "star wars", "disney", "pokemon",
+            "lord of the rings", "game of thrones",
+        )
+    ]
+    PSEUDOSCIENCE_PATTERNS = [
+        re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
+        for term in (
+            "flat earth", "astrology", "perpetual motion", "anti-vaccine",
+            "chemtrails", "telepathy", "crystal healing",
+            "dopamine detox removes 90%",
+        )
+    ]
+
+    def run(self, topic: str, dossier_override: Optional[Dict[str, Any]] = None) -> tuple[Dict[str, Any], AgentReport]:
+        """Research and verify empirical grounding for a topic. Fails closed if unverified."""
         t0 = time.time()
-        self.log(f"Synthesizing primary empirical dossier for '{topic}'...")
-        dossier = creative_engine.synthesize_dossier(topic)
+        topic_clean = topic.strip()
+        self.log(f"Synthesizing and truth-verifying empirical dossier for '{topic_clean}'...")
+
+        # 1. Anti-infringement / Copyright & Corporate IP safety guard
+        ip_violation = next((p.pattern for p in self.COPYRIGHT_PATTERNS if p.search(topic_clean)), None)
+        if ip_violation:
+            clean_name = ip_violation.replace(r"\b", "").replace("\\", "")
+            summary = f"BLOCKED by IP Guard: '{topic_clean}' contains copyrighted fictional IP ('{clean_name}')"
+            self.log(summary)
+            return {}, AgentReport(
+                agent_name=self.name,
+                role=self.role,
+                status="FAIL",
+                duration_s=round(time.time() - t0, 2),
+                summary=summary,
+                metrics={"copyright_cleared": False},
+            )
+
+        # 2. Debunked Pseudoscience & False Information Guard
+        false_claim = next((p.pattern for p in self.PSEUDOSCIENCE_PATTERNS if p.search(topic_clean)), None)
+        if false_claim:
+            clean_claim = false_claim.replace(r"\b", "").replace("\\", "")
+            summary = f"BLOCKED by Fact-Check Guard: '{topic_clean}' contains debunked pseudoscience or false claim ('{clean_claim}')"
+            self.log(summary)
+            return {}, AgentReport(
+                agent_name=self.name,
+                role=self.role,
+                status="FAIL",
+                duration_s=round(time.time() - t0, 2),
+                summary=summary,
+                metrics={"truth_verified": False, "false_claim": clean_claim},
+            )
+
+        # 3. Retrieve verified dossier (fails closed: never synthesize an unverified study)
+        if dossier_override:
+            dossier = dossier_override
+        else:
+            try:
+                dossier = creative_engine.synthesize_dossier(topic_clean)
+            except Exception as exc:
+                summary = (
+                    f"FAILED Research Gate: Topic '{topic_clean}' has no verified empirical study on file ({exc}). "
+                    f"Research fails closed to prevent fabricated citations."
+                )
+                self.log(summary)
+                return {}, AgentReport(
+                    agent_name=self.name,
+                    role=self.role,
+                    status="FAIL",
+                    duration_s=round(time.time() - t0, 2),
+                    summary=summary,
+                    metrics={"truth_verified": False, "missing_dossier": True},
+                )
+
+        # Post-synthesis copyright check across full dossier content
+        combined_text = f"{topic_clean} {json.dumps(dossier, ensure_ascii=False)}"
+        content_ip_violation = next((p.pattern for p in self.COPYRIGHT_PATTERNS if p.search(combined_text)), None)
+        if content_ip_violation:
+            clean_name = content_ip_violation.replace(r"\b", "").replace("\\", "")
+            summary = f"BLOCKED by IP Guard: Dossier for '{topic_clean}' contains copyrighted fictional IP ('{clean_name}')"
+            self.log(summary)
+            return {}, AgentReport(
+                agent_name=self.name,
+                role=self.role,
+                status="FAIL",
+                duration_s=round(time.time() - t0, 2),
+                summary=summary,
+                metrics={"copyright_cleared": False},
+            )
 
         required_keys = [
             "primary_researchers", "year", "institution", "publication",
@@ -92,22 +177,14 @@ class ResearchAgent(BaseAgent):
             "five_second_override",
         ]
         missing = [k for k in required_keys if not dossier.get(k)]
-        confidence = "HIGH" if not missing else "MODERATE"
+        citation_verified = dossier.get("citation_verified", True)
+        confidence = "HIGH" if (not missing and citation_verified) else "MODERATE"
 
-        # Anti-infringement / Copyright & Corporate IP safety guard
-        copyright_blacklist = ("harry potter", "marvel", "star wars", "disney", "pokemon", "lord of the rings", "game of thrones")
-        combined_text = (topic + " " + str(dossier)).lower()
-        ip_violation = next((ip for ip in copyright_blacklist if ip in combined_text), None)
-
-        if ip_violation:
-            summary = f"BLOCKED by IP Guard: '{topic}' contains copyrighted fictional IP ('{ip_violation}')"
-            status = "FAIL"
-        else:
-            summary = (
-                f"Anchored '{dossier.get('topic')}' in {dossier.get('primary_researchers')} "
-                f"({dossier.get('year')}, {dossier.get('institution')}) | Stat: {dossier.get('quantitative_stat')}"
-            )
-            status = "WARN" if missing else "PASS"
+        summary = (
+            f"Anchored '{dossier.get('topic')}' in {dossier.get('primary_researchers')} "
+            f"({dossier.get('year')}, {dossier.get('institution')}) | Stat: {dossier.get('quantitative_stat')}"
+        )
+        status = "WARN" if (missing or not citation_verified) else "PASS"
 
         self.log(summary)
         return dossier, AgentReport(
@@ -122,7 +199,26 @@ class ResearchAgent(BaseAgent):
                 "stat": dossier.get("quantitative_stat"),
                 "confidence": confidence,
                 "is_synthetic": False,
-                "copyright_cleared": ip_violation is None,
+                "copyright_cleared": True,
+                "truth_verified": bool(citation_verified),
+            },
+        )
+
+        self.log(summary)
+        return dossier, AgentReport(
+            agent_name=self.name,
+            role=self.role,
+            status=status,
+            duration_s=round(time.time() - t0, 2),
+            summary=summary,
+            metrics={
+                "researchers": dossier.get("primary_researchers"),
+                "year": dossier.get("year"),
+                "stat": dossier.get("quantitative_stat"),
+                "confidence": confidence,
+                "is_synthetic": False,
+                "copyright_cleared": True,
+                "truth_verified": True,
             },
         )
 

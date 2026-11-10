@@ -245,6 +245,16 @@ def append_uploaded_video_record(
     vid_code_match = re.search(r"(?:v=|youtu\.be/|shorts/)([a-zA-Z0-9_-]{11})", youtube_url)
     remote_id = vid_code_match.group(1) if vid_code_match else ""
 
+    # Reject known placeholders from entering production log unless explicitly targeting custom file
+    if tracker_file is None and remote_id in {"dQw4w9WgXcQ", "test_video_id"}:
+        return path
+
+    # Deduplicate by remote_id if file already contains it
+    if path.exists() and remote_id:
+        existing_text = path.read_text(encoding="utf-8", errors="ignore")
+        if f"Video ID     : {remote_id}" in existing_text:
+            return path
+
     entry = [
         f"[{now_str}] {video_id} | {title or video_id}",
         f"  YouTube Link : {youtube_url}",
