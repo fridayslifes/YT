@@ -94,11 +94,10 @@ Rule: every long video gets **2–3 Shorts** cut from its best moments. Every Sh
 | 8:30–9:30 | Best point | Save the strongest idea for the end so people stay. |
 | 9:30–10:00 | End | 1 line summary + point to the next video with an **end screen**. No long goodbye. |
 
-### 3.3 Title and the preview frame
-- This pipeline produces no thumbnail image. YouTube takes the feed preview from the video's own frames, so the first second of footage is the thumbnail.
-- Put the hook where the frame will be cut: a readable subject, the caption pill inside the 30%–58% safe band, nothing essential in the bottom-right.
-- Click rate (CTR): under 3% = change the title or re-cut the opening; 4–5% = good; 7%+ = excellent.
-- If you ever want a custom frame, pick one in Studio; nothing in this repo generates or uploads one.
+### 3.3 Title, preview frame and custom long-form thumbnails
+- **Shorts:** Produces no thumbnail image. YouTube selects the feed preview from the video's own frames, so the first second of footage is the thumbnail. Put the hook where the frame will be cut: a readable subject, the caption pill inside the 30%–58% safe band, nothing essential in the bottom-right.
+- **Long-Form (16:9):** Long-form videos support high-resolution 16:9 custom thumbnails generated via `tools.branding_engine.render_longform_thumbnail()`. All generated thumbnails must pass through the policy gate (verifying no deceptive clickbait imagery, zero real-person likeness, and topic accuracy).
+- Click rate (CTR): under 3% = change the title or re-generate thumbnail/cut opening; 4–5% = good; 7%+ = excellent.
 
 ### 3.4 Long video upload checklist
 - Chapters in the description (`0:00 Intro`, `1:12 …`) — first must be `0:00`.

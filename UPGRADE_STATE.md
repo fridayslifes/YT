@@ -1,6 +1,6 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** PHASE 1 & 2 COMPLETED (Rule A & B cleanup, project.json variant decoupling, AST lint suite passing); PHASE 3 (Thumbnail Policy Alignment) READY.  
+**Status:** PHASE 3 COMPLETED (Thumbnail policy aligned: zero Shorts thumbnails; long-form 16:9 custom thumbnails enabled & policy-gated); PHASE 4 (Environment & CLI Hardening) READY.  
 **Last Updated:** 2026-11-11 02:56:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
@@ -200,6 +200,12 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 - **Verification Evidence:**
   - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `981 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
 
+### Task 3.1: Thumbnail Contradiction Resolution [COMPLETED]
+- **Shorts Policy:** Strictly zero thumbnails. YouTube feed preview selects directly from the video's own frames. Verified that no worker kind or verifier generates/gates Shorts thumbnails.
+- **Long-Form Policy:** Long-form 16:9 custom thumbnails are explicitly permitted and supported via `tools.branding_engine.render_longform_thumbnail()`. All custom thumbnails must pass through the policy gate.
+- **Documentation & Impact Tests:** Updated `AGENTS.md`, `GEMINI.md`, `VIDEO_GUIDE_SHORTS_AND_LONG.md`, and `tests/test_impact.py`.
+- **Verification Evidence:** `tools/master.py impact --all` reports 0 dangling references. All 22 tests in `tests/test_impact.py` pass.
+
 ---
 
 ## 5. Master Task DAG & Implementation Order
@@ -214,10 +220,10 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
   ├── Task 2.2: Remove `demos/` imports from production code; relocate demo assets to `tests/fixtures/` [DONE]
   └── Task 2.3: Remove DB Cooper and Wall Street hardcoded defaults from picture_book, forensic, and humanizer engines [DONE]
 
-[Phase 3: Thumbnail Policy Alignment (User Decided)] [NEXT]
-  └── Task 3.1: Update tests/test_impact.py, AGENTS.md, GEMINI.md, and VIDEO_GUIDE to forbid Shorts thumbnails while explicitly allowing long-form thumbnails via render_longform_thumbnail()
+[Phase 3: Thumbnail Policy Alignment (User Decided)] [COMPLETED]
+  └── Task 3.1: Update tests/test_impact.py, AGENTS.md, GEMINI.md, and VIDEO_GUIDE to forbid Shorts thumbnails while explicitly allowing long-form thumbnails via render_longform_thumbnail() [DONE]
 
-[Phase 4: Environment & CLI Hardening]
+[Phase 4: Environment & CLI Hardening] [NEXT]
   ├── Task 4.1: Eliminate stale Edge-TTS references in GEMINI.md and tools/guard.py
   ├── Task 4.2: Replace hardcoded `/opt/homebrew` and `/Users` paths with environment-safe resolution
   ├── Task 4.3: Make hardware encoder selection explicit and fail closed if unavailable

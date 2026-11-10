@@ -248,13 +248,9 @@ Automated tools ensuring high mobile CTR and algorithmic retention across both L
   that every `long_form` project declares an end screen, because that slate is where YouTube lets a
   subscribe button exist.
 
-- **No thumbnail subsystem.** YouTube selects the feed preview from the video's own frames, so this
-  pipeline generates no thumbnail image, uploads none, and gates none. The thumbnail studio, its
-  `thumbball` alias, the pipeline's thumbnail flags and the `master.py thumbnails` command were all
-  deleted on 2026-11-01, together with the pixel audit board that reported a fabricated exposure and
-  contrast score for every plate it measured. What carries a Short's click now is the first second of
-  footage and the on-screen caption pill inside the 30%–58% safe band, both set in `project.json` and
-  rendered by the build step.
+- **Thumbnails Policy (Shorts vs. Long-Form):**
+  - **Shorts (9:16):** Strictly zero thumbnails. YouTube selects the feed preview from the video's own frames, so the Shorts pipeline generates no thumbnail image, uploads none, and gates none. The legacy Shorts thumbnail studio, its `thumbball` alias, the pipeline's thumbnail flags, and the `master.py thumbnails` command were all permanently deleted on 2026-11-01. What carries a Short's click is the first second of footage and the on-screen caption pill inside the 30%–58% safe band, both set in `project.json` and rendered by the build step.
+  - **Long-Form (16:9):** Custom 16:9 thumbnails are permitted and generated via `tools.branding_engine.render_longform_thumbnail()`. Every generated long-form thumbnail must pass through the policy gate (verifying authentic representation, zero misleading clickbait imagery, zero real-person likeness, and strict adherence to channel style branding).
 
 ---
 

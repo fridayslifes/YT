@@ -79,9 +79,9 @@ python tools/master.py status [RUN_ID]
 python tools/master.py resume RUN_ID --yes
 ```
 
-There are no thumbnails in this pipeline. YouTube selects the feed preview from the video's own
-frames, so nothing generates, uploads, or gates a thumbnail image; the subsystem was deleted on
-2026-11-01 and `impact --all` is what proves nothing was left pointing at it.
+**Thumbnails Policy:**
+- **Shorts (9:16):** Strictly zero thumbnails. YouTube selects feed previews directly from the video's own frames, so nothing generates, uploads, or gates a thumbnail image for Shorts; the Shorts thumbnail subsystem was permanently deleted on 2026-11-01.
+- **Long-Form (16:9):** Custom 16:9 thumbnails are supported and generated via `tools.branding_engine.render_longform_thumbnail()`. All long-form thumbnails must pass through the policy gate (strict validation: zero misleading imagery, zero real-person likeness or copyright infringement).
 
 ## 6. Non-negotiable gates
 

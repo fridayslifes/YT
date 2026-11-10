@@ -324,11 +324,13 @@ def test_the_live_repo_has_no_critical_dangling_reference():
     assert index.modules and impact.summary(index)["modules"] >= 30, "the index must cover the real tree"
 
 
-def test_the_live_repo_leaves_no_thumbnail_reference_anywhere():
-    """The removal is only finished when the documents agree with the code.
+def test_the_live_repo_leaves_no_shorts_thumbnail_pipeline_reference():
+    """Shorts thumbnail pipeline is forbidden, while long-form 16:9 thumbnail generator exists in tools.branding_engine."""
+    from tools import branding_engine
 
-    Asserted on the index rather than by grepping: `impact --all` is what an agent reads to find the
-    sites, so if a site is invisible to it, it stays in the tree.
-    """
-    findings = impact.find_stale(impact.Index(ROOT))
+    index = impact.Index(ROOT)
+    findings = impact.find_stale(index)
     assert [str(f) for f in findings] == [], "still dangling:\n" + "\n".join(str(f) for f in findings)
+    assert "thumbnail" not in index.verifier_names
+    assert index.worker_kinds and "thumbnail" not in index.worker_kinds
+    assert hasattr(branding_engine, "render_longform_thumbnail"), "Long-form thumbnail generator must exist in branding_engine"
