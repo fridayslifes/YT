@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import shutil
 import subprocess
 import urllib.parse
 import urllib.request
@@ -86,21 +87,22 @@ def download_with_aria2c(url: str, output_dir: Path, filename: str) -> Path:
         logger.info(f"Asset already cached: {target_path} ({target_path.stat().st_size} bytes)")
         return target_path
 
-    cmd = [
-        "aria2c",
-        "-x", "16",
-        "-s", "16",
-        "-k", "1M",
-        url,
-        "-d", str(output_dir),
-        "-o", filename,
-        "--allow-overwrite=true",
-    ]
-    logger.info(f"Downloading {url} via 16-thread aria2c -> {target_path}")
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    if res.returncode != 0:
-        # Fallback to urllib if aria2c fails or URL cannot do 16 threads
-        logger.warning(f"aria2c failed ({res.stderr[:200]}), falling back to urllib...")
+    if shutil.which("aria2c"):
+        cmd = [
+            "aria2c",
+            "-x", "16",
+            "-s", "16",
+            "-k", "1M",
+            url,
+            "-d", str(output_dir),
+            "-o", filename,
+            "--allow-overwrite=true",
+        ]
+        logger.info(f"Downloading {url} via 16-thread aria2c -> {target_path}")
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        if res.returncode != 0:
+            raise RuntimeError(f"aria2c download failed for {url} ({res.stderr[:200]})")
+    else:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (FrameForge/4.0)"})
         with urllib.request.urlopen(req) as resp, open(target_path, "wb") as f:
             f.write(resp.read())
@@ -181,7 +183,7 @@ def get_fluent_3d_emoji(name_or_alias: str, output_name: Optional[str] = None) -
                 break
 
     if not rel_path:
-        # Fallback to direct name attempt
+        # Construct direct repository path for uncataloged emoji
         capitalized = " ".join(word.capitalize() for word in clean_key.split("_"))
         rel_path = f"{urllib.parse.quote(capitalized)}/3D/{clean_key}_3d.png"
 
@@ -323,24 +325,11 @@ if __name__ == "__main__":
         q = sys.argv[2] if len(sys.argv) > 2 else "thumbs_up"
         p = get_fluent_3d_emoji(q)
         print(f"Downloaded 3D Emoji: {p}")
-    else:
-        sample_script = """
-## Scene 1
-If you had walked down Wall Street in September 1920, you would have seen a single horse-drawn wagon halt outside the world's wealthiest bank. [SFX: vine boom @ 0.0s] [EMOJI: warning @ top-left]
-
-## Scene 2
-Inside that wooden wagon lay five hundred pounds of TNT packed with cast-iron sash weights. [SFX: dramatic @ 0.0s] [EMOJI: explosion @ center]
-
-## Scene 3
-When the timer hit noon, the blast vaporized the street, shattering windows a mile away and ending thirty-eight lives. [SFX: boom @ 0.0s] [EMOJI: skull @ center-right]
-
-## Scene 4
-A secret letter arrived hours later: 'We will not tolerate any longer.' The bombers vanished forever. [SFX: typewriter @ 0.0s] [EMOJI: magnifying_glass @ bottom-center]
-
-## Scene 5
-Subscribe to uncover how the largest manhunt in American history failed to find a single killer. [SFX: cash register @ 0.0s] [EMOJI: thumbs_up @ center]
-"""
-        staged = parse_script_staging(sample_script)
+    elif len(sys.argv) > 1 and sys.argv[1] == "--stage-file":
+        script_file = Path(sys.argv[2])
+        staged = parse_script_staging(script_file.read_text(encoding="utf-8"))
         print(f"Parsed {len(staged)} staged scenes. Staging and downloading assets...")
         res = stage_and_download_all_assets(staged)
+    else:
+        print("Usage: python tools/multimedia_director.py [--search-sfx <query> | --get-sfx <name> | --get-emoji <name> | --stage-file <script.md>]")
         print(json.dumps(res, indent=2))

@@ -317,7 +317,7 @@ def render_intro_video(width: int, height: int, output_mp4: str, duration: float
         final_frame.save(frame_path, "PNG")
 
     # Encode with FFmpeg
-    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"]
+    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"] if sys.platform == "darwin" else ["-c:v", "libx264", "-crf", "16"]
     cmd = [
         "ffmpeg", "-y",
         "-framerate", str(FPS),
@@ -332,24 +332,7 @@ def render_intro_video(width: int, height: int, output_mp4: str, duration: float
         "-shortest",
         output_mp4
     ]
-    try:
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError:
-        fallback_cmd = [
-            "ffmpeg", "-y",
-            "-framerate", str(FPS),
-            "-i", os.path.join(temp_dir, "frame_%04d.png"),
-            "-i", audio_wav,
-            "-c:v", "libx264", "-crf", "16",
-            *COLOR_FLAGS,
-            *AUDIO_FLAGS,
-            "-c:a", "aac",
-            "-b:a", "320k",
-            "-ar", "48000",
-            "-shortest",
-            output_mp4
-        ]
-        subprocess.run(fallback_cmd, check=True)
+    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     shutil.rmtree(temp_dir, ignore_errors=True)
     print(f"Generated SOTA Intro: {output_mp4}")
@@ -468,13 +451,13 @@ def render_outro_endscreen(width: int, height: int, output_mp4: str, duration: f
         final_frame.save(frame_path, "PNG")
 
     # Encode with FFmpeg
+    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"] if sys.platform == "darwin" else ["-c:v", "libx264", "-crf", "16"]
     cmd = [
         "ffmpeg", "-y",
         "-framerate", str(FPS),
         "-i", os.path.join(temp_dir, "frame_%04d.png"),
         "-i", audio_wav,
-        "-c:v", "h264_videotoolbox",
-        "-b:v", "14M",
+        *vcodec,
         *COLOR_FLAGS,
         *AUDIO_FLAGS,
         "-c:a", "aac",
@@ -483,24 +466,7 @@ def render_outro_endscreen(width: int, height: int, output_mp4: str, duration: f
         "-shortest",
         output_mp4
     ]
-    try:
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError:
-        fallback_cmd = [
-            "ffmpeg", "-y",
-            "-framerate", str(FPS),
-            "-i", os.path.join(temp_dir, "frame_%04d.png"),
-            "-i", audio_wav,
-            "-c:v", "libx264", "-crf", "16",
-            *COLOR_FLAGS,
-            *AUDIO_FLAGS,
-            "-c:a", "aac",
-            "-b:a", "320k",
-            "-ar", "48000",
-            "-shortest",
-            output_mp4
-        ]
-        subprocess.run(fallback_cmd, check=True)
+    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     shutil.rmtree(temp_dir, ignore_errors=True)
     print(f"Generated SOTA End Screen Outro: {output_mp4}")
@@ -567,13 +533,13 @@ def render_shorts_outro_loop(width: int, height: int, output_mp4: str, duration:
         frame_path = os.path.join(temp_dir, f"frame_{f:04d}.png")
         final_frame.save(frame_path, "PNG")
 
+    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"] if sys.platform == "darwin" else ["-c:v", "libx264", "-crf", "16"]
     cmd = [
         "ffmpeg", "-y",
         "-framerate", str(FPS),
         "-i", os.path.join(temp_dir, "frame_%04d.png"),
         "-i", audio_wav,
-        "-c:v", "h264_videotoolbox",
-        "-b:v", "14M",
+        *vcodec,
         *COLOR_FLAGS,
         *AUDIO_FLAGS,
         "-c:a", "aac",
@@ -582,24 +548,7 @@ def render_shorts_outro_loop(width: int, height: int, output_mp4: str, duration:
         "-shortest",
         output_mp4
     ]
-    try:
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError:
-        fallback_cmd = [
-            "ffmpeg", "-y",
-            "-framerate", str(FPS),
-            "-i", os.path.join(temp_dir, "frame_%04d.png"),
-            "-i", audio_wav,
-            "-c:v", "libx264", "-crf", "16",
-            *COLOR_FLAGS,
-            *AUDIO_FLAGS,
-            "-c:a", "aac",
-            "-b:a", "320k",
-            "-ar", "48000",
-            "-shortest",
-            output_mp4
-        ]
-        subprocess.run(fallback_cmd, check=True)
+    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     shutil.rmtree(temp_dir, ignore_errors=True)
     print(f"Generated SOTA Shorts Outro Loop: {output_mp4}")

@@ -469,3 +469,40 @@ def generate_all_4_archetype_demos(demo_dir: Path) -> Dict[str, Path]:
     results["stickman"] = render_30s_stickman_hd_with_audio(demo_dir / "demo_03_stickman_30s_hd.mp4")
     results["hybrid"] = render_30s_hybrid_hd_with_audio(demo_dir / "demo_04_hybrid_30s_hd.mp4")
     return results
+
+
+# ---------------------------------------------------------------------- #
+# Reference Demo Script: 1971 D.B. Cooper Master (Test Fixture Only)
+# ---------------------------------------------------------------------- #
+DB_COOPER_LONGFORM_DEMO_SCRIPT = [
+    {
+        "id": "s01",
+        "act": "Act 1: The Setup",
+        "text": "On a rainy Wednesday afternoon before Thanksgiving, a man in a dark business suit walked up to the Northwest Orient counter in Portland and bought a one-way ticket for twenty dollars.",
+        "sound_cues": [{"name": "seatbelt_chime", "search": "airplane seatbelt chime", "offset": 0.2, "vol": 0.22}],
+        "left_plate_text": "PORTLAND INTL AIRPORT - NOV 24 1971",
+        "center_focus": "Flight 305 Boarding Gate",
+        "right_prop": "NW Orient Ticket $20",
+        "highlighter_phrase": "twenty dollars",
+        "left_emoji": "airplane",
+        "right_emoji": "dollar",
+        "stamp_text": "CLASSIFIED",
+    },
+    {
+        "id": "s02",
+        "act": "Act 1: Seat 18C",
+        "text": "He gave the name Dan Cooper. He boarded Boeing 727 Flight 305, took Seat 18C, lit a cigarette, and ordered a bourbon and soda with crisp ice.",
+        "sound_cues": [
+            {"name": "match_strike", "search": "match lighting strike flame", "offset": 0.4, "vol": 0.22},
+            {"name": "ice_in_bourbon", "search": "ice clinking in glass cup", "offset": 2.2, "vol": 0.20},
+        ],
+        "left_plate_text": "BOEING 727 CABIN - SEAT 18C",
+        "center_focus": "Gentleman in Black Sunglasses",
+        "right_prop": "Bourbon Cup & Raleigh Pack",
+        "highlighter_phrase": "Seat 18C",
+        "left_emoji": "fire",
+        "right_emoji": "eyes",
+        "stamp_text": "EVIDENCE",
+    },
+]
+

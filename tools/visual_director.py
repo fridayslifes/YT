@@ -302,42 +302,6 @@ TOPIC_VISUAL_BLUEPRINTS: Dict[str, Dict[int, Dict[str, str]]] = {
             "archetype": "empirical_evidence",
         },
     },
-    "wall_street_mystery": {
-        1: {
-            "scale": "High-tension 3D spatial medium close-up documentary shot at eye-level",
-            "subject": "a 42-year-old federal investigator in a 1920s charcoal wool trench coat and fedora, frozen outside J.P. Morgan",
-            "action": "staring in shock at a horse-drawn cart abandoned in the street, framed past a brass Wall Street lamppost in the foreground",
-            "setting": "1920 Manhattan Wall Street intersection with historic sandstone bank facades receding in deep bokeh",
-            "lighting": "moody chiaroscuro slanting afternoon sunlight with volumetric dust and steam",
-            "archetype": "visceral_hook",
-        },
-        2: {
-            "scale": "Authentic 1920 archival forensic documentation 3D medium shot",
-            "subject": "two federal investigators in dark three-piece suits with analytical expressions",
-            "action": "examining photographic plates and street grid blueprints of 23 Wall Street across an evidence desk",
-            "setting": "1920 Bureau of Investigation field office with dark oak paneling and brass file cabinets",
-            "lighting": "warm directional window light cutting through smoke with green-shaded banker's lamp",
-            "archetype": "empirical_evidence",
-        },
-    },
-    "cooper": {
-        1: {
-            "scale": "High-tension 3D spatial medium close-up documentary shot at eye-level",
-            "subject": "a calm 45-year-old passenger in a dark trench coat, black suit, and mother-of-pearl tie clip seated in airplane seat 18C",
-            "action": "lighting a cigarette while looking out a rain-streaked cabin window, framed past a foreground tray table and bourbon glass",
-            "setting": "1971 Boeing 727 passenger cabin interior with dim incandescent reading lights and soft bokeh",
-            "lighting": "moody chiaroscuro cabin lighting with warm tungsten reading lamp and cool blue storm flashes outside the window",
-            "archetype": "visceral_hook",
-        },
-        2: {
-            "scale": "Authentic 1971 archival FBI investigation documentary 3D medium shot",
-            "subject": "two federal agents in dark suits examining serialized 20 dollar ransom lists and radar tracking logs",
-            "action": "marking flight coordinates on a navigational map across a dark briefing table with tea mugs and paper files",
-            "setting": "1971 FBI Seattle field office with teak wood walls and teletype machine in soft background blur",
-            "lighting": "warm directional overhead fluorescent lighting with sharp shadow falloff across paper edges",
-            "archetype": "empirical_evidence",
-        },
-    },
     "speckled_band": {
         1: {
             "scale": "Authentic 1892 Victorian illustrated storybook medium close-up shot at eye-level",

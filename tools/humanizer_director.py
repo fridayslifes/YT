@@ -28,7 +28,6 @@ TOOLS_DIR = REPO_ROOT / "tools"
 ASSETS_DIR = REPO_ROOT / "assets"
 SFX_DIR = ASSETS_DIR / "audio" / "sfx"
 EMOJI_DIR = ASSETS_DIR / "emojis"
-BGM_FILE = ASSETS_DIR / "audio" / "bgm" / "vertigo_tension.mp3"
 KOKORO_MODEL = TOOLS_DIR / "kokoro_models" / "kokoro-v1.0.onnx"
 KOKORO_VOICES = TOOLS_DIR / "kokoro_models" / "voices-v1.0.bin"
 OUTPUT_DIR = REPO_ROOT / "output"
@@ -39,6 +38,7 @@ FONT_BOLD = str(TOOLS_DIR / "fonts" / "BeVietnamPro-Bold.ttf")
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from tools.errors import AudioDesignError, MissingInputError, RenderingError  # noqa: E402
 from tools.multimedia_director import (  # noqa: E402
     get_fluent_3d_emoji,
     get_myinstants_sound,
@@ -81,7 +81,7 @@ def validate_human_prose(text: str) -> List[str]:
 # ---------------------------------------------------------------------- #
 # 2. Context-Aware Diegetic Sound Definitions
 # ---------------------------------------------------------------------- #
-def resolve_diegetic_sound(sound_name: str, search_query: str) -> Optional[Path]:
+def resolve_diegetic_sound(sound_name: str, search_query: str) -> Path:
     """Ensures the diegetic sound file is cached locally in assets/audio/sfx/."""
     SFX_DIR.mkdir(parents=True, exist_ok=True)
     local_path = SFX_DIR / f"{sound_name}.mp3"
@@ -96,19 +96,21 @@ def resolve_diegetic_sound(sound_name: str, search_query: str) -> Optional[Path]
     if results:
         best_url = results[0]["url"]
         try:
-            return get_myinstants_sound(best_url, f"{sound_name}.mp3")
+            res = get_myinstants_sound(best_url, f"{sound_name}.mp3")
+            if res and res.exists():
+                return res
         except Exception as e:
             logger.warning(f"Failed to download sound '{sound_name}': {e}")
 
-    for fallback in ["whoosh.wav", "boom.wav", "shutter.wav", "chime.wav"]:
-        cand = SFX_DIR / fallback
-        if cand.exists():
-            return cand
-    return None
+    raise AudioDesignError(
+        stage="sound_resolution",
+        artifact=sound_name,
+        cause=f"Diegetic sound '{sound_name}' could not be resolved from local SFX or search query '{search_query}'",
+    )
 
 
 # ---------------------------------------------------------------------- #
-# 3. Novelistic Script Architecture: The 1971 D.B. Cooper Master (3-Act)
+# 3. Novelistic Script Architecture
 # ---------------------------------------------------------------------- #
 @dataclass
 class HumanScene:
@@ -125,163 +127,34 @@ class HumanScene:
     stamp_text: Optional[str] = None
 
 
-DB_COOPER_LONGFORM_SCRIPT: List[HumanScene] = [
-    # --- ACT 1: THE SETUP & SENSORY HOOK (0:00 - 0:45) ---
-    HumanScene(
-        scene_id="s01",
-        act="Act 1: The Setup",
-        text="On a rainy Wednesday afternoon before Thanksgiving, a man in a dark business suit walked up to the Northwest Orient counter in Portland and bought a one-way ticket for twenty dollars.",
-        sound_cues=[{"name": "seatbelt_chime", "search": "airplane seatbelt chime", "offset": 0.2, "vol": 0.22}],
-        left_plate_text="PORTLAND INTL AIRPORT - NOV 24 1971",
-        center_focus="Flight 305 Boarding Gate",
-        right_prop="NW Orient Ticket $20",
-        highlighter_phrase="twenty dollars",
-        left_emoji="airplane",
-        right_emoji="dollar",
-        stamp_text="CLASSIFIED",
-    ),
-    HumanScene(
-        scene_id="s02",
-        act="Act 1: Seat 18C",
-        text="He gave the name Dan Cooper. He boarded Boeing 727 Flight 305, took Seat 18C, lit a cigarette, and ordered a bourbon and soda with crisp ice.",
-        sound_cues=[
-            {"name": "match_strike", "search": "match lighting strike flame", "offset": 0.4, "vol": 0.22},
-            {"name": "ice_in_bourbon", "search": "ice clinking in glass cup", "offset": 2.2, "vol": 0.20},
-        ],
-        left_plate_text="BOEING 727 CABIN - SEAT 18C",
-        center_focus="Gentleman in Black Sunglasses",
-        right_prop="Bourbon Cup & Raleigh Pack",
-        highlighter_phrase="Seat 18C",
-        left_emoji="fire",
-        right_emoji="eyes",
-        stamp_text="EVIDENCE",
-    ),
-    HumanScene(
-        scene_id="s03",
-        act="Act 1: The Ransom Note",
-        text="Minutes after takeoff, he handed flight attendant Florence Schaffner a folded paper slip. She slipped it into her purse unread until Cooper leaned across: *Miss, you better look at that note. I have a bomb.*",
-        sound_cues=[
-            {"name": "flight_attendant_ding", "search": "flight attendant call button ding", "offset": 0.3, "vol": 0.24},
-            {"name": "sub_bass_drop", "search": "cinema sub bass boom drop impact", "offset": 2.4, "vol": 0.28},
-        ],
-        left_plate_text="HANDWRITTEN RANSOM SLIP",
-        center_focus="Briefcase with Red Cylinders",
-        right_prop="Florence Schaffner Statement",
-        highlighter_phrase="I have a bomb",
-        left_emoji="bomb",
-        right_emoji="warning",
-        stamp_text="EVIDENCE",
-    ),
-    # --- ACT 2: THE DEMAND & THE AIRPORT TENSION (0:45 - 1:35) ---
-    HumanScene(
-        scene_id="s04",
-        act="Act 2: The Demand",
-        text="Inside his black briefcase lay eight red cylinders wired to a cylindrical battery. His demand was precise: *two* *hundred* *thousand* dollars in negotiable twenty-dollar bills, and four parachutes.",
-        sound_cues=[{"name": "tension_clock", "search": "clock ticking dramatic suspense", "offset": 0.5, "vol": 0.20}],
-        left_plate_text="SERIALIZED RANSOM LEDGER",
-        center_focus="10,000 Unmarked $20 Bills",
-        right_prop="Four Parachute Packs",
-        highlighter_phrase="two hundred thousand dollars",
-        left_emoji="briefcase",
-        right_emoji="money",
-        stamp_text="NORJAK",
-    ),
-    HumanScene(
-        scene_id="s05",
-        act="Act 2: The Exchange",
-        text="At Seattle-Tacoma Airport, thirty-six innocent passengers were released in exchange for the canvas knapsack of cash. Cooper allowed the plane to refuel, ordering the cockpit crew to fly toward Reno at minimum speed.",
-        sound_cues=[{"name": "cockpit_radio", "search": "air traffic control radio squawk", "offset": 0.8, "vol": 0.20}],
-        left_plate_text="SEATTLE-TACOMA TARMAC",
-        center_focus="Refueling Tanker 11:45 PM",
-        right_prop="Canvas Bank Knapsack",
-        highlighter_phrase="minimum speed",
-        left_emoji="search",
-        right_emoji="clock",
-        stamp_text="CONFIRMED",
-    ),
-    HumanScene(
-        scene_id="s06",
-        act="Act 2: Flight Path",
-        text="He demanded the landing gear stay down, flaps locked at fifteen degrees, and cabin pressure completely unpressurized.",
-        sound_cues=[{"name": "pressure_drop", "search": "compressed air release hiss", "offset": 0.4, "vol": 0.22}],
-        left_plate_text="COCKPIT FLIGHT INSTRUMENTS",
-        center_focus="Altimeter 10,000 Feet",
-        right_prop="Throttle Control Quadrant",
-        highlighter_phrase="unpressurized",
-        left_emoji="airplane",
-        right_emoji="warning",
-        stamp_text="NORJAK",
-    ),
-    # --- ACT 3: THE FREEZING JUMP & THE UNEXPLAINED PARADOX (1:35 - 2:40) ---
-    HumanScene(
-        scene_id="s07",
-        act="Act 3: The Freezing Sky",
-        text="At eight o'clock, somewhere over southwestern Washington in a freezing winter rainstorm, Cooper ordered the remaining crew into the cockpit and lowered the Boeing 727's rear ventral stairs.",
-        sound_cues=[{"name": "wind_howl", "search": "freezing howling wind blizzard storm", "offset": 0.6, "vol": 0.24}],
-        left_plate_text="BOEING 727 AFT STAIRWAY",
-        center_focus="Ventral Stairs Extending Down",
-        right_prop="Rain Streaked Tail Fin",
-        highlighter_phrase="lowered the rear stairs",
-        left_emoji="cloud_lightning",
-        right_emoji="warning",
-        stamp_text="URGENT",
-    ),
-    HumanScene(
-        scene_id="s08",
-        act="Act 3: The Jump",
-        text="At 8:13 PM, pilots felt a sudden upward bump of the tail section as cabin air pressure surged. Cooper had jumped into the pitch-black void at ten thousand feet, in minus fifty-seven degree wind chill.",
-        sound_cues=[
-            {"name": "thunder_crack", "search": "distant thunder strike cinematic", "offset": 0.2, "vol": 0.26},
-            {"name": "dramatic_whoosh", "search": "cinematic deep whoosh transition", "offset": 1.8, "vol": 0.24},
-        ],
-        left_plate_text="COCKPIT PRESSURE SENSOR LOG",
-        center_focus="Oscilloscope Bump at 8:13 PM",
-        right_prop="Lewis River Wilderness Map",
-        highlighter_phrase="jumped into the pitch-black void",
-        left_emoji="explosion",
-        right_emoji="cloud_lightning",
-        stamp_text="MISSING",
-    ),
-    HumanScene(
-        scene_id="s09",
-        act="Act 3: The Vanishing",
-        text="He had no helmet, no night-vision, and wore loafers and a light raincoat. Two Air Force fighter jets trailing the airliner saw nothing drop into the darkness below.",
-        sound_cues=[{"name": "wind_howl", "search": "freezing howling wind blizzard storm", "offset": 0.4, "vol": 0.20}],
-        left_plate_text="F-106 DELTA DART CHASE LOG",
-        center_focus="Infrared Radar Blank Screen",
-        right_prop="Loafer Shoes & Black Trenchcoat",
-        highlighter_phrase="saw nothing drop",
-        left_emoji="eyes",
-        right_emoji="skull",
-        stamp_text="UNSOLVED",
-    ),
-    HumanScene(
-        scene_id="s10",
-        act="Act 3: The Discovery",
-        text="For forty-five years, the FBI tracked every serial number—not a single bill was ever spent. Then in 1980, an eight-year-old boy digging at Tina Bar uncovered fifty-eight hundred dollars in rotting twenties with rubber bands intact.",
-        sound_cues=[{"name": "vinyl_needle", "search": "vinyl record scratch needle stop", "offset": 0.5, "vol": 0.22}],
-        left_plate_text="TINA BAR EXCAVATION SITE - 1980",
-        center_focus="Brian Ingram $5,800 Discovery",
-        right_prop="Decaying Rubber Band Stacks",
-        highlighter_phrase="rotting twenties",
-        left_emoji="dollar",
-        right_emoji="search",
-        stamp_text="CONFIRMED",
-    ),
-    HumanScene(
-        scene_id="s11",
-        act="Act 3: The Legend",
-        text="No body, no parachute, and no trace of the remaining hundred and ninety-four thousand dollars has ever been found. Did he die in the freezing canopy, or walk into the night as a ghost? *Subscribe* for the next unsolved forensic case.",
-        sound_cues=[{"name": "sub_bass_drop", "search": "cinema sub bass boom drop impact", "offset": 1.2, "vol": 0.26}],
-        left_plate_text="FBI OFFICIAL CASE STATUS: SUSPENDED",
-        center_focus="The Mystery of D.B. Cooper",
-        right_prop="Empty Parachute Harness",
-        highlighter_phrase="walk into the night as a ghost",
-        left_emoji="skull",
-        right_emoji="thumbs_up",
-        stamp_text="UNSOLVED",
-    ),
-]
+def human_scenes_from_project(project_data: Dict[str, Any]) -> List[HumanScene]:
+    """Extracts typed HumanScene instances dynamically from project.json scenes."""
+    scenes_raw = project_data.get("scenes", [])
+    if not scenes_raw:
+        raise MissingInputError(
+            stage="human_scenes_from_project",
+            artifact=str(project_data.get("slug", "unknown")),
+            cause="project_data contains no scenes to build human storybook plates",
+        )
+    result = []
+    for sc in scenes_raw:
+        sound_cues = sc.get("sound_cues", [])
+        result.append(
+            HumanScene(
+                scene_id=str(sc.get("id", f"s{len(result)+1:02d}")),
+                act=str(sc.get("act", f"Act {len(result)+1}")),
+                text=str(sc.get("text", "")),
+                sound_cues=sound_cues,
+                left_plate_text=str(sc.get("left_plate_text", sc.get("headline", ""))),
+                center_focus=str(sc.get("center_focus", sc.get("focus", ""))),
+                right_prop=str(sc.get("right_prop", sc.get("prop", ""))),
+                highlighter_phrase=str(sc.get("highlighter_phrase", "")),
+                left_emoji=str(sc.get("left_emoji", "")),
+                right_emoji=str(sc.get("right_emoji", "")),
+                stamp_text=sc.get("stamp_text"),
+            )
+        )
+    return result
 
 
 # ---------------------------------------------------------------------- #
@@ -498,7 +371,7 @@ def render_humanized_plate_16x9(scene: HumanScene, width: int = 1920, height: in
 # ---------------------------------------------------------------------- #
 # 5. Full End-to-End Production & Video Mastering
 # ---------------------------------------------------------------------- #
-def assemble_storybook_film(proj_dir: Path, output_mp4: Path) -> Path:
+def assemble_storybook_film(proj_dir: Path, output_mp4: Path, bgm_path: Optional[Path] = None) -> Path:
     """Assembles all storybook plates into motion clips, synthesizes Kokoro audio, mixes Foley + BGM, and encodes master MP4."""
     import wave
     import kokoro_onnx
@@ -638,23 +511,28 @@ def assemble_storybook_film(proj_dir: Path, output_mp4: Path) -> Path:
             s_file = SFX_DIR / f"{s_name}.mp3"
             if not s_file.exists():
                 s_file = SFX_DIR / f"{s_name}.wav"
+            if not s_file.exists():
+                raise AudioDesignError(
+                    stage="sfx_composite",
+                    artifact=s_name,
+                    cause=f"SFX cue '{s_name}' not found in {SFX_DIR}",
+                )
 
-            if s_file.exists():
-                pcm_tmp = cache_dir / f"tmp_{s_name}.wav"
-                subprocess.run([
-                    "ffmpeg", "-y", "-i", str(s_file),
-                    "-ar", "48000", "-ac", "1",
-                    str(pcm_tmp),
-                ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                if pcm_tmp.exists():
-                    with wave.open(str(pcm_tmp), "rb") as swf:
-                        data = np.frombuffer(swf.readframes(swf.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
-                    start_s = int(t_pos * 48000)
-                    end_s = min(len(sfx_track), start_s + len(data))
-                    n_copy = end_s - start_s
-                    if n_copy > 0:
-                        sfx_track[start_s:end_s] += data[:n_copy] * vol
-                    pcm_tmp.unlink(missing_ok=True)
+            pcm_tmp = cache_dir / f"tmp_{s_name}.wav"
+            subprocess.run([
+                "ffmpeg", "-y", "-i", str(s_file),
+                "-ar", "48000", "-ac", "1",
+                str(pcm_tmp),
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            if pcm_tmp.exists():
+                with wave.open(str(pcm_tmp), "rb") as swf:
+                    data = np.frombuffer(swf.readframes(swf.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+                start_s = int(t_pos * 48000)
+                end_s = min(len(sfx_track), start_s + len(data))
+                n_copy = end_s - start_s
+                if n_copy > 0:
+                    sfx_track[start_s:end_s] += data[:n_copy] * vol
+                pcm_tmp.unlink(missing_ok=True)
         accum_time += scene_durations[idx]
 
     master_sfx = cache_dir / "master_sfx.wav"
@@ -666,7 +544,17 @@ def assemble_storybook_film(proj_dir: Path, output_mp4: Path) -> Path:
 
     # 6. Audio Mixing with Mid-Duck Vocal Pocket & Broadcast -14 LUFS Loudnorm
     final_audio = cache_dir / "final_mixed_audio.wav"
-    bgm_cand = BGM_FILE if BGM_FILE.exists() else master_voice
+    if bgm_path is None:
+        bgm_name = (project_data.get("music", {}) or {}).get("bgm_file")
+        if bgm_name:
+            bgm_path = ASSETS_DIR / "audio" / "bgm" / bgm_name
+    if not bgm_path or not bgm_path.exists():
+        raise AudioDesignError(
+            stage="audio_mix",
+            artifact=str(bgm_path or "unspecified"),
+            cause=f"BGM audio file missing or not found for {proj_dir.name}",
+        )
+
     complex_filter = (
         f"[1:a]aloop=loop=-1:size=2e+09,atrim=0:{total_voice_duration:.2f},volume=0.18[bgm];"
         "[bgm][0:a]sidechaincompress=threshold=0.08:ratio=3.0:attack=20:release=250[ducked_bgm];"
@@ -676,7 +564,7 @@ def assemble_storybook_film(proj_dir: Path, output_mp4: Path) -> Path:
     subprocess.run([
         "ffmpeg", "-y",
         "-i", str(master_voice),
-        "-i", str(bgm_cand),
+        "-i", str(bgm_path),
         "-i", str(master_sfx),
         "-filter_complex", complex_filter,
         "-map", "[master]",
@@ -686,28 +574,60 @@ def assemble_storybook_film(proj_dir: Path, output_mp4: Path) -> Path:
 
     # 7. Final H.264 MP4 Broadcast Mastering
     output_mp4.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run([
+    encoder = "h264_videotoolbox" if sys.platform == "darwin" else "libx264"
+    enc_args = ["-c:v", encoder]
+    if encoder == "h264_videotoolbox":
+        enc_args.extend(["-b:v", "14M"])
+    else:
+        enc_args.extend(["-crf", "18", "-preset", "fast"])
+
+    res = subprocess.run([
         "ffmpeg", "-y",
         "-i", str(merged_video),
         "-i", str(final_audio),
-        "-c:v", "h264_videotoolbox",
-        "-b:v", "14M",
+        *enc_args,
         "-pix_fmt", "yuv420p",
         "-c:a", "aac",
         "-b:a", "320k",
         "-ar", "48000",
         "-shortest",
         str(output_mp4),
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if res.returncode != 0 or not output_mp4.exists():
+        raise RenderingError(
+            stage="master_encode",
+            artifact=str(output_mp4),
+            cause=f"ffmpeg master broadcast encoding failed with {encoder} (returncode={res.returncode})",
+        )
 
     logger.info(f"Broadcast Master MP4 complete: {output_mp4} ({output_mp4.stat().st_size / 1024 / 1024:.2f} MB)")
     return output_mp4
 
 
-def produce_db_cooper_longform(render_video: bool = True, format: str = "long") -> Path:
-    """Generates and masters the complete 2.5-minute physical storybook documentary."""
-    project_slug = "long_01_db_cooper_1971"
+def produce_humanized_project(
+    project_slug: str,
+    project_data: Optional[Dict[str, Any]] = None,
+    render_video: bool = True,
+    format: str = "long",
+) -> Path:
+    """Generates and masters the complete physical storybook documentary dynamically from project data."""
     proj_dir = REPO_ROOT / ("projects" if format == "long" else "shorts") / project_slug
+    if not proj_dir.exists():
+        candidate = REPO_ROOT / "long_form" / project_slug
+        if candidate.exists():
+            proj_dir = candidate
+
+    proj_json = proj_dir / "project.json"
+    if project_data is None:
+        if not proj_json.exists():
+            raise MissingInputError(
+                stage="produce_humanized_project",
+                artifact=str(proj_json),
+                cause=f"project.json not found for slug '{project_slug}'",
+            )
+        with open(proj_json, "r") as f:
+            project_data = json.load(f)
+
     images_dir = proj_dir / "images"
     videos_dir = proj_dir / "videos"
     cache_dir = proj_dir / "cache"
@@ -716,87 +636,51 @@ def produce_db_cooper_longform(render_video: bool = True, format: str = "long") 
     for d in [proj_dir, images_dir, videos_dir, cache_dir, output_dir]:
         d.mkdir(parents=True, exist_ok=True)
 
+    scenes = human_scenes_from_project(project_data)
+
     logger.info("=== STEP 1: VALIDATING HUMAN NOVELISTIC PROSE ===")
     total_words = 0
-    for sc in DB_COOPER_LONGFORM_SCRIPT:
+    for sc in scenes:
         violations = validate_human_prose(sc.text)
         if violations:
             raise ValueError(f"Prose violation in {sc.scene_id}: {violations}")
         total_words += len(sc.text.split())
 
-    logger.info(f"Verified {len(DB_COOPER_LONGFORM_SCRIPT)} scenes, {total_words} words. Zero AI buzzwords.")
+    logger.info(f"Verified {len(scenes)} scenes, {total_words} words. Zero AI buzzwords.")
 
     logger.info("=== STEP 2: STAGING & DOWNLOADING 3D EMOJIS & FOLEY SOUNDS ===")
     sound_assets: Dict[str, Path] = {}
-    for sc in DB_COOPER_LONGFORM_SCRIPT:
-        # Download 3D Fluent Emojis
+    for sc in scenes:
         for em in [sc.left_emoji, sc.right_emoji]:
             if em:
                 get_fluent_3d_emoji(em)
-        # Download Foley SFX
         for cue in sc.sound_cues:
             s_name = cue["name"]
-            s_query = cue["search"]
+            s_query = cue.get("search", s_name)
             if s_name not in sound_assets:
                 p = resolve_diegetic_sound(s_name, s_query)
-                if p:
-                    sound_assets[s_name] = p
-                    logger.info(f"  [SOUND READY] {s_name} -> {p.name}")
+                sound_assets[s_name] = p
+                logger.info(f"  [SOUND READY] {s_name} -> {p.name}")
 
     logger.info("=== STEP 3: RENDERING PHYSICAL OPEN-STORYBOOK SCENE PLATES ===")
     rendered_plates: List[Path] = []
-    for sc in DB_COOPER_LONGFORM_SCRIPT:
+    for sc in scenes:
         plate_path = images_dir / f"{sc.scene_id}.jpg"
         plate_img = render_humanized_plate_16x9(sc, width=1920, height=1080)
         cv2.imwrite(str(plate_path), plate_img, [cv2.IMWRITE_JPEG_QUALITY, 95])
         logger.info(f"  [STORYBOOK PLATE CREATED] {plate_path.name}")
         rendered_plates.append(plate_path)
 
-    logger.info("=== STEP 4: GENERATING PROJECT METADATA ===")
-    project_meta = {
-        "id": "LV-01",
-        "slug": project_slug,
-        "format": "long",
-        "genre": "storybook_classic",
-        "voice": "kokoro",
-        "rate": "+1%",
-        "gap": 0.08,
-        "music": {
-            "volume": 0.18,
-            "sfx_volume": 0.12,
-        },
-        "branding": {
-            "intro": True,
-            "outro": True,
-        },
-        "title": "The Skyjacker Who Vanished at 10,000 Feet: The True Story of D.B. Cooper",
-        "topic": "The 1971 D.B. Cooper Skyjacking",
-        "science": "Ralph Himmelsbach (FBI 1971)",
-        "citation_stat": "$200,000 & 10,000 ft",
-        "citation_verified": True,
-        "scenes": [
-            {
-                "id": sc.scene_id,
-                "text": sc.text,
-                "prompt": f"16:9 cinematic open storybook, {sc.center_focus}, {sc.left_plate_text}, {sc.right_prop}, 3D emojis, brass pushpins",
-                "duration": round(len(sc.text.split()) * 0.44, 1),
-                "image": f"images/{sc.scene_id}.jpg",
-                "sound_cues": sc.sound_cues,
-            }
-            for sc in DB_COOPER_LONGFORM_SCRIPT
-        ],
-    }
-
-    proj_json = proj_dir / "project.json"
-    with open(proj_json, "w") as f:
-        json.dump(project_meta, f, indent=2)
-    logger.info(f"Saved project metadata -> {proj_json}")
+    if not proj_json.exists():
+        with open(proj_json, "w") as f:
+            json.dump(project_data, f, indent=2)
+        logger.info(f"Saved project metadata -> {proj_json}")
 
     if not render_video:
         return proj_json
 
     logger.info("=== STEP 5: FULL VIDEO ASSEMBLY & MASTERING ===")
-    final_film = OUTPUT_DIR / "the_1971_db_cooper_skyjacking_16x9.mp4"
+    final_film = OUTPUT_DIR / f"{project_slug}_16x9.mp4"
     assemble_storybook_film(proj_dir, final_film)
     logger.info(f"Final Master Film Ready: {final_film}")
     return final_film
@@ -804,14 +688,14 @@ def produce_db_cooper_longform(render_video: bool = True, format: str = "long") 
 
 def main():
     parser = argparse.ArgumentParser(description="Universal Humanizer & Sound Immersion Director")
-    parser.add_argument("--story", type=str, default="D.B. Cooper 1971", help="Story topic")
+    parser.add_argument("--slug", type=str, required=True, help="Project slug to build")
     parser.add_argument("--format", type=str, choices=["short", "long"], default="long", help="Video format")
     parser.add_argument("--render", action="store_true", help="Render full video")
     parser.add_argument("--blueprint", action="store_true", help="Generate blueprint only")
     args = parser.parse_args()
 
-    logger.info(f"Starting Humanizer Director for story '{args.story}' ({args.format})...")
-    out_path = produce_db_cooper_longform(render_video=args.render, format=args.format)
+    logger.info(f"Starting Humanizer Director for slug '{args.slug}' ({args.format})...")
+    out_path = produce_humanized_project(args.slug, render_video=args.render, format=args.format)
     logger.info(f"Process completed successfully: {out_path}")
 
 

@@ -73,7 +73,7 @@ STATUS_BADGES = {
     "UPLOADED":  f"{C.BG_GREEN}{C.BOLD}{C.WHITE} 🚀 LIVE    {C.RESET}",
 }
 
-# Plain-text fallbacks
+# Plain-text badge variants
 STATUS_BADGES_PLAIN = {
     "PASS":      "[  PASS  ]",
     "HEALED":    "[ HEALED ]",

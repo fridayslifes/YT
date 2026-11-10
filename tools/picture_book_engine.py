@@ -37,7 +37,7 @@ import numpy as np  # noqa: E402
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
 from tools import build_video  # noqa: E402
-from tools.forensic_casebook_engine import DB_COOPER_FORENSIC_SERIES  # noqa: E402
+from tools.errors import MissingInputError, RenderingError  # noqa: E402
 from tools.pop_scan import generate_contact_sheet, scan_video_for_pops  # noqa: E402
 from tools.production_ledger import record_ledger_event  # noqa: E402
 from tools.sound_architect import (  # noqa: E402
@@ -76,21 +76,21 @@ logger = logging.getLogger("picture_book_engine")
 
 
 def _encode_h264_mp4(src_raw: Path, dst_mp4: Path, bitrate: str = "14M", extra_args: Optional[List[str]] = None) -> None:
-    """Encodes raw video stream to H.264 MP4 with h264_videotoolbox -> libx264 fallback."""
+    """Encodes raw video stream to H.264 MP4."""
     ffmpeg_bin = shutil.which("ffmpeg") or "ffmpeg"
-    for enc in ("h264_videotoolbox", "libx264"):
-        cmd = [ffmpeg_bin, "-y", "-i", str(src_raw), "-c:v", enc]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", bitrate, "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "18", "-preset", "fast", "-pix_fmt", "yuv420p"])
-        if extra_args:
-            cmd.extend(extra_args)
-        cmd.append(str(dst_mp4))
-        proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if proc.returncode == 0 and dst_mp4.exists() and dst_mp4.stat().st_size > 0:
-            return
-    raise RuntimeError(f"Failed to encode H.264 MP4 for {dst_mp4}")
+    enc = "h264_videotoolbox" if sys.platform == "darwin" else "libx264"
+    cmd = [ffmpeg_bin, "-y", "-i", str(src_raw), "-c:v", enc]
+    if enc == "h264_videotoolbox":
+        cmd.extend(["-b:v", bitrate, "-pix_fmt", "yuv420p"])
+    else:
+        cmd.extend(["-crf", "18", "-preset", "fast", "-pix_fmt", "yuv420p"])
+    if extra_args:
+        cmd.extend(extra_args)
+    cmd.append(str(dst_mp4))
+    proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    if proc.returncode != 0 or not dst_mp4.exists() or dst_mp4.stat().st_size == 0:
+        err_msg = proc.stderr[-240:].strip() if proc.stderr else "unknown error"
+        raise RenderingError(stage="render", artifact=dst_mp4, cause=f"ffmpeg encode failed ({enc}): {err_msg}")
 
 
 # ---------------------------------------------------------------------------
@@ -116,61 +116,6 @@ class StoryElement:
     right_emoji: Optional[str] = None
     case_header: str = "ARCHIVAL CASE DOSSIER"
     render_flight_map: bool = False
-
-
-EMOJI_PAIRS: Dict[str, Tuple[str, str]] = {
-    "s01": ("airplane", "dollar"),
-    "s02": ("fire", "eyes"),
-    "s03": ("bomb", "warning"),
-    "s04": ("briefcase", "money"),
-    "s05": ("search", "clock"),
-    "s06": ("airplane", "warning"),
-    "s07": ("cloud_lightning", "warning"),
-    "s08": ("explosion", "cloud_lightning"),
-    "s09": ("eyes", "skull"),
-    "s10": ("search", "skull"),
-    "s11": ("magnifying_glass", "search"),
-    "s12": ("eyes", "search"),
-    "s13": ("dollar", "clock"),
-    "s14": ("money", "search"),
-    "s15": ("warning", "skull"),
-    "s16": ("airplane", "eyes"),
-    "s17": ("magnifying_glass", "search"),
-    "s18": ("skull", "thumbs_up"),
-}
-
-
-def build_story_elements() -> List[StoryElement]:
-    """Builds the 18-scene DB Cooper demo fixture mapped to the picture-book format."""
-    elements: List[StoryElement] = []
-    for sc in DB_COOPER_FORENSIC_SERIES:
-        emojis = EMOJI_PAIRS.get(sc.scene_id, ("search", "eyes"))
-        elements.append(
-            StoryElement(
-                scene_id=sc.scene_id,
-                act=sc.act,
-                title=sc.title,
-                text=sc.text,
-                highlighter_phrase=sc.highlighter_phrase,
-                timestamp_text=sc.timestamp_text,
-                location_text=sc.location_text,
-                exhibit_code=sc.exhibit_code,
-                stamp_text=sc.stamp_text,
-                hero_image=sc.hero_image,
-                cutout_image=sc.cutout_image,
-                secondary_trigger_word=sc.secondary_trigger_word,
-                sound_cues=sc.sound_cues,
-                speech_chunks=sc.speech_chunks,
-                left_emoji=emojis[0],
-                right_emoji=emojis[1],
-                case_header="FBI NORJAK CASE FILE #44-1298",
-                render_flight_map=(sc.scene_id == "s01"),
-            )
-        )
-    return elements
-
-
-DB_COOPER_PICTURE_BOOK: List[StoryElement] = build_story_elements()
 
 
 def story_elements_from_project(project_data: Dict[str, Any]) -> List[StoryElement]:
@@ -845,7 +790,7 @@ def build_scene_base_spread(
         meta["tape_ang"] = 22.0
         meta["stamp_pos"] = (center_rx + int(round(120 * scale)), my + int(round(80 * scale)))
 
-    # Telemetry Badge (Top-Right) — uses element.case_header rather than hardcoded DB Cooper string
+    # Telemetry Badge (Top-Right) — uses element.case_header from project metadata
     badge_w = max(120, int(spw * (0.64 if is_vertical else 0.52)))
     badge_h = max(38, int(round(75 * scale)))
     badge = np.full((badge_h, badge_w, 3), (32, 28, 26), dtype=np.uint8)
@@ -1155,25 +1100,26 @@ def synthesize_noir_narration(
         words: List[Dict[str, Any]] = []
         if json_path.exists():
             try:
-                with open(json_path, "r") as f:
+                with open(json_path, "r", encoding="utf-8") as f:
                     words = json.load(f)
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                raise MissingInputError(
+                    stage="narration_timings",
+                    artifact=json_path,
+                    cause=f"Corrupt word timings json: {exc}",
+                ) from exc
 
         if not words:
             if whisper_model is not None:
-                try:
-                    segments, _ = whisper_model.transcribe(str(wav_path), word_timestamps=True)
-                    for s in segments:
-                        for w in s.words:
-                            words.append({"word": w.word.strip(), "start": round(w.start, 2), "end": round(w.end, 2)})
-                except Exception:
-                    words = []
-            if not words:
+                segments, _ = whisper_model.transcribe(str(wav_path), word_timestamps=True)
+                for s in segments:
+                    for w in s.words:
+                        words.append({"word": w.word.strip(), "start": round(w.start, 2), "end": round(w.end, 2)})
+            else:
                 audio_arr = build_video.decode_audio(wav_path)
                 est = build_video._estimate_word_timings(clean_text, audio_arr)
                 words = [{"word": str(w.get("text", "")), "start": float(w.get("start", 0.0)), "end": float(w.get("end", 0.0))} for w in est]
-            with open(json_path, "w") as f:
+            with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(words, f, indent=2)
 
         scene_audio_files.append(wav_path)
@@ -1244,7 +1190,7 @@ def _resolve_project_dir(project_slug: str, project_dir: Optional[Path] = None) 
 
 def produce_picture_book_video(
     elements: Optional[List[StoryElement]] = None,
-    project_slug: str = "long_01_db_cooper_1971",
+    project_slug: str = "",
     output_mp4: Optional[Path] = None,
     *,
     project_dir: Optional[Path] = None,
@@ -1254,21 +1200,33 @@ def produce_picture_book_video(
     height: Optional[int] = None,
 ) -> Path:
     """Produces the complete broadcast-quality Living Picture-Book Documentary film."""
+    if not project_slug and not project_dir:
+        raise MissingInputError(
+            stage="produce_picture_book_video",
+            artifact="project_slug",
+            cause="Either project_slug or project_dir must be provided",
+        )
+    if not project_slug and project_dir:
+        project_slug = project_dir.name
     resolved_dir = _resolve_project_dir(project_slug, project_dir)
     if project_data is None and (resolved_dir / "project.json").exists():
         try:
             project_data = json.loads((resolved_dir / "project.json").read_text(encoding="utf-8"))
-        except Exception:
-            project_data = None
+        except (json.JSONDecodeError, OSError) as exc:
+            raise MissingInputError(
+                stage="picture_book",
+                artifact=resolved_dir / "project.json",
+                cause=f"Corrupt or unreadable project.json: {exc}",
+            ) from exc
 
     if elements is None:
         if project_data and isinstance(project_data.get("scenes"), list) and project_data["scenes"]:
             elements = story_elements_from_project(project_data)
-        elif project_slug == "long_01_db_cooper_1971":
-            elements = DB_COOPER_PICTURE_BOOK
         else:
-            raise ValueError(
-                f"produce_picture_book_video requires explicit StoryElement list or project.json scenes for '{project_slug}'"
+            raise MissingInputError(
+                stage="picture_book",
+                artifact=resolved_dir / "project.json",
+                cause=f"produce_picture_book_video requires project.json scenes for '{project_slug}'",
             )
 
     fmt_type = (project_data or {}).get("format", "long")
@@ -1343,18 +1301,22 @@ def produce_picture_book_video(
             cur_v = out_v
 
         full_filter = ";".join(filter_parts)
-        for enc in ("h264_videotoolbox", "libx264"):
-            cmd_stitch = ["ffmpeg", "-y"]
-            for rc in raw_clips:
-                cmd_stitch.extend(["-i", str(rc)])
-            cmd_stitch.extend(["-filter_complex", full_filter, "-map", cur_v, "-c:v", enc])
-            if enc == "h264_videotoolbox":
-                cmd_stitch.extend(["-b:v", "14M", "-pix_fmt", "yuv420p", str(visual_timeline)])
-            else:
-                cmd_stitch.extend(["-crf", "18", "-preset", "fast", "-pix_fmt", "yuv420p", str(visual_timeline)])
-            proc = subprocess.run(cmd_stitch, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            if proc.returncode == 0 and visual_timeline.exists() and visual_timeline.stat().st_size > 0:
-                break
+        enc = "h264_videotoolbox" if sys.platform == "darwin" else "libx264"
+        cmd_stitch = ["ffmpeg", "-y"]
+        for rc in raw_clips:
+            cmd_stitch.extend(["-i", str(rc)])
+        cmd_stitch.extend(["-filter_complex", full_filter, "-map", cur_v, "-c:v", enc])
+        if enc == "h264_videotoolbox":
+            cmd_stitch.extend(["-b:v", "14M", "-pix_fmt", "yuv420p", str(visual_timeline)])
+        else:
+            cmd_stitch.extend(["-crf", "18", "-preset", "fast", "-pix_fmt", "yuv420p", str(visual_timeline)])
+        proc = subprocess.run(cmd_stitch, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if proc.returncode != 0 or not visual_timeline.exists() or visual_timeline.stat().st_size == 0:
+            raise RenderingError(
+                stage="stitch_clips",
+                artifact=str(visual_timeline),
+                cause=f"Failed to stitch living book clips with {enc} (returncode={proc.returncode})",
+            )
 
     logger.info("=== STEP 4: 3-TIER CALIBRATED DECIBEL-BUDGET AUDIO MIXING ===")
     total_voice_dur = max(1.0, sum(scene_durs) - max(0, len(scene_durs) - 1) * trans_dur)
@@ -1553,12 +1515,11 @@ def produce_picture_book_video(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="FrameForge Living Picture-Book Engine v7.0")
-    parser.add_argument("--slug", type=str, default="long_01_db_cooper_1971", help="Project slug")
+    parser.add_argument("--slug", type=str, required=True, help="Project slug")
     parser.add_argument("--output", type=Path, default=None, help="Output MP4 path")
     args = parser.parse_args()
 
     produce_picture_book_video(
-        elements=DB_COOPER_PICTURE_BOOK if args.slug == "long_01_db_cooper_1971" else None,
         project_slug=args.slug,
         output_mp4=args.output,
     )

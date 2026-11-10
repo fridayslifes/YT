@@ -689,8 +689,8 @@ def verify_render(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list
     if project_path and project_path.exists():
         try:
             fmt_type = json.loads(project_path.read_text(encoding="utf-8")).get("format", "short")
-        except Exception:  # noqa: BLE001
-            pass
+        except (json.JSONDecodeError, OSError) as exc:
+            return [_check("project_file", False, f"corrupt project.json: {exc}")]
     meta = pipeline.verify_rendered_mp4(mp4, format_type=fmt_type)
     checks = [
         _check("mp4_streams", bool(meta.get("valid")), meta.get("error", "valid synchronized streams and decoded video tail"), metrics=meta)
@@ -789,18 +789,20 @@ def verify_publish(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> lis
     ]
     receipt_path = _resolve(ctx, result.artifacts.get("receipt"))
     verified_receipt = False
-    try:
-        receipt = json.loads(receipt_path.read_text(encoding="utf-8")) if receipt_path else {}
-        verified_receipt = receipt.get("state") == "verified" and receipt.get("remote_id") == video_id
-    except (OSError, ValueError, AttributeError):
-        pass
+    receipt_err = None
+    if receipt_path and receipt_path.exists():
+        try:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            verified_receipt = receipt.get("state") == "verified" and receipt.get("remote_id") == video_id
+        except (json.JSONDecodeError, OSError) as exc:
+            receipt_err = str(exc)
     checks.append(
         _check(
             "publish_receipt",
             verified_receipt,
             "verified durable receipt matches the remote ID"
             if verified_receipt
-            else "missing or unverified upload receipt",
+            else (f"corrupt upload receipt: {receipt_err}" if receipt_err else "missing or unverified upload receipt"),
         )
     )
     tracker = ctx.project_root / "CONTENT_TRACKER.md"

@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from tools.errors import MissingInputError, RenderingError
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LEDGER_JSONL = REPO_ROOT / "channel_assets" / "production_ledger.jsonl"
 LEDGER_MD = REPO_ROOT / "channel_assets" / "PRODUCTION_LEDGER.md"
@@ -23,6 +25,17 @@ CONTENT_TRACKER = REPO_ROOT / "CONTENT_TRACKER.md"
 def utc_now() -> str:
     """Returns current UTC timestamp in ISO 8601 format."""
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def discover_all_project_slugs() -> List[str]:
+    """Dynamically scan projects/, shorts/, and long_form/ for project directories."""
+    slugs = set()
+    for parent in [REPO_ROOT / "projects", REPO_ROOT / "shorts", REPO_ROOT / "long_form"]:
+        if parent.exists():
+            for p in parent.iterdir():
+                if p.is_dir() and (p / "project.json").exists():
+                    slugs.add(p.name)
+    return sorted(slugs)
 
 
 def find_project_path(slug: str) -> Optional[Path]:
@@ -102,8 +115,12 @@ def audit_project(slug: str) -> Dict[str, Any]:
     if has_proj_json:
         try:
             proj_data = json.loads(proj_json_path.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+        except (json.JSONDecodeError, OSError) as exc:
+            raise MissingInputError(
+                stage="audit_project",
+                artifact=proj_json_path,
+                cause=f"Corrupt or unreadable project.json: {exc}",
+            ) from exc
 
     title = proj_data.get("title", slug)
     variant = proj_data.get("variant", proj_data.get("genre", "unknown"))
@@ -192,18 +209,21 @@ def audit_project(slug: str) -> Dict[str, Any]:
         res_str = "unknown"
         try:
             cmd = ["ffprobe", "-v", "error", "-show_entries", "stream=width,height,duration", "-of", "json", str(master_mp4)]
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-            if res.returncode == 0:
-                p_info = json.loads(res.stdout)
-                streams = p_info.get("streams", [])
-                if streams:
-                    w = streams[0].get("width")
-                    h = streams[0].get("height")
-                    d = float(streams[0].get("duration", 0.0))
-                    res_str = f"{w}x{h}"
-                    dur_str = f"{d:.2f}s"
-        except Exception:
-            pass
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            p_info = json.loads(res.stdout)
+            streams = p_info.get("streams", [])
+            if streams:
+                w = streams[0].get("width")
+                h = streams[0].get("height")
+                d = float(streams[0].get("duration", 0.0))
+                res_str = f"{w}x{h}"
+                dur_str = f"{d:.2f}s"
+        except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError, ValueError) as exc:
+            raise RenderingError(
+                stage="audit_project",
+                artifact=master_mp4,
+                cause=f"Corrupt or unreadable master MP4: {exc}",
+            ) from exc
 
         completed.append({
             "step": "Master Broadcast Video",
@@ -235,12 +255,16 @@ def audit_project(slug: str) -> Dict[str, Any]:
         for r_file in receipts_dir.glob("*.json"):
             try:
                 r_data = json.loads(r_file.read_text(encoding="utf-8"))
-                if r_data.get("slug") == slug:
-                    uploaded = True
-                    yt_id = r_data.get("video_id")
-                    break
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                raise MissingInputError(
+                    stage="audit_project",
+                    artifact=r_file,
+                    cause=f"Corrupt upload receipt {r_file}: {exc}",
+                ) from exc
+            if r_data.get("slug") == slug:
+                uploaded = True
+                yt_id = r_data.get("video_id")
+                break
 
     if uploaded:
         completed.append({
@@ -358,9 +382,9 @@ def sync_project_ledger(slug: str) -> Dict[str, Any]:
         },
     )
 
-    # Re-audit known projects to generate full ledger
-    all_slugs = ["long_01_db_cooper_1971", "short_21_wall_street_mystery", "short_20_implementation_intentions"]
-    if slug not in all_slugs:
+    # Re-audit all discovered projects to generate full ledger
+    all_slugs = discover_all_project_slugs()
+    if slug and slug not in all_slugs:
         all_slugs.append(slug)
 
     all_audits = [audit_project(s) for s in all_slugs if find_project_path(s)]
@@ -436,7 +460,7 @@ def main() -> int:
         return 0
 
     if args.sync_all:
-        known = ["long_01_db_cooper_1971", "short_21_wall_street_mystery", "short_20_implementation_intentions"]
+        known = discover_all_project_slugs()
         for s in known:
             sync_project_ledger(s)
         print("\n[All Projects Synchronized into Ledger]")

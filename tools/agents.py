@@ -33,6 +33,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from tools.errors import MissingInputError
+
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent
 PERSONAS_DIR = YT_ROOT / ".agents" / "personas"
@@ -249,12 +251,16 @@ class ConceptAgent(ResearchAgent):
 
     def load_series_bible(self) -> Dict[str, Any]:
         bible_path = YT_ROOT / "channel_assets" / "series_bible.json"
-        if bible_path.exists():
-            try:
-                return json.loads(bible_path.read_text(encoding="utf-8"))
-            except Exception:
-                pass
-        return {}
+        if not bible_path.exists():
+            return {}
+        try:
+            return json.loads(bible_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            raise MissingInputError(
+                stage="research",
+                artifact=bible_path,
+                cause=f"Corrupt or unreadable series bible: {exc}",
+            ) from exc
 
     def brainstorm_novel_premises(
         self,
@@ -661,8 +667,12 @@ class CharacterRefAgent(BaseAgent):
             try:
                 card_data = json.loads(card_file.read_text(encoding="utf-8"))
                 profile.update(card_data)
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                raise MissingInputError(
+                    stage="character_design",
+                    artifact=card_file,
+                    cause=f"Corrupt or unreadable character card: {exc}",
+                ) from exc
         if custom_traits:
             profile.update(custom_traits)
 

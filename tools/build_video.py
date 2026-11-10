@@ -50,11 +50,8 @@ import numpy as np  # noqa: E402
 from PIL import Image, ImageDraw, ImageFilter, ImageFont  # noqa: E402
 
 VENV_SITE = YT_ROOT / ".venv" / "lib" / "python3.11" / "site-packages"
-try:
-    if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
-        sys.path.append(str(VENV_SITE))
-except OSError:
-    pass
+if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
+    sys.path.append(str(VENV_SITE))
 
 from tools import audio_bank  # noqa: E402
 from tools import visual_engine  # noqa: E402
@@ -1297,11 +1294,6 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
     shot_cues = [(s.start, getattr(s, "motion", "zoom_in")) for s in shots]
     eff_mood = mcfg.get("mood") or proj.get("bgm_mood", "cinematic")
     music_file = mcfg.get("file") or proj.get("bgm_file")
-    if not music_file and proj.get("genre") in ("storybook_casebook", "cinematic_35mm"):
-        # Auto-select authentic cinematic tension track if available in assets/audio/bgm
-        default_bgm = TOOLS_DIR.parent / "assets" / "audio" / "bgm" / "vertigo_tension.mp3"
-        if default_bgm.exists():
-            music_file = default_bgm
 
     music, sfx = make_music(
         end_time, shot_cues, seed=mcfg.get("seed", 7), bpm=mcfg.get("bpm", 70),
@@ -1518,11 +1510,8 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
                 if fi % (FPS * 5) == 0:
                     print(f"  frame {fi}/{nframes}", flush=True)
         finally:
-            try:
-                if proc.stdin and not proc.stdin.closed:
-                    proc.stdin.close()
-            except Exception:
-                pass
+            if proc.stdin and not proc.stdin.closed:
+                proc.stdin.close()
             bank.close()
             # ffmpeg must finalize the moov atom after stdin closes; only kill on a real hang.
             try:
@@ -1531,10 +1520,8 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
                 proc.kill()
                 rc = proc.wait()
         err_tail = ""
-        try:
+        if err_log.exists():
             err_tail = err_log.read_text(errors="ignore").strip()[-240:]
-        except Exception:
-            pass
         err_log.unlink(missing_ok=True)
         if rc != 0:
             raise RuntimeError(f"ffmpeg encode failed (rc={rc})" + (f" -> {err_tail}" if err_tail else ""))

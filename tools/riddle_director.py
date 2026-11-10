@@ -582,7 +582,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="FrameForge Interactive Riddle & Logic HUD Engine")
     ap.add_argument("--image", "-i", type=Path, required=True, help="Base background image")
     ap.add_argument("--output", "-o", type=Path, required=True, help="Output MP4 path")
-    ap.add_argument("--title", type=str, default="3 Prisoners Hat Riddle", help="Riddle title")
+    ap.add_argument("--title", type=str, required=True, help="Riddle title")
     ap.add_argument("--duration", "-d", type=float, default=3.5, help="Clip duration in seconds")
     ap.add_argument("--countdown", type=float, default=7.0, help="Countdown timer in seconds (optional)")
     ap.add_argument("--cta", type=str, default="WHO DEDUCED IT FIRST? DROP ANSWER IN COMMENTS", help="Cliffhanger CTA text")
@@ -600,7 +600,7 @@ def main() -> int:
         print(f"Error: Failed to read image: {args.image}", file=sys.stderr)
         return 1
 
-    # Standard 3-Prisoners Riddle Setup
+    # Interactive Riddle Scene Spec
     spec = RiddleSceneSpec(
         title=args.title,
         inventory=[

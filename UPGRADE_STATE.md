@@ -1,6 +1,6 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** PHASE 1 IN PROGRESS (Extra Instruction 1 Fixed; Phase 3 Thumbnail Policy Locked; Executing Rule B & Rule A cleanup).  
+**Status:** PHASE 1 & 2 COMPLETED (Rule A & B cleanup, project.json variant decoupling, AST lint suite passing); PHASE 3 (Thumbnail Policy Alignment) READY.  
 **Last Updated:** 2026-11-11 02:56:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
@@ -174,24 +174,48 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 - Updated `tools/orchestrator/impact.py` to index both `tools/` and `tests/` into `index.modules` so test fixture imports resolve cleanly.
 - Verified: `./check.sh all` passed with 0 ruff errors, 974 passing tests, 0 dangling references, and all guard gates passing.
 
+### Task 1.1–1.4 & Phase 2: Complete Rule A, Rule B Cleanup & Variant Decoupling [COMPLETED]
+- **Typed Error Hierarchy:** Integrated `tools/errors.py` across all engines: `FrameForgeError`, `StageError`, `MissingInputError`, `RenderingError`, `AudioDesignError`, `PolicyGateError`, `UniquenessGateError`.
+- **Zero `except: pass` in `tools/`:** Measured AST count reduced from **27** to **0**. Replaced silent swallows in `production_ledger.py`, `runtime.py`, `build_video.py`, `pipeline.py`, `agents.py`, `orchestrator/verifiers.py`, `visual_engine.py`, `cloud_worker/colab_server.py`, `picture_book_engine.py`, and `humanizer_director.py` with typed errors and fail-fast aborts.
+- **Zero Fallback Logic:**
+  - Removed font fallback in `universal_engine.py`; missing font now raises `MissingInputError(stage="font_load")`.
+  - Removed silent `shutil.move` and fallback re-encode loops in `photobook_engine.py`, `picture_book_engine.py`, and `branding_engine.py`; platform encoders are explicit (`h264_videotoolbox` on macOS, `libx264` on Linux), raising `RenderingError` on probe/encode failure.
+  - Removed Blender auto-fallback to native mesh engine in `visual_engine.py`; raises `RenderingError` if Blender is requested but missing.
+  - Removed SFX fallback lists in `humanizer_director.py`; missing diegetic sounds or SFX cues now raise `AudioDesignError`.
+  - Removed tempfile fallback in `orchestrator/state.py`; raises `PermissionError` if runs directory is not writable.
+- **Rule A Hardcoded Content Decoupling:**
+  - Removed `_default_scenes_for_topic` in `universal_engine.py`; replaced with `plan_scenes_from_script` requiring a script and failing closed if missing or empty.
+  - Purged hardcoded `DB_COOPER_FORENSIC_SERIES` (400+ lines) from `forensic_casebook_engine.py` and `DB_COOPER_LONGFORM_SCRIPT` from `humanizer_director.py`. All variants now build dynamically from `project.json` via `story_scenes_from_project` / `human_scenes_from_project` / `story_elements_from_project`.
+  - Removed Wall Street 1920 anchors from `visual_director.py`, and removed default 3-prisoners riddle title from `riddle_director.py`.
+  - Demos moved exclusively to `tests/fixtures/archetype_demos.py` and isolated from production imports.
+- **Automated AST Lint Suite (`tests/test_rules_lint.py`):**
+  - Added 7 automated tests enforcing:
+    1. Zero root `demos/` directory.
+    2. Zero production imports of `tests` / `fixtures`.
+    3. Zero bare `except:` across all files in `tools/`.
+    4. Zero `except ...: pass` across all files in `tools/`.
+    5. Zero hardcoded demo phrases in `tools/` (checked against denylist).
+    6. Zero default topic string fallbacks (`or 'Cognitive Science'`).
+    7. Rule B enforcement in `plan_scenes_from_script`.
+- **Verification Evidence:**
+  - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `981 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
+
 ---
 
 ## 5. Master Task DAG & Implementation Order
 
 ```
-[Phase 1: Rule B & Rule A Elimination]
-  ├── Task 1.1: Eliminate all 27 `except: pass` and silent fallbacks; implement typed exceptions (StageError)
-  ├── Task 1.2: Remove font/Blender/SFX/encoder fallbacks; fail fast on missing dependencies
-  ├── Task 1.3: Eliminate hardcoded demo scenes (_default_scenes_for_topic) and replace with dynamic script scene planner
-  └── Task 1.4: Add AST lint checks to prevent regression of hardcoded values and silent fallbacks
+[Phase 1 & Phase 2: Rule B & Rule A Elimination + Variant Isolation] [COMPLETED]
+  ├── Task 1.1: Eliminate all 27 `except: pass` and silent fallbacks; implement typed exceptions [DONE]
+  ├── Task 1.2: Remove font/Blender/SFX/encoder fallbacks; fail fast on missing dependencies [DONE]
+  ├── Task 1.3: Eliminate hardcoded demo scenes (_default_scenes_for_topic) and replace with dynamic script scene planner [DONE]
+  ├── Task 1.4: Add AST lint checks (tests/test_rules_lint.py) to prevent regression of hardcoded values and silent fallbacks [DONE]
+  ├── Task 2.1: Enforce project.json contract across all 7 variants [DONE]
+  ├── Task 2.2: Remove `demos/` imports from production code; relocate demo assets to `tests/fixtures/` [DONE]
+  └── Task 2.3: Remove DB Cooper and Wall Street hardcoded defaults from picture_book, forensic, and humanizer engines [DONE]
 
-[Phase 2: Variant Isolation & Clean Blueprint Generation]
-  ├── Task 2.1: Enforce project.json contract across all 7 variants
-  ├── Task 2.2: Remove `demos/` imports from production code; relocate demo assets to `tests/fixtures/`
-  └── Task 2.3: Remove DB Cooper and Wall Street hardcoded defaults from picture_book, forensic, and humanizer engines
-
-[Phase 3: Thumbnail Contradiction Decision]
-  └── Task 3.1: Present long-form 16:9 thumbnail vs. Shorts feed-frame contradiction to user; implement agreed design
+[Phase 3: Thumbnail Policy Alignment (User Decided)] [NEXT]
+  └── Task 3.1: Update tests/test_impact.py, AGENTS.md, GEMINI.md, and VIDEO_GUIDE to forbid Shorts thumbnails while explicitly allowing long-form thumbnails via render_longform_thumbnail()
 
 [Phase 4: Environment & CLI Hardening]
   ├── Task 4.1: Eliminate stale Edge-TTS references in GEMINI.md and tools/guard.py
@@ -216,6 +240,6 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 
 ## 5. Handoff
 
-- **Done:** Step 0 complete. State seeded, all claims verified, baseline tests executed on Mac and Linux with exact failures categorized.
-- **In Progress:** Awaiting user review of `UPGRADE_STATE.md` and explicit "proceed" confirmation.
-- **Exact Next Command:** Await user input. Upon "proceed", begin **Task 1.1: Rule B & Rule A cleanup**.
+- **Done:** Phase 1 and Phase 2 fully completed. Zero `except: pass`, zero fallbacks, zero hardcoded demo scripts in `tools/`. All 7 variants driven by `project.json`. AST lint suite passing. `./check.sh all` 100% green on Mac.
+- **In Progress:** Ready for Phase 3 (Thumbnail Policy Alignment).
+- **Exact Next Command:** Update `tests/test_impact.py`, `AGENTS.md`, `GEMINI.md`, and `VIDEO_GUIDE_SHORTS_AND_LONG.md` to encode the user's thumbnail decision (no Shorts thumbnails; long-form 16:9 custom thumbnails permitted and policy-gated).

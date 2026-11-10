@@ -51,11 +51,8 @@ import numpy as np  # noqa: F401, E402
 
 py_ver = f"python{sys.version_info.major}.{sys.version_info.minor}"
 VENV_SITE = YT_ROOT / ".venv" / "lib" / py_ver / "site-packages"
-try:
-    if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
-        sys.path.append(str(VENV_SITE))
-except OSError:
-    pass
+if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
+    sys.path.append(str(VENV_SITE))
 
 sys.path.insert(0, str(TOOLS_DIR))
 sys.path.insert(0, str(YT_ROOT))
@@ -813,10 +810,7 @@ def generate_project_motion(proj_path: Path) -> int:
         sc["preset"] = target_preset
         sc["motion"] = target_preset
         if src_img and src_img.exists():
-            try:
-                sc["image"] = str(src_img.relative_to(root))
-            except ValueError:
-                pass
+            sc["image"] = str(src_img.relative_to(root))
         proj_path.write_text(json.dumps(proj, indent=2))
         updated = True
 

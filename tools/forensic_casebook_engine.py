@@ -29,6 +29,7 @@ if str(REPO_ROOT) not in sys.path:
 import cv2  # noqa: E402
 import numpy as np  # noqa: E402
 
+from tools.errors import MissingInputError  # noqa: E402
 from tools.production_ledger import record_ledger_event  # noqa: E402
 from tools.sound_architect import (  # noqa: E402
     DECIBEL_BUDGET,
@@ -49,8 +50,6 @@ KOKORO_MODEL = MODELS_DIR / "kokoro-v1.0.onnx"
 KOKORO_VOICES = MODELS_DIR / "voices-v1.0.bin"
 
 SFX_DIR = REPO_ROOT / "assets" / "audio" / "sfx"
-BGM_FILE_1 = REPO_ROOT / "assets" / "audio" / "bgm" / "echoes_mystery.mp3"
-BGM_FILE_2 = REPO_ROOT / "assets" / "audio" / "bgm" / "vertigo_tension.mp3"
 
 FONT_MONO = str(REPO_ROOT / "tools" / "fonts" / "BeVietnamPro-Medium.ttf")
 FONT_SANS = str(REPO_ROOT / "tools" / "fonts" / "BeVietnamPro-Regular.ttf")
@@ -82,410 +81,64 @@ class StoryScene:
     speech_chunks: List[Tuple[str, float, float]] = field(default_factory=list)
 
 
-DB_COOPER_FORENSIC_SERIES: List[StoryScene] = [
-    StoryScene(
-        scene_id="s01",
-        act="Act 1: The Boarding",
-        title="PORTLAND INTERNATIONAL AIRPORT",
-        text="On a rainy Wednesday afternoon before Thanksgiving, a man in a dark business suit walked up to the Northwest Orient counter in Portland and bought a one-way ticket for twenty dollars.",
-        highlighter_phrase="twenty dollars",
-        timestamp_text="14:36 PST  •  NOV 24, 1971",
-        location_text="PORTLAND INTL AIRPORT (PDX)",
-        exhibit_code="EXHIBIT 01: NW ORIENT TICKET #0281319",
-        stamp_text="CONFIRMED",
-        hero_image="s01.jpg",
-        cutout_image="s01_cutout_ticket.png",
-        secondary_trigger_word="ticket",
-        sound_cues=[
-            {"name": "typewriter_sfx0281319", "word_trigger": "ticket", "offset": 11.5, "vol": 0.22, "pan": "left"},
-            {"name": "cash_register", "word_trigger": "twenty", "offset": 12.4, "vol": 0.24, "pan": "left"},
-        ],
-        speech_chunks=[
-            ("On a rainy Wednesday afternoon before Thanksgiving...", 0.92, 0.45),
-            ("A quiet man in a dark business suit walked up to the Northwest Orient counter in Portland.", 0.92, 0.40),
-            ("And bought a one-way ticket for twenty dollars.", 0.90, 0.55),
-        ],
-    ),
-    StoryScene(
-        scene_id="s02",
-        act="Act 1: The Passenger",
-        title="BOEING 727 CABIN - SEAT 18C",
-        text="He gave the name Dan Cooper. He boarded Boeing 727 Flight 305, took Seat 18C, lit a cigarette, and ordered a bourbon and soda with crisp ice.",
-        highlighter_phrase="Seat 18C",
-        timestamp_text="14:50 PST  •  SEAT 18C",
-        location_text="FLIGHT 305 AIRBORNE",
-        exhibit_code="EXHIBIT 02: PASSENGER MANIFEST 18C",
-        stamp_text="BOARDED",
-        hero_image="s02.jpg",
-        cutout_image="s02_cutout_bourbon.png",
-        secondary_trigger_word="bourbon",
-        sound_cues=[
-            {"name": "match_strike", "word_trigger": "cigarette", "offset": 9.4, "vol": 0.24, "pan": "right"},
-            {"name": "ice_in_bourbon", "word_trigger": "bourbon", "offset": 11.4, "vol": 0.22, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("He gave the name Dan Cooper.", 0.90, 0.40),
-            ("He boarded Boeing 727 Flight 305, took Seat 18C...", 0.92, 0.35),
-            ("Lit a cigarette...", 0.92, 0.30),
-            ("And ordered a bourbon and soda with crisp ice.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s03",
-        act="Act 1: The Threat",
-        title="THE HANDWRITTEN EXTORTION NOTE",
-        text="Minutes after takeoff, he handed flight attendant Florence Schaffner a folded paper slip. She slipped it into her purse unread until Cooper leaned across: Miss, you better look at that note. I have a bomb.",
-        highlighter_phrase="I have a bomb",
-        timestamp_text="15:07 PST  •  ALTITUDE: 12,000 FT",
-        location_text="AFT CABIN AISLE",
-        exhibit_code="EXHIBIT 03: RANSOM DEMAND SLIP",
-        stamp_text="BOMB THREAT",
-        hero_image="s03.jpg",
-        cutout_image="s03_cutout_briefcase.png",
-        secondary_trigger_word="bomb",
-        sound_cues=[
-            {"name": "flight_attendant_ding", "word_trigger": "handed", "offset": 1.7, "vol": 0.24, "pan": "left"},
-            {"name": "sub_bass_drop", "word_trigger": "bomb", "offset": 15.1, "vol": 0.28, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("Minutes after takeoff, he handed flight attendant Florence Schaffner a folded note.", 0.92, 0.40),
-            ("She slipped it into her purse unread.", 0.90, 0.40),
-            ("Until Cooper leaned across the aisle and whispered...", 0.88, 0.45),
-            ("Miss, you better look at that note.", 0.88, 0.40),
-            ("I have a bomb.", 0.86, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s04",
-        act="Act 1: The Demand",
-        title="ATTACHÉ EXPLOSIVE SCHEMATIC",
-        text="Inside his black briefcase lay eight red cylinders wired to a cylindrical battery. His demand was precise: two hundred thousand dollars in negotiable twenty-dollar bills, and four parachutes.",
-        highlighter_phrase="two hundred thousand dollars",
-        timestamp_text="15:15 PST  •  EXTORTION DEMANDS",
-        location_text="B-727 MID CABIN",
-        exhibit_code="EXHIBIT 04: ATTACHÉ CYLINDER ARRAY",
-        stamp_text="VERIFIED EVIDENCE",
-        hero_image="s04.jpg",
-        cutout_image="s04_cutout_parachutes.png",
-        secondary_trigger_word="parachutes",
-        sound_cues=[
-            {"name": "tension_clock", "word_trigger": "briefcase", "offset": 1.2, "vol": 0.22, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("Inside his black briefcase lay eight red cylinders wired to a large battery.", 0.92, 0.45),
-            ("His demands were surgical.", 0.90, 0.40),
-            ("Two hundred thousand dollars in negotiable twenty-dollar bills.", 0.88, 0.50),
-            ("And four military parachutes.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s05",
-        act="Act 2: The Exchange",
-        title="SEATTLE-TACOMA TARMAC EXCHANGE",
-        text="At Seattle-Tacoma Airport, thirty-six innocent passengers were released in exchange for the canvas knapsack of cash. Cooper allowed the plane to refuel, ordering the cockpit crew to fly toward Reno at minimum speed.",
-        highlighter_phrase="thirty-six innocent passengers released",
-        timestamp_text="17:45 PST  •  SEATTLE-TACOMA (SEA)",
-        location_text="SEA-TAC RUNWAY HOLDING AREA",
-        exhibit_code="EXHIBIT 05: TARMAC RANSOM TRANSFER",
-        stamp_text="HOSTAGES FREED",
-        hero_image="s05.jpg",
-        cutout_image="s05_cutout_pilot_watch.png",
-        secondary_trigger_word="refuel",
-        sound_cues=[
-            {"name": "cockpit_radio", "word_trigger": "released", "offset": 3.8, "vol": 0.22, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("At Seattle-Tacoma Airport, thirty-six innocent passengers were released in exchange for the cash.", 0.92, 0.45),
-            ("Cooper allowed the airliner to refuel.", 0.90, 0.35),
-            ("Ordering the cockpit crew to fly toward Reno... at minimum airspeed.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s06",
-        act="Act 2: The Flight Specs",
-        title="COCKPIT FLIGHT ENVELOPE RESTRICTIONS",
-        text="He demanded the landing gear stay down, flaps locked at fifteen degrees, and cabin pressure completely unpressurized.",
-        highlighter_phrase="completely unpressurized",
-        timestamp_text="19:36 PST  •  ALTITUDE: 10,000 FT",
-        location_text="ROUTE V-23 SOUTHBOUND",
-        exhibit_code="EXHIBIT 06: B727 FLIGHT ENVELOPE",
-        stamp_text="RESTRICTED",
-        hero_image="s06.jpg",
-        cutout_image="s06_cutout_altimeter.png",
-        secondary_trigger_word="pressure",
-        sound_cues=[
-            {"name": "pressure_drop", "word_trigger": "unpressurized", "offset": 7.2, "vol": 0.24, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("He demanded the landing gear stay down.", 0.90, 0.40),
-            ("Flaps locked at fifteen degrees.", 0.90, 0.40),
-            ("And the cabin completely unpressurized.", 0.88, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s07",
-        act="Act 2: The Ventral Stairs",
-        title="VENTRAL AIRSTAIRS DEPLOYMENT",
-        text="At eight o'clock, somewhere over southwestern Washington in a freezing winter rainstorm, Cooper ordered the remaining crew into the cockpit and lowered the Boeing 727's rear ventral stairs.",
-        highlighter_phrase="lowered the rear ventral stairs",
-        timestamp_text="20:00 PST  •  LEWIS RIVER APPROACH",
-        location_text="SW WASHINGTON AIRSPACE",
-        exhibit_code="EXHIBIT 07: VENTRAL ACTUATOR LOG",
-        stamp_text="STAIRS LOWERED",
-        hero_image="s07.jpg",
-        cutout_image="s07_cutout_blueprint.png",
-        secondary_trigger_word="stairs",
-        sound_cues=[
-            {"name": "wind_howl", "word_trigger": "stairs", "offset": 12.4, "vol": 0.26, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("At eight o'clock, somewhere over southwestern Washington in a freezing winter storm...", 0.92, 0.45),
-            ("Cooper ordered the remaining crew into the cockpit.", 0.90, 0.40),
-            ("And lowered the Boeing 727's rear ventral stairs into the freezing sky.", 0.88, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s08",
-        act="Act 3: The Jump",
-        title="8:13 PM PRESSURE OSCILLATION",
-        text="At 8:13 PM, pilots felt a sudden upward bump of the tail section as cabin air pressure surged. Cooper had jumped into the pitch-black void at ten thousand feet, in minus fifty-seven degree wind chill.",
-        highlighter_phrase="jumped into the pitch-black void",
-        timestamp_text="20:13 PST  •  TAIL UPWARD BUMP",
-        location_text="ARIEL, WASHINGTON (APPROX)",
-        exhibit_code="EXHIBIT 08: 8:13 PM PRESSURE OSCILLOSCOPE",
-        stamp_text="JUMP CONFIRMED",
-        hero_image="s08.jpg",
-        cutout_image="s08_cutout_pressure_graph.png",
-        secondary_trigger_word="jumped",
-        sound_cues=[
-            {"name": "thunder_crack", "word_trigger": "bump", "offset": 3.9, "vol": 0.28, "pan": "center"},
-            {"name": "dramatic_whoosh", "word_trigger": "void", "offset": 9.8, "vol": 0.26, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("At 8:13 PM, pilots felt a sudden upward bump of the tail section.", 0.92, 0.45),
-            ("Cabin pressure surged.", 0.90, 0.40),
-            ("Dan Cooper had jumped into the pitch-black void at ten thousand feet...", 0.88, 0.50),
-            ("In minus fifty-seven degree wind chill.", 0.86, 0.70),
-        ],
-    ),
-    StoryScene(
-        scene_id="s09",
-        act="Act 3: The Vanishing",
-        title="USAF F-106 PURSUIT INTERCEPTORS",
-        text="He had no helmet, no night-vision, and wore loafers and a light raincoat. Two Air Force fighter jets trailing the airliner saw nothing drop into the darkness below.",
-        highlighter_phrase="saw nothing drop",
-        timestamp_text="20:20 PST  •  F-106 PURSUIT",
-        location_text="RADAR CONTACT: NEGATIVE",
-        exhibit_code="EXHIBIT 09: USAF CHASE MISSION LOG",
-        stamp_text="TARGET LOST",
-        hero_image="s09.jpg",
-        cutout_image="s09_cutout_loafers.png",
-        secondary_trigger_word="raincoat",
-        sound_cues=[
-            {"name": "wind_howl", "word_trigger": "darkness", "offset": 10.5, "vol": 0.22, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("He had no helmet. No night-vision.", 0.88, 0.45),
-            ("Loafers and a light trench coat.", 0.88, 0.45),
-            ("Two supersonic Air Force fighter jets trailing the airliner saw nothing drop into the darkness below.", 0.90, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s10",
-        act="Act 3: Operation NORJAK",
-        title="OPERATION NORJAK GROUND SWEEP",
-        text="The FBI launched Operation NORJAK—the largest manhunt in aviation history. Over one thousand federal agents, soldiers, and search dogs combed the rugged Washington wilderness, finding nothing.",
-        highlighter_phrase="largest manhunt in aviation history",
-        timestamp_text="WINTER 1971  •  1,000 AGENTS",
-        location_text="LEWIS RIVER DRAINAGE BASIN",
-        exhibit_code="EXHIBIT 10: SEARCH GRID SECTORS",
-        stamp_text="NO CONTACT",
-        hero_image="s11.jpg",
-        cutout_image="s11_cutout_evidence_board.png",
-        secondary_trigger_word="manhunt",
-        sound_cues=[
-            {"name": "dramatic_whoosh", "word_trigger": "manhunt", "offset": 3.2, "vol": 0.24, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("The FBI launched Operation NORJAK—the largest manhunt in aviation history.", 0.92, 0.45),
-            ("Over one thousand federal agents, soldiers, and search dogs combed the rugged Washington wilderness.", 0.90, 0.40),
-            ("Finding absolutely nothing.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s11",
-        act="Act 4: The Physical Evidence",
-        title="PHYSICAL ARTIFACTS RECOVERED",
-        text="Left behind on Seat 18C was a black clip-on necktie with a mother-of-pearl tie clasp, two of the four parachutes, and sixty-six cigarette butts.",
-        highlighter_phrase="black clip-on necktie",
-        timestamp_text="NOV 25, 1971  •  EVIDENCE RECOVERY",
-        location_text="RENO AIRPORT INSPECTION",
-        exhibit_code="EXHIBIT 11: PHYSICAL EVIDENCE RECOVERED",
-        stamp_text="PHYSICAL EVIDENCE",
-        hero_image="s12.jpg",
-        cutout_image="s12_cutout_tie.png",
-        secondary_trigger_word="tie",
-        sound_cues=[
-            {"name": "shutter", "word_trigger": "necktie", "offset": 3.8, "vol": 0.24, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("Left behind on Seat 18C was a black clip-on necktie with a mother-of-pearl tie clasp.", 0.92, 0.45),
-            ("Two of the four parachutes.", 0.90, 0.35),
-            ("And sixty-six smoked cigarette butts.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s12",
-        act="Act 4: The Facial Composite",
-        title="FBI OFFICIAL COMPOSITE SKETCHES",
-        text="From the testimony of flight attendants Florence Schaffner and Tina Mucklow, the FBI compiled the iconic composite sketches of a calm, middle-aged man with dark sunglasses.",
-        highlighter_phrase="iconic composite sketches",
-        timestamp_text="DEC 1971  •  WITNESS DESCRIPTIONS",
-        location_text="FBI PORTLAND FIELD OFFICE",
-        exhibit_code="EXHIBIT 12: FBI COMPOSITE #1 & #2",
-        stamp_text="WANTED BY FBI",
-        hero_image="s13.jpg",
-        cutout_image="s13_cutout_sketches.png",
-        secondary_trigger_word="sketches",
-        sound_cues=[
-            {"name": "typewriter_sfx0281319", "word_trigger": "sketches", "offset": 6.8, "vol": 0.22, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("From the testimony of flight attendants Florence Schaffner and Tina Mucklow...", 0.92, 0.45),
-            ("The FBI compiled the iconic composite sketches of a calm, middle-aged man in dark sunglasses.", 0.90, 0.55),
-        ],
-    ),
-    StoryScene(
-        scene_id="s13",
-        act="Act 4: The Serial Ledger",
-        title="34-PAGE SERIAL NUMBER DIRECTORY",
-        text="The FBI distributed thirty-four-page booklets listing every single twenty-dollar serial number to banks, casinos, and racetracks worldwide. In four decades, not one bill ever surfaced in circulation.",
-        highlighter_phrase="not one bill ever surfaced",
-        timestamp_text="1971–2016  •  10,000 SERIAL NUMBERS",
-        location_text="GLOBAL FINANCIAL MONITORING",
-        exhibit_code="EXHIBIT 13: 10,000 SERIAL NUMBERS",
-        stamp_text="ZERO CIRCULATION",
-        hero_image="s14.jpg",
-        cutout_image="s14_cutout_serial_ledger.png",
-        secondary_trigger_word="serial",
-        sound_cues=[
-            {"name": "tension_clock", "word_trigger": "booklets", "offset": 3.4, "vol": 0.22, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("The FBI distributed thirty-four-page booklets listing every single twenty-dollar serial number.", 0.92, 0.45),
-            ("To banks, casinos, and racetracks worldwide.", 0.90, 0.40),
-            ("In four decades... not one single bill ever surfaced in circulation.", 0.88, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s14",
-        act="Act 5: The River Sand",
-        title="1980 TINA BAR DISCOVERY",
-        text="Then in 1980, an eight-year-old boy digging in the sand at Tina Bar along the Columbia River uncovered fifty-eight hundred dollars in decaying twenties, rubber bands still holding them together.",
-        highlighter_phrase="fifty-eight hundred dollars in decaying twenties",
-        timestamp_text="FEB 10, 1980  •  COLUMBIA RIVER",
-        location_text="TINA BAR, WASHINGTON",
-        exhibit_code="EXHIBIT 14: TINA BAR EXCAVATION SITE",
-        stamp_text="RECOVERED CASH",
-        hero_image="s10.jpg",
-        cutout_image="s10_cutout_rotting_bills.png",
-        secondary_trigger_word="rotting",
-        sound_cues=[
-            {"name": "vinyl_needle", "word_trigger": "decaying", "offset": 8.5, "vol": 0.24, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("Then in 1980, an eight-year-old boy digging in the sand at Tina Bar uncovered fifty-eight hundred dollars in decaying twenties...", 0.92, 0.50),
-            ("With the rubber bands still intact.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s15",
-        act="Act 5: Suspect One",
-        title="PRIMARY SUSPECT: RICHARD MCCOY JR.",
-        text="Five months after Cooper vanished, an Army Green Beret named Richard McCoy Jr. hijacked a Boeing 727 using identical demands and jumped over Utah with five hundred thousand dollars.",
-        highlighter_phrase="jumped over Utah with five hundred thousand dollars",
-        timestamp_text="APRIL 1972  •  SALT LAKE CITY",
-        location_text="PROVO, UTAH",
-        exhibit_code="EXHIBIT 15: SUSPECT: RICHARD MCCOY JR.",
-        stamp_text="COPYCAT HIJACKER",
-        hero_image="s15.jpg",
-        cutout_image="s15_cutout_mccoy.png",
-        secondary_trigger_word="McCoy",
-        sound_cues=[
-            {"name": "boom", "word_trigger": "McCoy", "offset": 4.5, "vol": 0.26, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("Five months after Cooper vanished, an Army Green Beret named Richard McCoy Jr. hijacked a Boeing 727 with identical demands.", 0.92, 0.45),
-            ("And jumped over Utah with five hundred thousand dollars.", 0.88, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s16",
-        act="Act 5: Suspect Two",
-        title="PRIMARY SUSPECT: ROBERT RACKSTRAW",
-        text="Another prime suspect was Robert Rackstraw—a decorated Vietnam veteran, paratrooper, and pilot who possessed the specialized airborne training required to survive the drop.",
-        highlighter_phrase="specialized airborne training",
-        timestamp_text="1978–2016  •  VIETNAM VET",
-        location_text="SAN DIEGO, CALIFORNIA",
-        exhibit_code="EXHIBIT 16: SUSPECT: ROBERT RACKSTRAW",
-        stamp_text="SUSPECT: RACKSTRAW",
-        hero_image="s16.jpg",
-        cutout_image="s16_cutout_rackstraw.png",
-        secondary_trigger_word="Rackstraw",
-        sound_cues=[
-            {"name": "shutter", "word_trigger": "Rackstraw", "offset": 2.8, "vol": 0.24, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("Another prime suspect was Robert Rackstraw.", 0.90, 0.40),
-            ("A decorated Vietnam veteran, paratrooper, and pilot who possessed the specialized airborne training required to survive the drop.", 0.90, 0.60),
-        ],
-    ),
-    StoryScene(
-        scene_id="s17",
-        act="Act 6: Modern Forensic Science",
-        title="2007 TITANIUM TIE ANALYSIS",
-        text="In 2007, forensic scientists used scanning electron microscopes on Cooper's tie and discovered rare particles of pure titanium and bismuth—tracing his workplace directly to high-tech aerospace alloy laboratories.",
-        highlighter_phrase="pure titanium and bismuth",
-        timestamp_text="2007  •  ELECTRON MICROSCOPY",
-        location_text="THE CITIZEN SLEUTHS LAB",
-        exhibit_code="EXHIBIT 17: TITANIUM ALLOY SPECTRA",
-        stamp_text="FORENSIC MATCH",
-        hero_image="s17.jpg",
-        cutout_image="s17_cutout_titanium_graph.png",
-        secondary_trigger_word="titanium",
-        sound_cues=[
-            {"name": "seatbelt_chime", "word_trigger": "microscopes", "offset": 4.2, "vol": 0.24, "pan": "right"},
-        ],
-        speech_chunks=[
-            ("In 2007, forensic scientists used scanning electron microscopes on Cooper's clip-on tie...", 0.92, 0.45),
-            ("And discovered rare particles of pure titanium and bismuth.", 0.90, 0.40),
-            ("Tracing his workplace directly to high-tech aerospace alloy laboratories.", 0.88, 0.65),
-        ],
-    ),
-    StoryScene(
-        scene_id="s18",
-        act="Act 6: The Unsolved Legend",
-        title="THE ONLY UNSOLVED SKYJACKING",
-        text="In 2016, after forty-five years and over a thousand suspects, the FBI officially suspended its active investigation. Did Dan Cooper die in the freezing storm, or pull off the perfect crime? Subscribe for the next forensic deep dive.",
-        highlighter_phrase="the perfect crime",
-        timestamp_text="JULY 12, 2016  •  ACTIVE CASE SUSPENDED",
-        location_text="FBI HEADQUARTERS, WASHINGTON D.C.",
-        exhibit_code="EXHIBIT 18: CASE STATUS: SUSPENDED",
-        stamp_text="CASE SUSPENDED",
-        hero_image="s18.jpg",
-        cutout_image="s18_cutout_norjak_seal.png",
-        secondary_trigger_word="ghost",
-        sound_cues=[
-            {"name": "sub_bass_drop", "word_trigger": "perfect", "offset": 12.8, "vol": 0.28, "pan": "center"},
-        ],
-        speech_chunks=[
-            ("In 2016, after forty-five years and over a thousand suspects, the FBI officially suspended its active investigation.", 0.92, 0.50),
-            ("Did Dan Cooper die in the freezing storm...", 0.88, 0.45),
-            ("Or pull off the perfect crime?", 0.86, 0.60),
-            ("Subscribe for the next forensic deep dive.", 0.90, 0.70),
-        ],
-    ),
-]
+def story_scenes_from_project(project_data: Dict[str, Any]) -> List[StoryScene]:
+    """Converts a schema v2 project.json dictionary into StoryScene instances."""
+    scenes = project_data.get("scenes")
+    if not isinstance(scenes, list) or not scenes:
+        raise MissingInputError(
+            stage="forensic_casebook",
+            artifact="project.json",
+            cause="project contains no scenes for forensic_casebook_engine",
+        )
+
+    project_title = str(project_data.get("title") or project_data.get("topic") or "Forensic Dossier").strip()
+    project_id = str(project_data.get("id") or "CASE").strip()
+
+    story_scenes: List[StoryScene] = []
+    for idx, sc in enumerate(scenes):
+        if not isinstance(sc, dict):
+            raise MissingInputError(
+                stage="forensic_casebook",
+                artifact="project.json",
+                cause=f"scene[{idx}] must be a dict",
+            )
+        scene_id = str(sc.get("id") or f"s{idx + 1:02d}").strip()
+        text = str(sc.get("text") or "").strip()
+        if not text:
+            raise MissingInputError(
+                stage="forensic_casebook",
+                artifact=f"scene_{scene_id}",
+                cause=f"scene[{idx}] text must be non-empty",
+            )
+
+        words = [w.strip(".,!?\"'():;") for w in text.split() if w.strip(".,!?\"'():;")]
+        hl_default = " ".join(words[:3]) if len(words) >= 3 else (words[0] if words else "")
+        trig_default = words[min(len(words) - 1, max(0, len(words) // 2))] if words else ""
+
+        img_rel = str(sc.get("image") or f"images/{scene_id}.jpg")
+        hero_name = Path(img_rel).name
+        cutout_rel = str(sc.get("cutout_image") or hero_name)
+        cutout_name = Path(cutout_rel).name
+
+        story_scenes.append(
+            StoryScene(
+                scene_id=scene_id,
+                act=str(sc.get("act") or f"SCENE {idx + 1:02d}"),
+                title=str(sc.get("title") or sc.get("plate_label") or f"{project_title} ({idx + 1})"),
+                text=text,
+                highlighter_phrase=str(sc.get("highlighter_phrase") or hl_default),
+                timestamp_text=str(sc.get("timestamp_text") or f"ENTRY {idx + 1:02d}"),
+                location_text=str(sc.get("location_text") or project_title[:28]),
+                exhibit_code=str(sc.get("exhibit_code") or sc.get("plate_label") or f"EXHIBIT {project_id}-{idx + 1:02d}"),
+                stamp_text=str(sc.get("stamp") or sc.get("stamp_text") or "VERIFIED"),
+                hero_image=hero_name,
+                cutout_image=cutout_name,
+                secondary_trigger_word=str(sc.get("secondary_trigger_word") or trig_default),
+                sound_cues=list(sc.get("sound_cues") or []),
+                speech_chunks=list(sc.get("speech_chunks") or []),
+            )
+        )
+    return story_scenes
 
 
 # ---------------------------------------------------------------------------
@@ -1132,6 +785,7 @@ def render_forensic_scene_clip(
     words: List[Dict[str, Any]],
     output_mp4: Path,
     fps: int = 30,
+    total_scenes: int = 12,
 ) -> Path:
     """Renders a dynamic 30fps full-screen scene clip with connected spatial camera motion."""
     total_frames = int(dur * fps)
@@ -1188,16 +842,16 @@ def render_forensic_scene_clip(
         viewport = render_camera_viewport(canvas, cam_cx, cam_cy, zoom, rot, WIDTH, HEIGHT)
 
         # 4. Render stable telemetry HUD on top of viewport
-        final_frame = draw_top_bottom_telemetry_hud(viewport, scene, scene_idx, total_scenes=len(DB_COOPER_FORENSIC_SERIES))
+        final_frame = draw_top_bottom_telemetry_hud(viewport, scene, scene_idx, total_scenes=total_scenes)
 
         out.write(final_frame)
 
     out.release()
 
+    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"] if sys.platform == "darwin" else ["-c:v", "libx264", "-crf", "18"]
     cmd = [
         "ffmpeg", "-y", "-i", str(tmp_raw),
-        "-c:v", "h264_videotoolbox",
-        "-b:v", "14M",
+        *vcodec,
         "-pix_fmt", "yuv420p",
         str(output_mp4),
     ]
@@ -1293,10 +947,14 @@ def synthesize_noir_narration(
         words: List[Dict[str, Any]] = []
         if json_path.exists():
             try:
-                with open(json_path, "r") as f:
+                with open(json_path, "r", encoding="utf-8") as f:
                     words = json.load(f)
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                raise MissingInputError(
+                    stage="narration_timings",
+                    artifact=json_path,
+                    cause=f"Corrupt word timings json: {exc}",
+                ) from exc
 
         if not words:
             segments, _ = whisper_model.transcribe(str(wav_path), word_timestamps=True)
@@ -1318,11 +976,36 @@ def synthesize_noir_narration(
 # End-to-End Forensic Production Orchestrator
 # ---------------------------------------------------------------------------
 def produce_forensic_documentary(
-    project_slug: str = "long_01_db_cooper_1971",
+    project_slug: str,
     output_mp4_override: Optional[Path] = None,
+    project_data: Optional[Dict[str, Any]] = None,
 ) -> Path:
-    """Renders the complete 18-scene LEMMiNO-tier forensic documentary video."""
+    """Renders the complete LEMMiNO-tier forensic documentary video from project.json."""
     project_dir = REPO_ROOT / "projects" / project_slug
+    if not project_dir.exists():
+        project_dir = REPO_ROOT / "long_form" / project_slug
+    if not project_dir.exists():
+        project_dir = REPO_ROOT / "shorts" / project_slug
+
+    proj_json_path = project_dir / "project.json"
+    if project_data is None:
+        if not proj_json_path.exists():
+            raise MissingInputError(
+                stage="forensic_casebook",
+                artifact=proj_json_path,
+                cause=f"project.json missing for slug '{project_slug}'",
+            )
+        try:
+            project_data = json.loads(proj_json_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            raise MissingInputError(
+                stage="forensic_casebook",
+                artifact=proj_json_path,
+                cause=f"Corrupt or unreadable project.json: {exc}",
+            ) from exc
+
+    scenes = story_scenes_from_project(project_data)
+
     images_dir = project_dir / "images"
     cutouts_dir = images_dir / "cutouts"
     videos_dir = project_dir / "videos"
@@ -1339,12 +1022,12 @@ def produce_forensic_documentary(
 
     logger.info("=== STEP 1: KOKORO-82M NEURAL NARRATION SYNTHESIS & NOIR CHUNKING ===")
     scene_audios, scene_durs, scene_words = synthesize_noir_narration(
-        DB_COOPER_FORENSIC_SERIES, cache_dir
+        scenes, cache_dir
     )
 
     logger.info("=== STEP 2: RENDERING 30FPS CONNECTED SPATIAL CAMERA VIDEO CLIPS ===")
     raw_clips: List[Path] = []
-    for idx, sc in enumerate(DB_COOPER_FORENSIC_SERIES):
+    for idx, sc in enumerate(scenes):
         clip_p = videos_dir / f"forensic_{sc.scene_id}.mp4"
         dur = scene_durs[idx]
         words = scene_words[idx]
@@ -1358,6 +1041,7 @@ def produce_forensic_documentary(
             words=words,
             output_mp4=clip_p,
             fps=30,
+            total_scenes=len(scenes),
         )
         raw_clips.append(clip_p)
         logger.info(f"  ✓ Rendered connected spatial clip {clip_p.name} ({dur:.2f}s)")
@@ -1382,11 +1066,11 @@ def produce_forensic_documentary(
     cmd_stitch = ["ffmpeg", "-y"]
     for rc in raw_clips:
         cmd_stitch.extend(["-i", str(rc)])
+    vcodec = ["-c:v", "h264_videotoolbox", "-b:v", "14M"] if sys.platform == "darwin" else ["-c:v", "libx264", "-crf", "18"]
     cmd_stitch.extend([
         "-filter_complex", full_filter,
         "-map", cur_v,
-        "-c:v", "h264_videotoolbox",
-        "-b:v", "14M",
+        *vcodec,
         "-pix_fmt", "yuv420p",
         str(visual_timeline),
     ])
@@ -1414,7 +1098,7 @@ def produce_forensic_documentary(
     sfx_count = 0
     cur_scene_time = 0.0
 
-    for idx, sc in enumerate(DB_COOPER_FORENSIC_SERIES):
+    for idx, sc in enumerate(scenes):
         words = scene_words[idx]
         wav_path = scene_audios[idx]
         scene_pauses = detect_speech_pauses(wav_path)
@@ -1475,26 +1159,18 @@ def produce_forensic_documentary(
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True,
         )
 
-    # Two-Act Dynamic Mystery & Thriller Soundtrack
+    # Dynamic Soundtrack from project.json
     full_bgm_wav = cache_dir / "master_bgm_crossfade.wav"
-    if BGM_FILE_1.exists() and BGM_FILE_2.exists():
-        cmd_bgm = [
-            "ffmpeg", "-y",
-            "-i", str(BGM_FILE_1),
-            "-i", str(BGM_FILE_2),
-            "-filter_complex",
-            "[0:a]atrim=0:140,asetpts=PTS-STARTPTS[a1];[1:a]atrim=0:150,asetpts=PTS-STARTPTS[a2];[a1][a2]acrossfade=d=8:c1=tri:c2=tri[bgm_full]",
-            "-map", "[bgm_full]",
-            "-t", f"{total_voice_dur:.2f}",
-            "-c:a", "pcm_s16le",
-            str(full_bgm_wav),
-        ]
-        subprocess.run(cmd_bgm, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-    elif BGM_FILE_1.exists():
-        subprocess.run(
-            ["ffmpeg", "-y", "-i", str(BGM_FILE_1), "-t", f"{total_voice_dur:.2f}", "-c:a", "pcm_s16le", str(full_bgm_wav)],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True,
-        )
+    bgm_track = (project_data.get("music") or {}).get("track") or project_data.get("bgm")
+    if bgm_track:
+        bgm_path = Path(bgm_track)
+        if not bgm_path.is_absolute():
+            bgm_path = REPO_ROOT / "assets" / "audio" / "bgm" / bgm_path.name
+        if bgm_path.exists():
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", str(bgm_path), "-t", f"{total_voice_dur:.2f}", "-c:a", "pcm_s16le", str(full_bgm_wav)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True,
+            )
 
     # Master Audio Mix with Vocal Mid-Side Ducking
     mixed_audio = cache_dir / "mixed_audio_forensic.wav"
@@ -1563,12 +1239,12 @@ def produce_forensic_documentary(
         stage="render",
         status="PASS",
         details={
-            "video_id": "LV-01",
-            "title": "The Skyjacker Who Vanished at 10,000 Feet: The True Story of D.B. Cooper",
-            "topic": "D.B. Cooper Skyjacking (18-Scene Connected Spatial Casebook)",
+            "video_id": project_data.get("id", "LV-01"),
+            "title": project_data.get("title", project_slug),
+            "topic": project_data.get("topic", project_slug),
             "output_file": str(output_mp4),
-            "scenes": len(DB_COOPER_FORENSIC_SERIES),
-            "notes": f"Connected Spatial Camera & Stereo Foley Engine; 18 scenes; duration: {dur_final:.1f}s; {size_mb:.1f} MB; -14 LUFS",
+            "scenes": len(scenes),
+            "notes": f"Connected Spatial Camera & Stereo Foley Engine; {len(scenes)} scenes; duration: {dur_final:.1f}s; {size_mb:.1f} MB; -14 LUFS",
         },
         evidence={"duration": dur_final, "size_mb": size_mb, "lufs": -14.0},
     )
@@ -1578,7 +1254,7 @@ def produce_forensic_documentary(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Forensic Casebook Video Engine")
-    parser.add_argument("--slug", default="long_01_db_cooper_1971", help="Project slug")
+    parser.add_argument("--slug", type=str, required=True, help="Project slug")
     parser.add_argument("--output", type=Path, default=None, help="Output MP4 path")
     args = parser.parse_args()
 

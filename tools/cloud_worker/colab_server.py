@@ -17,70 +17,16 @@ Features:
 from __future__ import annotations
 
 import base64
+import importlib.util
 import shutil
 import tempfile
 import uuid
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-try:
-    from fastapi import FastAPI, HTTPException
-    from pydantic import BaseModel
-    import uvicorn
-except ImportError:
-    uvicorn = None  # type: ignore
-
-    class _FallbackBaseModel:
-        """Lightweight Pydantic-compatible model fallback when FastAPI/Pydantic are not installed."""
-
-        def __init__(self, **kwargs: Any) -> None:
-            for cls in reversed(self.__class__.__mro__):
-                if cls is object or cls is _FallbackBaseModel:
-                    continue
-                for k, v in cls.__dict__.items():
-                    if not k.startswith("_") and not callable(v):
-                        setattr(self, k, v)
-                ann = getattr(cls, "__annotations__", {})
-                for k in ann:
-                    if not hasattr(self, k):
-                        setattr(self, k, None)
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-        def model_dump(self) -> Dict[str, Any]:
-            return dict(self.__dict__)
-
-        def dict(self) -> Dict[str, Any]:
-            return dict(self.__dict__)
-
-    class _FallbackHTTPException(Exception):
-        def __init__(self, status_code: int = 500, detail: str = "") -> None:
-            super().__init__(f"HTTP {status_code}: {detail}")
-            self.status_code = status_code
-            self.detail = detail
-
-    class _FallbackFastAPI:
-        def __init__(self, title: str = "", version: str = "1.0.0", **kwargs: Any) -> None:
-            self.title = title
-            self.version = version
-            self.extra = kwargs
-            self.routes: List[Dict[str, Any]] = []
-
-        def get(self, path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-            def _decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
-                self.routes.append({"method": "GET", "path": path, "endpoint": fn, **kwargs})
-                return fn
-            return _decorator
-
-        def post(self, path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-            def _decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
-                self.routes.append({"method": "POST", "path": path, "endpoint": fn, **kwargs})
-                return fn
-            return _decorator
-
-    FastAPI = _FallbackFastAPI  # type: ignore
-    BaseModel = _FallbackBaseModel  # type: ignore
-    HTTPException = _FallbackHTTPException  # type: ignore
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
 
 app = FastAPI(title="FrameForge Colab GPU Gateway", version="1.0.0")
 
@@ -161,15 +107,13 @@ def get_health() -> HealthResponse:
     total_vram = 0.0
     alloc_vram = 0.0
 
-    try:
+    if importlib.util.find_spec("torch"):
         import torch
         if torch.cuda.is_available():
             cuda_avail = True
             gpu_name = torch.cuda.get_device_name(0)
             total_vram = round(torch.cuda.get_device_properties(0).total_memory / (1024 ** 3), 2)
             alloc_vram = round(torch.cuda.memory_allocated(0) / (1024 ** 3), 2)
-    except Exception:
-        pass
 
     drive_mounted = Path("/content/drive/MyDrive").exists()
     disk_free = round(shutil.disk_usage("/content").free / (1024 ** 3), 2) if Path("/content").exists() else 0.0

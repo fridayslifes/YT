@@ -20,5 +20,5 @@ def ensure_venv_cli(script: Path, argv: list[str] | None = None) -> None:
             if os.access(str(interpreter), os.X_OK):
                 args = list(sys.argv[1:] if argv is None else argv)
                 os.execv(str(interpreter), [str(interpreter), str(script), *args])
-    except OSError:
-        pass
+    except OSError as exc:
+        raise RuntimeError(f"Failed to re-exec under repository venv {interpreter}: {exc}") from exc

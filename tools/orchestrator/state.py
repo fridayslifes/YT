@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import tempfile
 import time
 import uuid
 from dataclasses import dataclass
@@ -60,10 +59,11 @@ class RunStore:
                 probe = self.runs_dir / f".probe_{os.getpid()}"
                 probe.mkdir(exist_ok=True)
                 probe.rmdir()
-            except (PermissionError, OSError):
-                fallback = Path(tempfile.gettempdir()) / ".orchestrator" / "runs"
-                fallback.mkdir(parents=True, exist_ok=True)
-                self.runs_dir = fallback
+            except (PermissionError, OSError) as exc:
+                raise PermissionError(
+                    f"Cannot initialize orchestrator run directory at {self.runs_dir}: {exc}. "
+                    "Set ORCHESTRATOR_RUNS_DIR to a writable directory."
+                ) from exc
 
     def run_dir(self, run_id: str) -> Path:
         return self.runs_dir / run_id

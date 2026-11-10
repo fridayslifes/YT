@@ -125,11 +125,10 @@ import numpy as np  # noqa: E402
 from PIL import Image, ImageFilter  # noqa: E402
 
 VENV_SITE = YT_ROOT / ".venv" / "lib" / "python3.11" / "site-packages"
-try:
-    if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
-        sys.path.append(str(VENV_SITE))
-except OSError:
-    pass
+if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
+    sys.path.append(str(VENV_SITE))
+
+from tools.errors import RenderingError  # noqa: E402
 
 from tools import genre_director  # noqa: E402
 from tools import visual_director  # noqa: E402
@@ -186,22 +185,18 @@ def remotion_spring(
 def _heal_gpu_memory() -> None:
     """Actively flush Python GC, Apple Silicon MLX Metal cache, and PyTorch MPS/CUDA cache."""
     gc.collect()
-    try:
+    if "torch" in sys.modules:
         import torch
         if torch.backends.mps.is_available():
             torch.mps.empty_cache()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-    except Exception:
-        pass
-    try:
+    if "mlx.core" in sys.modules:
         import mlx.core as mx
         if hasattr(mx, "clear_cache"):
             mx.clear_cache()
         elif hasattr(mx, "metal") and hasattr(mx.metal, "clear_cache"):
             mx.metal.clear_cache()
-    except Exception:
-        pass
 
 
 def _can_use_nvenc() -> bool:
@@ -369,37 +364,25 @@ class _FFmpegWriter:
             ) from e
 
     def _cleanup(self, kill: bool = False) -> None:
-        try:
-            if self.proc.stdin and not self.proc.stdin.closed:
-                self.proc.stdin.close()
-        except Exception:
-            pass
+        if self.proc.stdin and not self.proc.stdin.closed:
+            self.proc.stdin.close()
         if kill or self.proc.poll() is None:
             if not kill:
                 try:
                     self.proc.wait(timeout=120)
                 except subprocess.TimeoutExpired:
                     self.proc.kill()
-                    try:
-                        self.proc.wait(timeout=10)
-                    except Exception:
-                        pass
+                    self.proc.wait(timeout=10)
             else:
                 self.proc.kill()
-                try:
-                    self.proc.wait(timeout=10)
-                except Exception:
-                    pass
+                self.proc.wait(timeout=10)
         self.log_path.unlink(missing_ok=True)
         self.finished = True
 
     def finish(self, min_bytes: int = 2048) -> tuple[bool, str]:
         """Close the stream, reap ffmpeg, check the return code, then probe the encoded file."""
-        try:
-            if self.proc.stdin and not self.proc.stdin.closed:
-                self.proc.stdin.close()
-        except Exception:
-            pass
+        if self.proc.stdin and not self.proc.stdin.closed:
+            self.proc.stdin.close()
         try:
             rc = self.proc.wait(timeout=180)
         except subprocess.TimeoutExpired:
@@ -419,11 +402,8 @@ class _FFmpegWriter:
 
 def _tail_stderr(log_path: Path, chars: int = 240) -> str:
     """Read the tail of the ffmpeg stderr log for diagnostics (best effort)."""
-    try:
-        if log_path.exists():
-            return log_path.read_text(errors="ignore").strip()[-chars:]
-    except Exception:
-        pass
+    if log_path.exists():
+        return log_path.read_text(errors="ignore").strip()[-chars:]
     return ""
 
 
@@ -891,7 +871,7 @@ BLENDER_TIMEOUT_S = 600.0
 
 
 def _probe_video_shape(video_path: Path) -> tuple[int, int, float, int]:
-    """Return (width, height, fps, n_frames) for a clip; OpenCV fallback when ffprobe is unavailable."""
+    """Return (width, height, fps, n_frames) for a clip via ffprobe."""
     ffprobe_bin = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
     try:
         res = run_process(
@@ -917,17 +897,17 @@ def _probe_video_shape(video_path: Path) -> tuple[int, int, float, int]:
             return w, h, fps, max(0, n)
     except ProcessDeadlineExceeded:
         raise
-    except Exception:
-        pass
-    cap = cv2.VideoCapture(str(video_path))
-    try:
-        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
-        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
-        fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0) or 30.0
-        n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    finally:
-        cap.release()
-    return w, h, fps, max(0, n)
+    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError, IndexError, ValueError) as exc:
+        raise RenderingError(
+            stage="render_probe",
+            artifact=video_path,
+            cause=f"ffprobe failed to probe video {video_path}: {exc}",
+        ) from exc
+    raise RenderingError(
+        stage="render_probe",
+        artifact=video_path,
+        cause=f"ffprobe returned invalid dimensions for video {video_path}: {w}x{h}",
+    )
 
 
 def _read_exact(stream, nbytes: int, *, deadline: float | None = None) -> bytes | None:
@@ -1916,7 +1896,7 @@ def render_obj_mesh_native(
 
 
 class BlenderBridge:
-    """Headless 3D rendering bridge to Blender (if installed), with auto-fallback to Native 3D Mesh Engine."""
+    """Headless 3D rendering bridge to Blender."""
 
     @staticmethod
     def get_blender_path() -> str | None:
@@ -1946,14 +1926,10 @@ class BlenderBridge:
         output_mp4.parent.mkdir(parents=True, exist_ok=True)
         blender_bin = cls.get_blender_path()
         if not blender_bin:
-            return render_obj_mesh_native(
-                obj_path=obj_path,
-                output_mp4=output_mp4,
-                duration=duration,
-                fps=fps,
-                width=width,
-                height=height,
-                preset=preset,
+            raise RenderingError(
+                stage="render",
+                artifact=output_mp4,
+                cause="Blender is not installed or not found on PATH. Auto-fallback to native mesh engine is prohibited per Rule B.",
             )
         script = f"""
 import bpy, math

@@ -1447,7 +1447,7 @@ def main() -> int:
     parser.add_argument("--create-project", action="store_true", help="Scaffold a new project directory and configuration")
     parser.add_argument("--build-project", action="store_true", help="Build a project using its configured variant engine")
     parser.add_argument("--clean-project", action="store_true", help="Clean temporary cache and raw files for a project")
-    parser.add_argument("--slug", type=str, help="Project slug (e.g. video_01, long_01_db_cooper_1971)")
+    parser.add_argument("--slug", type=str, help="Project slug (e.g. video_01, short_01)")
     parser.add_argument("--variant", choices=list(UNIVERSAL_VARIANTS.keys()), default="storybook_picturebook", help="Variant choice")
     parser.add_argument("--format", choices=["short", "long"], default="long", help="Video format (short: 9:16, long: 16:9)")
     parser.add_argument("--topic", type=str, default="Untitled Topic", help="Topic or subject of the video")

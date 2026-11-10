@@ -39,6 +39,8 @@ from typing import Dict, List, Tuple
 import cv2
 import numpy as np
 
+from tools.errors import RenderingError
+
 # ---------------------------------------------------------------------------
 # COLOR PROFILES & FILM GRADES
 # ---------------------------------------------------------------------------
@@ -201,7 +203,7 @@ def compute_camera_transform(
         rot = (e - 0.5) * 0.5
 
     else:
-        # Fallback gentle push
+        # Default gentle push
         zoom = 1.0 + (e * 0.05 * parallax_factor)
 
     return pan_x, pan_y, zoom, rot
@@ -377,39 +379,42 @@ def render_photobook_scene(
 
 
 def reencode_broadcast_mp4(src_path: Path, dst_path: Path, fps: int = 30) -> bool:
-    """Encodes to pristine 14 Mbps H.264 MP4 (Apple Silicon VideoToolbox or libx264)."""
+    """Encodes to pristine 14 Mbps H.264 MP4."""
     ffmpeg_bin = shutil.which("ffmpeg")
     if not ffmpeg_bin:
-        shutil.move(str(src_path), str(dst_path))
-        return True
+        raise RenderingError(
+            stage="render",
+            artifact=dst_path,
+            cause="ffmpeg binary is missing on PATH",
+        )
 
-    # Try Apple Silicon h264_videotoolbox first, then fallback to libx264
-    encoders = ["h264_videotoolbox", "libx264"]
-    for enc in encoders:
-        cmd = [
-            ffmpeg_bin, "-y",
-            "-i", str(src_path),
-            "-c:v", enc,
-        ]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", "14M", "-profile:v", "high", "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "17", "-preset", "fast", "-pix_fmt", "yuv420p"])
+    enc = "h264_videotoolbox" if sys.platform == "darwin" else "libx264"
+    cmd = [
+        ffmpeg_bin, "-y",
+        "-i", str(src_path),
+        "-c:v", enc,
+    ]
+    if enc == "h264_videotoolbox":
+        cmd.extend(["-b:v", "14M", "-profile:v", "high", "-pix_fmt", "yuv420p"])
+    else:
+        cmd.extend(["-crf", "17", "-preset", "fast", "-pix_fmt", "yuv420p"])
 
-        cmd.extend([
-            "-colorspace", "bt709",
-            "-color_trc", "bt709",
-            "-color_primaries", "bt709",
-            "-r", str(fps),
-            str(dst_path),
-        ])
+    cmd.extend([
+        "-colorspace", "bt709",
+        "-color_trc", "bt709",
+        "-color_primaries", "bt709",
+        "-r", str(fps),
+        str(dst_path),
+    ])
 
-        proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if proc.returncode == 0 and dst_path.exists() and dst_path.stat().st_size > 0:
-            return True
-
-    # Fallback to copy if both failed
-    shutil.move(str(src_path), str(dst_path))
+    proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    if proc.returncode != 0 or not dst_path.exists() or dst_path.stat().st_size == 0:
+        err_msg = proc.stderr[-240:].strip() if proc.stderr else "unknown error"
+        raise RenderingError(
+            stage="render",
+            artifact=dst_path,
+            cause=f"ffmpeg encode failed ({enc}): {err_msg}",
+        )
     return True
 
 
