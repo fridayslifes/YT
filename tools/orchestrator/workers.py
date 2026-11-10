@@ -470,6 +470,35 @@ class PublishWorker(Worker):
                 retryable=False,
             )
         project = json.loads(project_json.read_text(encoding="utf-8"))
+        evidence_data = None
+        if release and release.artifacts.get("evidence"):
+            ev_path = Path(release.artifacts["evidence"])
+            if not ev_path.is_absolute():
+                ev_path = ctx.root / ev_path
+            if ev_path.exists():
+                try:
+                    evidence_data = json.loads(ev_path.read_text(encoding="utf-8"))
+                except (json.JSONDecodeError, OSError) as exc:
+                    return WorkerResult(
+                        ok=False,
+                        summary="corrupt evidence artifact",
+                        error=f"Cannot parse evidence file {ev_path}: {exc}",
+                        retryable=False,
+                    )
+
+        from tools.policy_gate import evaluate_policy_gate
+        policy_report = evaluate_policy_gate(
+            project,
+            evidence=evidence_data,
+            channel=project.get("channel") or project.get("channel_id", "cognitive_core"),
+        )
+        if not policy_report.passed:
+            return WorkerResult(
+                ok=False,
+                summary="policy gate failed; upload blocked",
+                error="Upload blocked by policy gate:\n" + "\n".join(f"- {v}" for v in policy_report.violations),
+                retryable=False,
+            )
         receipt = ctx.root / "channel_assets" / "upload_receipts" / f"{project['id']}.json"
         try:
             live_id = upload_via_api(

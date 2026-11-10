@@ -1,7 +1,7 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** PHASE 4 COMPLETED (Environment, explicit encoder config, and CLI --channel required); PHASE 5 (Channel Governance & Policy Gate) READY.  
-**Last Updated:** 2026-11-11 02:56:00 UTC  
+**Status:** PHASE 5 COMPLETED (Channel Governance & Pre-Upload Policy Gate); PHASE 6 (Audio/Visual QA & Rule C Uniqueness Gate) READY.  
+**Last Updated:** 2026-11-11 04:25:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
 
@@ -219,6 +219,24 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 - **Verification Evidence:**
   - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `990 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
 
+### Task 5.1–5.2: Channel Governance & Pre-Upload Policy Gate [COMPLETED]
+- **Dynamic Channel Configuration (`tools/channel_config.py`):**
+  - Implemented dynamic loading from `configs/channels/<name>.yaml` with typed `ChannelConfig` dataclass.
+  - Exposes `load_channel_config(name)` and `list_channels()`.
+  - Validates channel niche, supported variants, voice synthesis settings, color palettes, cadence, topic rules, and platform disclosures. Fails fast with `MissingInputError(stage="channel_config_load")` on missing or unconfigured channels.
+- **Pre-Upload Policy Gate (`tools/policy_gate.py`):**
+  - Built comprehensive 5-layer policy gate:
+    1. **Synthetic Media Disclosure:** `contains_synthetic_media=True`, `self_declared_made_for_kids` explicitly declared.
+    2. **Commercial Asset & Voice Licensing:** Blocks all cloud TTS providers (`edge_tts`, `azure`, `elevenlabs`, etc.); enforces local Kokoro-82M ONNX models and OFL fonts.
+    3. **Likeness Rights & Protected Characters:** Zero named living persons (e.g. Kahneman, Musk, Milgram) or copyrighted characters (Mickey, Batman, Spiderman) in visual prompts; archetypes only.
+    4. **Empirical Study Grounding:** Verifies study citation against `channel_assets/scientific_dossiers.json` or reviewed `evidence.json`, matching researchers, publication year, and quantitative statistics.
+    5. **Inauthentic Content Guard:** Enforces script word bands (105–155 for shorts, 1100–1500 for long-form), 8–12 scenes for retention pacing, and closing audience action asks (subscribe, comment, next video) in the final two scenes.
+  - Integrated into `PublishWorker` in `tools/orchestrator/workers.py` to strictly block uploads when policy violations are detected.
+  - Re-exported `evaluate_policy_gate` through `tools/policy.py`.
+  - Added 10 unit tests in `tests/test_policy_gate.py`.
+- **Verification Evidence:**
+  - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `1000 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
+
 ---
 
 ## 5. Master Task DAG & Implementation Order
@@ -242,15 +260,11 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
   ├── Task 4.3: Make hardware encoder selection explicit and fail closed if unavailable [DONE]
   └── Task 4.4: Remove `--channel` default ("cognitive_core"); make `--channel` required [DONE]
 
-[Phase 5: Channel Governance & Policy Gate] [NEXT]
-  ├── Task 5.1: Support dynamic channel configs in `configs/channels/`
-  └── Task 5.2: Build comprehensive `policy_gate` (licensing, AI disclosure, study grounding, likeness checks)
+[Phase 5: Channel Governance & Policy Gate] [COMPLETED]
+  ├── Task 5.1: Support dynamic channel configs in `configs/channels/` [DONE]
+  └── Task 5.2: Build comprehensive `policy_gate` (licensing, AI disclosure, study grounding, likeness checks) [DONE]
 
-[Phase 5: Channel Governance & Policy Gate]
-  ├── Task 5.1: Support dynamic channel configs in `configs/channels/`
-  └── Task 5.2: Build comprehensive `policy_gate` (licensing, AI disclosure, study grounding, likeness checks)
-
-[Phase 6: Audio/Visual QA & Rule C Uniqueness Gate]
+[Phase 6: Audio/Visual QA & Rule C Uniqueness Gate] [NEXT]
   ├── Task 6.1: Frame & audio QA gate (-14 LUFS, caption safe-zone 0.44–0.76, face avoidance, pacing)
   └── Task 6.2: Rule C uniqueness gate (SFX overlap, image pHash distance, audio fingerprint, 3s opening)
 
@@ -263,6 +277,6 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 
 ## 5. Handoff
 
-- **Done:** Phase 1 and Phase 2 fully completed. Zero `except: pass`, zero fallbacks, zero hardcoded demo scripts in `tools/`. All 7 variants driven by `project.json`. AST lint suite passing. `./check.sh all` 100% green on Mac.
-- **In Progress:** Ready for Phase 3 (Thumbnail Policy Alignment).
-- **Exact Next Command:** Update `tests/test_impact.py`, `AGENTS.md`, `GEMINI.md`, and `VIDEO_GUIDE_SHORTS_AND_LONG.md` to encode the user's thumbnail decision (no Shorts thumbnails; long-form 16:9 custom thumbnails permitted and policy-gated).
+- **Done:** Phase 1, Phase 2, Phase 3, Phase 4, and Phase 5 fully completed and verified.
+- **In Progress:** Ready for Phase 6 (Audio/Visual QA & Rule C Uniqueness Gate).
+- **Exact Next Command:** Implement `tools/uniqueness_gate.py` and frame/audio QA checks adhering to Global Rule C.
