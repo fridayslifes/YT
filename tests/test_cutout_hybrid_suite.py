@@ -128,6 +128,81 @@ def test_screen_shake_decay():
     assert dx_late == 0 and dy_late == 0
 
 
+def test_native_cutout_mux_audio_chain_and_encoder_failure(tmp_path, monkeypatch):
+    import subprocess
+    import wave
+    from unittest.mock import Mock
+
+    import pytest
+
+    from tools.cutout_engine import cutout_director as director
+
+    voice_wav = tmp_path / "voice.wav"
+    with wave.open(str(voice_wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(48000)
+        wf.writeframes(b"\x00\x00" * 4800)
+    sprites_dir = tmp_path / "sprites"
+    sprites_dir.mkdir()
+    assert cv2.imwrite(str(sprites_dir / "idle.png"), np.full((4, 4, 4), 255, dtype=np.uint8))
+    output_mp4 = tmp_path / "cutout.mp4"
+    project = director.CutoutProject(
+        slug="mux-test", title="Mux test", voice_text="Test",
+        beats=[director.CutoutBeat(0.0, 0.1, "Test", "idle", camera_pos=(16.0, 16.0, 0.0))],
+    )
+    writer = Mock()
+    monkeypatch.setattr(director.cv2, "VideoWriter", Mock(return_value=writer))
+    monkeypatch.setattr(director, "detect_speech_pauses", Mock(return_value=[]))
+    monkeypatch.setattr(director, "ensure_documentary_foley_pack", Mock())
+    monkeypatch.setattr(director, "generate_continuous_drone_bed", Mock())
+    scan = Mock()
+    monkeypatch.setattr(director, "scan_video_for_pops", scan)
+    run = Mock()
+    monkeypatch.setattr(director.subprocess, "run", run)
+
+    result = director.render_cutout_short_video(
+        project, sprites_dir, output_mp4, voice_wav, width=32, height=32, fps=10,
+    )
+
+    assert result == output_mp4
+    assert writer.write.call_count == 7
+    writer.release.assert_called_once_with()
+    run.assert_called_once()
+    (cmd,), kwargs = run.call_args
+    drone_vol = db_to_linear(DECIBEL_BUDGET["ambient_bed"])
+    assert cmd.count("-filter_complex") == 1
+    assert cmd[cmd.index("-filter_complex") + 1] == (
+        f"[1:a]volume=1.0[v];[2:a]volume={drone_vol:.4f}[d];"
+        "[v][d]amix=inputs=2:normalize=0,loudnorm=I=-14.0:TP=-1.5:LRA=7.0[aout]"
+    )
+    assert "-af" not in cmd
+    assert not any(arg.startswith("-filter:a") for arg in cmd)
+    assert [cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-i"] == [
+        str(output_mp4.with_suffix(".raw.mp4")), str(voice_wav),
+        str(output_mp4.with_suffix(".drone.wav")),
+    ]
+    assert [cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-map"] == ["0:v", "[aout]"]
+    assert cmd[cmd.index("-c:v") + 1] == "h264_videotoolbox"
+    assert cmd[cmd.index("-c:a") + 1] == "aac"
+    assert cmd[cmd.index("-ar") + 1] == "48000"
+    assert "-shortest" in cmd
+    assert kwargs == {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "check": True}
+    scan.assert_called_once_with(output_mp4, threshold_ratio=2.2)
+
+    failure = subprocess.CalledProcessError(234, cmd)
+    run.reset_mock()
+    run.side_effect = failure
+    scan.reset_mock()
+    with pytest.raises(subprocess.CalledProcessError) as exc:
+        director.render_cutout_short_video(
+            project, sprites_dir, output_mp4, voice_wav, width=32, height=32, fps=10,
+        )
+    assert exc.value is failure
+    run.assert_called_once_with(cmd, **kwargs)
+    scan.assert_not_called()
+
+
 def test_cloud_narration_lead_in_matches_beats():
     """The narration WAV must carry the 0.1s lead-in so its duration matches the beat timeline."""
     import json

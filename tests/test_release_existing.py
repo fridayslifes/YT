@@ -29,10 +29,18 @@ NARRATION = [
 @pytest.fixture
 def imported(tmp_path):
     project = {
+        "schema_version": 2,
         "id": "SH-13",
+        "format": "short",
+        "variant": "cinematic_35mm",
+        "channel_id": "test_channel",
+        "voice": "kokoro",
         "citation_verified": True,
         "contains_synthetic_media": True,
-        "scenes": [{"text": text, "prompt": "Illustrative scene"} for text in NARRATION],
+        "scenes": [
+            {"id": f"s{number:02d}", "text": text, "caption": text, "prompt": "Illustrative scene"}
+            for number, text in enumerate(NARRATION, 1)
+        ],
     }
     evidence = {
         "schema_version": 1,

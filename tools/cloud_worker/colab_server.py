@@ -18,19 +18,69 @@ from __future__ import annotations
 
 import base64
 import shutil
+import tempfile
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 try:
     from fastapi import FastAPI, HTTPException
     from pydantic import BaseModel
     import uvicorn
 except ImportError:
-    # Colab environment will have fastapi installed
-    FastAPI = Any  # type: ignore
-    BaseModel = object  # type: ignore
-    HTTPException = Exception  # type: ignore
+    uvicorn = None  # type: ignore
+
+    class _FallbackBaseModel:
+        """Lightweight Pydantic-compatible model fallback when FastAPI/Pydantic are not installed."""
+
+        def __init__(self, **kwargs: Any) -> None:
+            for cls in reversed(self.__class__.__mro__):
+                if cls is object or cls is _FallbackBaseModel:
+                    continue
+                for k, v in cls.__dict__.items():
+                    if not k.startswith("_") and not callable(v):
+                        setattr(self, k, v)
+                ann = getattr(cls, "__annotations__", {})
+                for k in ann:
+                    if not hasattr(self, k):
+                        setattr(self, k, None)
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+
+        def model_dump(self) -> Dict[str, Any]:
+            return dict(self.__dict__)
+
+        def dict(self) -> Dict[str, Any]:
+            return dict(self.__dict__)
+
+    class _FallbackHTTPException(Exception):
+        def __init__(self, status_code: int = 500, detail: str = "") -> None:
+            super().__init__(f"HTTP {status_code}: {detail}")
+            self.status_code = status_code
+            self.detail = detail
+
+    class _FallbackFastAPI:
+        def __init__(self, title: str = "", version: str = "1.0.0", **kwargs: Any) -> None:
+            self.title = title
+            self.version = version
+            self.extra = kwargs
+            self.routes: List[Dict[str, Any]] = []
+
+        def get(self, path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+            def _decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+                self.routes.append({"method": "GET", "path": path, "endpoint": fn, **kwargs})
+                return fn
+            return _decorator
+
+        def post(self, path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+            def _decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+                self.routes.append({"method": "POST", "path": path, "endpoint": fn, **kwargs})
+                return fn
+            return _decorator
+
+    FastAPI = _FallbackFastAPI  # type: ignore
+    BaseModel = _FallbackBaseModel  # type: ignore
+    HTTPException = _FallbackHTTPException  # type: ignore
 
 app = FastAPI(title="FrameForge Colab GPU Gateway", version="1.0.0")
 
@@ -71,6 +121,21 @@ class RenderStickmanRequest(BaseModel):
     accessory: str = "flat_cap"
     prop: Optional[str] = "magnifying_glass"
     caption: Optional[str] = None
+    duration: float = 3.5
+    fps: int = 30
+    width: int = 1080
+    height: int = 1920
+
+
+class RenderHybridRequest(BaseModel):
+    image_base64: Optional[str] = None
+    title: str = "FIND THE FLAW"
+    pose: str = "pointing"
+    mouth: str = "neutral"
+    accessory: str = "flat_cap"
+    prop: Optional[str] = "magnifying_glass"
+    style: str = "magnates_amber"
+    trajectory: str = "magnates_drift"
     duration: float = 3.5
     fps: int = 30
     width: int = 1080
@@ -145,17 +210,18 @@ def sync_model(req: SyncModelRequest) -> Dict[str, Any]:
 def render_photobook_api(req: RenderPhotobookRequest) -> RenderResponse:
     """Renders a cinematic photobook clip on Colab GPU and returns base64 MP4."""
     try:
-        from tools import photobook_engine
         import cv2
         import numpy as np
+        from tools import photobook_engine
 
-        # Decode input image
         img_bytes = base64.b64decode(req.image_base64)
         nparr = np.frombuffer(img_bytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            return RenderResponse(success=False, duration_sec=0.0, video_base64="", error="Invalid image_base64 payload")
 
         layers = photobook_engine.decompose_single_image(img, req.width, req.height)
-        out_mp4 = Path(f"/tmp/photobook_{uuid.uuid4().hex}.mp4")
+        out_mp4 = Path(tempfile.gettempdir()) / f"photobook_{uuid.uuid4().hex}.mp4"
 
         ok = photobook_engine.render_photobook_scene(
             layers=layers,
@@ -182,8 +248,103 @@ def render_photobook_api(req: RenderPhotobookRequest) -> RenderResponse:
         return RenderResponse(success=False, duration_sec=0.0, video_base64="", error=str(exc))
 
 
+@app.post("/render/stickman", response_model=RenderResponse)
+def render_stickman_api(req: RenderStickmanRequest) -> RenderResponse:
+    """Renders an expressive 2D vector stickman scene clip and returns base64 MP4."""
+    try:
+        from tools import stickman_engine
+
+        out_mp4 = Path(tempfile.gettempdir()) / f"stickman_{uuid.uuid4().hex}.mp4"
+        pose_spec = stickman_engine.StickmanPoseSpec(pose=req.pose, mouth=req.mouth, prop=req.prop)
+        app_spec = stickman_engine.StickmanAppearance(accessory=req.accessory)
+        ok = stickman_engine.render_stickman_scene(
+            pose_spec=pose_spec,
+            app=app_spec,
+            output_path=out_mp4,
+            caption_text=req.caption,
+            duration=req.duration,
+            fps=req.fps,
+            width=req.width,
+            height=req.height,
+        )
+        if not ok or not out_mp4.exists():
+            return RenderResponse(success=False, duration_sec=0.0, video_base64="", error="Stickman render failed")
+
+        vid_bytes = out_mp4.read_bytes()
+        out_mp4.unlink(missing_ok=True)
+        return RenderResponse(
+            success=True,
+            duration_sec=req.duration,
+            video_base64=base64.b64encode(vid_bytes).decode("utf-8"),
+        )
+    except Exception as exc:
+        return RenderResponse(success=False, duration_sec=0.0, video_base64="", error=str(exc))
+
+
+@app.post("/render/hybrid", response_model=RenderResponse)
+def render_hybrid_api(req: RenderHybridRequest) -> RenderResponse:
+    """Renders a hybrid mixed-media (35mm plate + 2D stickman + riddle HUD) clip and returns base64 MP4."""
+    try:
+        import cv2
+        import numpy as np
+        from tools import hybrid_engine, riddle_director, stickman_engine
+
+        if req.image_base64:
+            img_bytes = base64.b64decode(req.image_base64)
+            nparr = np.frombuffer(img_bytes, np.uint8)
+            bg_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if bg_img is None:
+                return RenderResponse(success=False, duration_sec=0.0, video_base64="", error="Invalid image_base64 payload")
+        else:
+            bg_img = np.full((req.height, req.width, 3), (24, 30, 42), dtype=np.uint8)
+
+        out_mp4 = Path(tempfile.gettempdir()) / f"hybrid_{uuid.uuid4().hex}.mp4"
+        pose_spec = stickman_engine.StickmanPoseSpec(pose=req.pose, mouth=req.mouth, prop=req.prop)
+        app_spec = stickman_engine.StickmanAppearance(accessory=req.accessory)
+        riddle_spec = riddle_director.RiddleSceneSpec(
+            title=req.title,
+            inventory=[
+                riddle_director.InventoryItem(label="Clues", count=2, color=(255, 255, 255)),
+                riddle_director.InventoryItem(label="Suspects", count=3, color=(40, 180, 255)),
+            ],
+            characters=[
+                riddle_director.CharacterAnchor(id="1", name="Suspect 1", x=0.28, y=0.56, badge_label="1"),
+                riddle_director.CharacterAnchor(id="2", name="Suspect 2", x=0.72, y=0.56, badge_label="2"),
+            ],
+            sightlines=[riddle_director.SightlineRay(from_id="2", to_id="1", blocked=False)],
+        )
+
+        ok = hybrid_engine.render_hybrid_scene(
+            bg_image=bg_img,
+            pose_spec=pose_spec,
+            appearance=app_spec,
+            riddle_spec=riddle_spec,
+            output_path=out_mp4,
+            style=req.style,
+            trajectory=req.trajectory,
+            duration=req.duration,
+            fps=req.fps,
+            width=req.width,
+            height=req.height,
+        )
+        if not ok or not out_mp4.exists():
+            return RenderResponse(success=False, duration_sec=0.0, video_base64="", error="Hybrid render failed")
+
+        vid_bytes = out_mp4.read_bytes()
+        out_mp4.unlink(missing_ok=True)
+        return RenderResponse(
+            success=True,
+            duration_sec=req.duration,
+            video_base64=base64.b64encode(vid_bytes).decode("utf-8"),
+        )
+    except Exception as exc:
+        return RenderResponse(success=False, duration_sec=0.0, video_base64="", error=str(exc))
+
+
 def run_server(port: int = 8000) -> None:
     """Starts the FastAPI daemon on the given port."""
+    if uvicorn is None:
+        raise RuntimeError("uvicorn and fastapi must be installed to run the HTTP server.")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
 
 

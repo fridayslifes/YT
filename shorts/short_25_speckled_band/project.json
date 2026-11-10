@@ -1,0 +1,203 @@
+{
+  "schema_version": 2,
+  "id": "SH-25",
+  "variant": "storybook_picturebook",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "image": "images/s01_hook.jpg",
+      "video": "videos/s01_hook.mp4",
+      "shots": [
+        {
+          "video": "videos/s01_hook.mp4",
+          "motion": "depthflow_spiral",
+          "zoom": 1.0,
+          "image": "images/s01_hook.jpg"
+        },
+        {
+          "video": "videos/s01_hook.mp4",
+          "motion": "depthflow_spiral",
+          "focus": [
+            0.5,
+            0.42
+          ],
+          "zoom": 1.18,
+          "image": "images/s01_hook.jpg"
+        }
+      ],
+      "motion": "depthflow_spiral",
+      "preset": "depthflow_spiral",
+      "text": "If you were trapped inside a *locked* bedroom with zero escape, why did Sherlock Holmes realize the bell-rope was 1 *deadly* trap?",
+      "overlay": {
+        "text": "THE SPECKLED BAND",
+        "until": 2.6
+      },
+      "sfx": "match_strike",
+      "sfx_vol": 0.45,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Authentic 1892 Victorian illustrated storybook medium close-up shot at eye-level. Subject (Midground Z-Plane): a Victorian detective in an Inverness cape with sharp keen eyes and an analytical gaze holding a brass magnifying glass, inspecting a dark bedroom ceiling ventilator shaft with intense focus, framed past a blurred brass candlestick in the near Z-plane. Environment (Deep Background Z-Plane): Victorian manor bedroom with dark oak wood paneling, heavy velvet curtains, and rain-streaked windowpanes in deep background. 3D Lighting & Mood: warm gaslight illumination casting dramatic chiaroscuro shadows across the wooden ceiling beams, hook symptom atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "HOOK_SYMPTOM",
+      "genre": "storybook_classic",
+      "id": "s01",
+      "caption": "If you were trapped inside a *locked* bedroom with zero escape, why did Sherlock Holmes realize the bell-rope was 1 *deadly* trap?"
+    },
+    {
+      "image": "images/s02_researchers.jpg",
+      "video": "videos/s02_researchers.mp4",
+      "motion": "depthflow_vertigo",
+      "preset": "depthflow_vertigo",
+      "text": "You assume a *locked* bedroom protects you from *murder*—Holmes proved 1 ventilator shaft turned the ceiling into a hunting ground.",
+      "note": "Arthur Conan Doyle (1892)",
+      "sfx": "paper_swoosh",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Victorian detective study archival two-shot with multi-plane depth. Subject (Midground Z-Plane): Sherlock Holmes and Dr. John Watson in period morning coats leaning over a dark mahogany table, examining a handwritten telegram and a diagram of Stoke Moran manor, framed past a steaming cup of tea and morning papers. Environment (Deep Background Z-Plane): 221B Baker Street sitting room with overflowing bookshelves, violin case, and Persian slipper on the mantelpiece. 3D Lighting & Mood: soft London morning fog filtering through tall Victorian windows with volumetric dust motes, false assumption interrupt atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "FALSE_ASSUMPTION_INTERRUPT",
+      "genre": "storybook_classic",
+      "id": "s02",
+      "caption": "You assume a *locked* bedroom protects you from *murder*—Holmes proved 1 ventilator shaft turned the ceiling into a hunting ground."
+    },
+    {
+      "image": "images/s03_stat.jpg",
+      "video": "videos/s03_stat.mp4",
+      "motion": "depthflow_spiral",
+      "preset": "depthflow_spiral",
+      "text": "In the published data, the ventilator and dummy bell-rope revealed the deadly *swamp* adder trained to return at a low midnight *whistle*.",
+      "stat_card": {
+        "title": "1892 & 1 Clue",
+        "subtitle": "Strand Magazine (Doyle 1892)"
+      },
+      "sfx": "desk_thud",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Tactile macro tabletop close-up shot at a 35-degree angle. Subject (Midground Z-Plane): a person's gloved hand gently tugging a thick crimson silk bell-rope hanging beside a mahogany bedstead, revealing that the bell-rope is a dummy fastener connected to no bell wire, attached directly beneath a small ventilation grill. Environment (Deep Background Z-Plane): Victorian bedroom with clamped iron bedstead bolted to the wooden floorboards. 3D Lighting & Mood: warm directional lantern beam highlighting the brass ventilator grill and the woven texture of the crimson rope, empirical data proof atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "EMPIRICAL_DATA_PROOF",
+      "genre": "storybook_classic",
+      "id": "s03",
+      "caption": "In the published data, the ventilator and dummy bell-rope revealed the deadly *swamp* adder trained to return at a low midnight *whistle*."
+    },
+    {
+      "image": "images/s04_biology.jpg",
+      "video": "videos/s04_biology.mp4",
+      "motion": "depthflow_orbit",
+      "preset": "depthflow_orbit",
+      "text": "The deadly swamp adder was slipped through the wall ventilator, descending the bell-rope directly onto the *pillow*.",
+      "sfx": "wind_howl",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, High-contrast dramatic close-up in the midground plane. Subject (Midground Z-Plane): a speckled yellow and brown swamp adder serpent slithering silently through a narrow iron ventilator grate in the wall, descending the crimson bell-rope in the dark towards the sleeping pillow below, coils moving with lethal grace. Environment (Deep Background Z-Plane): dark stone wall corner between two Victorian manor rooms in deep shadow. 3D Lighting & Mood: pale moonlight glinting off the speckled scales and cold unblinking reptilian eye, internal mechanism atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "INTERNAL_MECHANISM",
+      "genre": "storybook_classic",
+      "id": "s04",
+      "caption": "The deadly swamp adder was slipped through the wall ventilator, descending the bell-rope directly onto the *pillow*."
+    },
+    {
+      "image": "images/s05_consequence.jpg",
+      "video": "videos/s05_consequence.mp4",
+      "motion": "spatial_drift",
+      "preset": "spatial_drift",
+      "text": "The sinister Dr. Roylott weaponized an undetectable *predator* to retain his stepdaughters thirty-thousand-pound inheritance.",
+      "sfx": "tension_clock",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Tense atmospheric medium two-shot with deep Z-axis perspective. Subject (Midground Z-Plane): Holmes sitting motionless in a wicker armchair with a loaded revolver and cane, Watson watching beside him in silence, waiting in complete pitch darkness for the midnight whistle, eyes locked on the ceiling ventilator. Environment (Deep Background Z-Plane): gloomy Stoke Moran bedroom illuminated only by a single slit of candlelight beneath the door. 3D Lighting & Mood: deep obsidian shadows with a razor-thin golden edge light defining the detective's resolute profile, real world consequence atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "REAL_WORLD_CONSEQUENCE",
+      "genre": "storybook_classic",
+      "id": "s05",
+      "caption": "The sinister Dr. Roylott weaponized an undetectable *predator* to retain his stepdaughters thirty-thousand-pound inheritance."
+    },
+    {
+      "image": "images/s06_trap.jpg",
+      "video": "videos/s06_trap.mp4",
+      "motion": "depthflow_vertigo",
+      "preset": "depthflow_vertigo",
+      "text": "Overlooking tiny anomalies like a bell-rope that rang *no* bell.",
+      "sfx": "thunder_crack",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Dynamic dramatic action shot with sudden lighting transition. Subject (Midground Z-Plane): Dr. Grimesby Roylott sitting paralyzed in an antique wooden chair in the adjoining room, with the speckled band coiled tightly around his brow, a look of petrified terror frozen upon his contorted face. Environment (Deep Background Z-Plane): cluttered study filled with Indian brass curios, iron safe, and a saucer of milk on the carpet. 3D Lighting & Mood: flickering yellow lantern light casting jagged shadows against the stone walls, willpower friction trap atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "WILLPOWER_FRICTION_TRAP",
+      "genre": "storybook_classic",
+      "id": "s06",
+      "caption": "Overlooking tiny anomalies like a bell-rope that rang *no* bell."
+    },
+    {
+      "image": "images/s07_override.jpg",
+      "video": "videos/s07_override.mp4",
+      "motion": "depthflow_spiral",
+      "preset": "depthflow_spiral",
+      "text": "When you eliminate the *impossible*, whatever remains, however improbable, must be the *truth*. Subscribe for more classic mystery storybooks.",
+      "sfx": "page_turn",
+      "sfx_vol": 0.45,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Grounded eye-level medium shot with elegant Victorian storybook framing. Subject (Midground Z-Plane): Sherlock Holmes standing calmly at the mantelpiece lighting his pipe, expression thoughtful and serene, closing his leather casebook with a brass clasp as Watson records the final notes in his journal. Environment (Deep Background Z-Plane): cozy 221B Baker Street study with glowing hearth fire and warm bookshelves in the background. 3D Lighting & Mood: warm crackling fireplace amber glow bathing the room in comforting relief, five second override atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "FIVE_SECOND_OVERRIDE",
+      "genre": "storybook_classic",
+      "id": "s07",
+      "caption": "When you eliminate the *impossible*, whatever remains, however improbable, must be the *truth*. Subscribe for more classic mystery storybooks."
+    },
+    {
+      "image": "images/s08_loop.jpg",
+      "video": "videos/s08_loop.mp4",
+      "motion": "depthflow_orbit",
+      "preset": "depthflow_orbit",
+      "text": "Because the second the low whistle sounded through the *ventilator* shaft...",
+      "pause": 0.0,
+      "sfx": "vinyl_needle",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Classic illustrated storybook spread, ornate antique book page with gilded gold borders, rich textured linen paper, Atmospheric Victorian London exterior shot with deep receding perspective. Subject (Midground Z-Plane): a horse-drawn hansom cab disappearing into the thick amber-lit London fog on Baker Street, turning the corner past glowing street gaslamps as a whistle echoes faintly in the damp night air. Environment (Deep Background Z-Plane): Victorian cobblestone street with brick townhouses receding into the swirling mist. 3D Lighting & Mood: warm gaslight halos piercing through cool midnight London fog, infinite loop bridge atmosphere. Optics: soft chiaroscuro bookplate lighting, warm candlelight glow, rich artisanal bookbinding details, primary subject centered vertically between 30% and 58% height, elegant vintage storybook illustration depth, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "INFINITE_LOOP_BRIDGE",
+      "genre": "storybook_classic",
+      "id": "s08",
+      "caption": "Because the second the low whistle sounded through the *ventilator* shaft..."
+    }
+  ],
+  "title": "The Adventure of the Speckled Band - SH-25",
+  "concept": "The Adventure of the Speckled Band",
+  "science": "Arthur Conan Doyle (1892)",
+  "citation_stat": "1892 & 1 Clue",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "storybook_classic",
+  "genre_name": "Classic Illustrated Storybook & Lore (Bedtime Stories & Folklore)",
+  "color_palette": {
+    "primary": "#FFD700",
+    "secondary": "#D4AF37",
+    "accent": "#8B0000",
+    "bg_gradient": [
+      "#0D1117",
+      "#161B22"
+    ]
+  },
+  "bgm_mood": "storybook_acoustic_cello",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "file": "assets/audio/bgm/echoes_mystery.mp3",
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 42,
+    "bpm": 74
+  },
+  "metadata": {
+    "cluster": "Cluster 4 (Historical & Investigation Mysteries)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 11,
+    "chapter_title": "Chapter 11: The Speckled Band",
+    "protagonist": "Sherlock Holmes in an olive Inverness cape with Dr. John Watson at 221B Baker Street",
+    "prev_episode": "SH-24",
+    "next_episode": "SH-26",
+    "dossier_source": "The Strand Magazine 3(14), 142-158",
+    "hook_score": 78,
+    "hook_band": "STRONG",
+    "hook_weakest": "SPECIFICITY",
+    "word_count": 142,
+    "estimated_duration_sec": 56.8
+  }
+}

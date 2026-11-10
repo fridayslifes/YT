@@ -633,6 +633,65 @@ def measure_master(path: str) -> str:
     return f"{probe or 'no colour tags'} | {lufs} LUFS | {tp} dBTP"
 
 
+def render_longform_thumbnail(
+    title: str,
+    subtitle: str,
+    output_png: str,
+    width: int = 1280,
+    height: int = 720,
+) -> str:
+    """Render a 16:9 long-form thumbnail template (Shorts remain frame-based by design)."""
+    img = Image.new("RGBA", (width, height), (8, 9, 12, 255))
+    aura = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    ad = ImageDraw.Draw(aura)
+    ad.ellipse((int(width * 0.52), int(height * 0.12), int(width * 0.96), int(height * 0.88)), fill=(0, 229, 255, 42))
+    ad.ellipse((int(width * 0.06), int(height * 0.18), int(width * 0.48), int(height * 0.84)), fill=(255, 200, 61, 34))
+    aura = aura.filter(ImageFilter.GaussianBlur(radius=48))
+    img = Image.alpha_composite(img, aura)
+    draw = ImageDraw.Draw(img)
+
+    safe_margin_x, safe_margin_y = int(width * 0.06), int(height * 0.08)
+    font_badge = get_font(24, bold=True)
+    font_title = get_font(68, bold=True)
+    font_sub = get_font(32, bold=False)
+
+    badge_txt = "COGNITIVE CORE // DEEP DIVE"
+    draw.rounded_rectangle(
+        (safe_margin_x, safe_margin_y, safe_margin_x + 420, safe_margin_y + 48),
+        radius=12,
+        fill=(18, 24, 36, 235),
+        outline=(0, 229, 255, 220),
+        width=2,
+    )
+    draw.text((safe_margin_x + 20, safe_margin_y + 10), badge_txt, fill=(0, 229, 255, 255), font=font_badge)
+
+    max_text_w = int(width * 0.82)
+    words = title.upper().split()
+    lines, cur = [], []
+    for w in words:
+        trial = " ".join(cur + [w])
+        bbox = draw.textbbox((0, 0), trial, font=font_title)
+        if (bbox[2] - bbox[0]) > max_text_w and cur:
+            lines.append(" ".join(cur))
+            cur = [w]
+        else:
+            cur.append(w)
+    if cur:
+        lines.append(" ".join(cur))
+
+    y_cursor = safe_margin_y + 92
+    for idx, ln in enumerate(lines[:3]):
+        col = (255, 200, 61, 255) if idx == 0 else (245, 247, 252, 255)
+        draw.text((safe_margin_x, y_cursor), ln, fill=col, font=font_title)
+        y_cursor += 84
+
+    draw.text((safe_margin_x, min(height - safe_margin_y - 52, y_cursor + 24)), subtitle, fill=(108, 232, 222, 240), font=font_sub)
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_png)), exist_ok=True)
+    img.convert("RGB").save(output_png, "PNG")
+    return output_png
+
+
 def run_branding_check():
     print("\n[Branding masters - measured, not assumed]")
     for name in ("intro_16x9", "intro_9x16", "outro_16x9_endscreen", "outro_9x16_loop"):

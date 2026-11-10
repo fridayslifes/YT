@@ -11,7 +11,7 @@ Read this together with `AGENTS.md` (how the master agent works) and `channel_as
 |---|---|
 | "Put an affiliate link in the pinned comment of a Short" | **Links in Shorts comments and descriptions are NOT clickable.** Put your links on the **channel page** (Settings → Links) and in **long videos**. In Shorts, say "link on my channel page". Use the Short's **Related Video** link to send viewers to your long video. |
 | Shorts should be 45–55 s | 15–50 s does best. 45 s is fine if every second moves the story forward. Shorts can be up to 3 min, but longer is harder to hold. |
-| Only one money tier | **Two tiers.** 500 subs + 3 uploads in 90 days + (3,000 watch hours **or** 3M Shorts views) unlocks memberships, Super Thanks, Shopping. 1,000 subs + (4,000 hours **or** 10M Shorts views) unlocks ad money. From **1 Feb 2027** the ad tier for new applicants rises to 8,000 hours or 20M Shorts views. |
+| Only one money tier | **Two tiers.** 500 subs + 3 uploads in 90 days + (3,000 valid public watch hours **or** 3M valid public Shorts views) unlocks memberships, Super Thanks, Shopping. 1,000 subs + (4,000 valid public watch hours **or** 10M valid public Shorts views) unlocks ad revenue sharing (see `channel_assets/POLICY.md`). |
 | AI voice / imagery needs AI label | **Leave as "Yes" if YouTube auto-flags it (`Set by YouTube`).** For manual uploads, select "Yes" if photorealistic humans are depicted, or "No" for stylized graphics. The label does NOT hurt views, reach, or monetization for educational content. |
 | Faceless / AI channels get banned | Faceless is allowed. What gets removed is **"inauthentic content"** (the July 2025 name): template-made, repetitive, low-effort, no human input. Your own script, your own opinion and changing formats protect you. |
 | Pixabay music is safe | **Only the YouTube Audio Library is fully claim-safe.** Pixabay can get claims later. Keep its license file if you use it. Or use the original music made by our script (see section 4). |
@@ -121,7 +121,7 @@ Rule: every long video gets **2–3 Shorts** cut from its best moments. Every Sh
 | Step | Tool | Notes |
 |---|---|---|
 | Script | Gemini / ChatGPT / Claude free + `MASTER_YOUTUBE_PROMPT_SYSTEM.md` | **Always rewrite and fact-check.** Add one line of your own opinion. |
-| Voice | Edge TTS (free, no key) — `en-US-AndrewNeural`, `en-US-ChristopherNeural`, `en-US-BrianNeural` | Your own recorded voice is even better for monetization. |
+| Voice | Local Kokoro-82M ONNX (`tools/kokoro_models/kokoro-v1.0.onnx` + `voices-v1.0.bin`) — `kokoro`, `am_adam`, `bm_george`, `am_michael`, `af_bella` | 100% local Apache-2.0 synthesis; never use Edge-TTS or cloud speech APIs. |
 | Visuals | Pexels / Pixabay (free API keys), AI images, your own screen recordings | Change the picture every 2–3 s. |
 | Music | **YouTube Audio Library** ("Attribution not required") or original music from our script | Never use the songs in `MoneyPrinterTurbo/resource/songs` (copyright risk). |
 | Captions | Our build script (word-by-word) or MoneyPrinterTurbo `--subtitle-display-mode word_by_word` | |
@@ -136,7 +136,7 @@ Rule: every long video gets **2–3 Shorts** cut from its best moments. Every Sh
 1. **Day 1:** Channel-page links + long-video description links to affiliate products (Amazon Associates, software affiliate programs, Audible). Shorts say "link on my channel page".
 2. **Day 1:** Clipping campaigns (Whop etc.) — paid per 1,000 views, no subscribers needed.
 3. **500 subs:** Memberships, Super Thanks, YouTube Shopping affiliate (product tags *are* clickable in Shorts if you're eligible).
-4. **1,000 subs + 4,000 h / 10M Shorts views:** Ad revenue. Aim to qualify **before 1 Feb 2027** (the bar doubles for new applicants after that).
+4. **1,000 subs + 4,000 valid public watch hours / 10M valid public Shorts views:** Ad revenue sharing (see `channel_assets/POLICY.md`).
 5. **5–10k views per video:** Small sponsorships.
 
 ---
@@ -209,7 +209,7 @@ Milestone 2: 500 Subscribers ($200 - $600)
 └── Dedicated community posts polling next video topics
 
 Milestone 3: 1,000 Subs + 4,000 Hours ($500 - $2,500+)
-├── Full AdSense monetization unlocked (Qualify before Feb 2027)
+├── Full AdSense monetization unlocked (4,000 valid public watch hours or 10M Shorts views)
 ├── Long videos (8-12 min) with manual mid-roll ad placement at natural chapter transitions
 └── Direct brand sponsorships in video descriptions ($200 - $500 per mention)
 ```
@@ -219,7 +219,6 @@ Milestone 3: 1,000 Subs + 4,000 Hours ($500 - $2,500+)
 ## Sources & Policy Compliance
 - Shorts links not clickable since 2023: https://support.google.com/youtube/answer/13568600
 - YPP tiers & requirements: https://support.google.com/youtube/answer/72851
-- 2027 threshold change: https://thenextweb.com/news/youtube-partner-program-doubles-entry-requirements-2027
 - Inauthentic content policy: https://support.google.com/youtube/answer/1311392
 - AI disclosure: https://support.google.com/youtube/answer/14328491
 - Audio Library: YouTube Studio → Audio Library

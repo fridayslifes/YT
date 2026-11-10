@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -16,12 +17,27 @@ from typing import Any
 from tools.atomic_files import durable_write_text
 
 SCHEMA_VERSION = 1
+PROJECT_SCHEMA_VERSION = 2
+SUPPORTED_VARIANTS = frozenset({
+    "cinematic_35mm", "photobook", "storybook_picturebook", "stickman_skeleton",
+    "riddle", "hybrid_mixed_media", "cutout_cartoon",
+})
+KOKORO_VOICES = frozenset({
+    "af_alloy", "af_aoede", "af_bella", "af_heart", "af_jessica", "af_kore", "af_nicole",
+    "af_nova", "af_river", "af_sarah", "af_sky", "am_adam", "am_echo", "am_eric", "am_fenrir",
+    "am_liam", "am_michael", "am_onyx", "am_puck", "am_santa", "bf_alice", "bf_emma",
+    "bf_isabella", "bf_lily", "bm_daniel", "bm_fable", "bm_george", "bm_lewis", "ef_dora",
+    "em_alex", "em_santa", "ff_siwis", "hf_alpha", "hf_beta", "hm_omega", "hm_psi", "if_sara",
+    "im_nicola", "jf_alpha", "jf_gongitsune", "jf_nezumi", "jf_tebukuro", "jm_kumo", "pf_dora",
+    "pm_alex", "pm_santa", "zf_xiaobei", "zf_xiaoni", "zf_xiaoxiao", "zf_xiaoyi", "zm_yunjian",
+    "zm_yunxi", "zm_yunxia", "zm_yunyang", "kokoro",
+})
 _ID_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]*\Z")
 _HASH_RE = re.compile(r"[0-9a-f]{64}\Z")
 
 
 def _is_number(value: object) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
+    return (isinstance(value, int) and not isinstance(value, bool)) or (isinstance(value, float) and math.isfinite(value))
 
 
 def _valid_id(value: object) -> bool:
@@ -44,22 +60,26 @@ def _safe_relative_path(value: object, *, project_path: Path | None) -> bool:
 
 
 def validate_project(data: dict, *, project_path: Path | None = None) -> list[str]:
-    """Return every actionable authored-project contract error.
-
-    A missing version/format remains compatible for legacy build inputs.  New project
-    writers emit both fields, while strict evidence has its own non-legacy contract.
-    """
+    """Return every actionable authored-project contract error."""
     if not isinstance(data, dict):
         return ["project must be an object"]
     errors: list[str] = []
     version = data.get("schema_version")
-    if version is not None and version != SCHEMA_VERSION:
-        errors.append(f"schema_version must be {SCHEMA_VERSION}")
+    if type(version) is not int or version != PROJECT_SCHEMA_VERSION:
+        errors.append(f"schema_version must be {PROJECT_SCHEMA_VERSION}")
     if not _valid_id(data.get("id")):
         errors.append("id must be a safe video identifier")
-    fmt = data.get("format", "short")
-    if fmt not in {"short", "long"}:
+    variant = data.get("variant")
+    if not isinstance(variant, str) or variant not in SUPPORTED_VARIANTS:
+        errors.append("variant must be a supported variant")
+    fmt = data.get("format")
+    if not isinstance(fmt, str) or fmt not in {"short", "long"}:
         errors.append("format must be 'short' or 'long'")
+    if not _valid_id(data.get("channel_id")):
+        errors.append("channel_id must be a safe channel identifier")
+    voice = data.get("voice")
+    if not isinstance(voice, str) or voice not in KOKORO_VOICES:
+        errors.append("voice must be a known Kokoro voice or the 'kokoro' house profile")
 
     scenes = data.get("scenes")
     if not isinstance(scenes, list):
@@ -74,19 +94,39 @@ def validate_project(data: dict, *, project_path: Path | None = None) -> list[st
             errors.append(f"{label} must be an object")
             continue
         scene_id = scene.get("id")
-        if scene_id is not None:
-            if not _valid_id(scene_id):
-                errors.append(f"{label}.id must be a safe scene identifier")
-            elif scene_id in scene_ids:
-                errors.append(f"{label}.id duplicates an earlier scene")
-            else:
-                scene_ids.add(scene_id)
-        for field in ("text", "prompt"):
+        if not _valid_id(scene_id):
+            errors.append(f"{label}.id must be a safe scene identifier")
+        elif scene_id in scene_ids:
+            errors.append(f"{label}.id duplicates an earlier scene")
+        else:
+            scene_ids.add(scene_id)
+        for field in ("text", "caption", "prompt"):
             if not isinstance(scene.get(field), str) or not scene[field].strip():
                 errors.append(f"{label}.{field} must be a non-empty string")
         for field in ("image", "video", "audio"):
             if field in scene and not _safe_relative_path(scene[field], project_path=project_path):
                 errors.append(f"{label}.{field} must stay inside the project directory")
+        if "sound_cues" in scene:
+            cues = scene["sound_cues"]
+            if not isinstance(cues, list):
+                errors.append(f"{label}.sound_cues must be a list of objects")
+            else:
+                for cue_index, cue in enumerate(cues):
+                    cue_label = f"{label}.sound_cues[{cue_index}]"
+                    if not isinstance(cue, dict):
+                        errors.append(f"{cue_label} must be an object")
+                    elif "asset" in cue and not _safe_relative_path(cue["asset"], project_path=project_path):
+                        errors.append(f"{cue_label}.asset must stay inside the project directory")
+        for field, media_field in (("overlay", "image"), ("pose", "sprite"), ("clue", None)):
+            if field not in scene:
+                continue
+            spec = scene[field]
+            if not isinstance(spec, dict):
+                errors.append(f"{label}.{field} must be an object")
+                continue
+            if media_field is not None and media_field in spec:
+                if not _safe_relative_path(spec[media_field], project_path=project_path):
+                    errors.append(f"{label}.{field}.{media_field} must stay inside the project directory")
         for field in ("shots", "images"):
             if field not in scene:
                 continue

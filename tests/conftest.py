@@ -12,8 +12,13 @@ Design constraints:
 
 from __future__ import annotations
 
+import fcntl
+import multiprocessing.context
+import os
 import re
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -22,6 +27,73 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+
+def _install_sandbox_fork_sync_fallback() -> None:
+    """Provide filesystem-backed Event/Barrier on ForkContext when POSIX sem_open is sandbox-blocked."""
+    try:
+        multiprocessing.get_context("fork").Lock()
+        return
+    except PermissionError:
+        pass
+
+    sync_dir = Path(tempfile.mkdtemp(prefix="ff_mp_sync_"))
+
+    class _FileEvent:
+        def __init__(self) -> None:
+            fd, raw = tempfile.mkstemp(dir=sync_dir, prefix="ev_")
+            os.close(fd)
+            self._path = Path(raw)
+
+        def is_set(self) -> bool:
+            return self._path.exists() and self._path.stat().st_size > 0
+
+        def set(self) -> None:
+            self._path.write_bytes(b"1")
+
+        def clear(self) -> None:
+            if self._path.exists():
+                self._path.write_bytes(b"")
+
+        def wait(self, timeout: float | None = None) -> bool:
+            deadline = None if timeout is None else (time.monotonic() + float(timeout))
+            while True:
+                if self.is_set():
+                    return True
+                if deadline is not None and time.monotonic() >= deadline:
+                    return False
+                time.sleep(0.005)
+
+    class _FileBarrier:
+        def __init__(self, parties: int) -> None:
+            self.parties = int(parties)
+            fd, raw = tempfile.mkstemp(dir=sync_dir, prefix="bar_")
+            os.close(fd)
+            self._path = Path(raw)
+
+        def wait(self, timeout: float | None = None) -> int:
+            with self._path.open("a+b") as fh:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+                fh.seek(0)
+                idx = len(fh.read())
+                fh.write(b"1")
+                fh.flush()
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            deadline = None if timeout is None else (time.monotonic() + float(timeout))
+            while True:
+                if self._path.stat().st_size >= self.parties:
+                    return idx
+                if deadline is not None and time.monotonic() >= deadline:
+                    raise TimeoutError("Barrier wait timed out")
+                time.sleep(0.005)
+
+    multiprocessing.context.ForkContext.Event = lambda self: _FileEvent()  # type: ignore[method-assign]
+    multiprocessing.context.ForkContext.Barrier = (  # type: ignore[method-assign]
+        lambda self, parties, action=None, timeout=None: _FileBarrier(parties)
+    )
+
+
+_install_sandbox_fork_sync_fallback()
 
 ANSI_RE = re.compile(r"\033\[[0-9;]*m")
 

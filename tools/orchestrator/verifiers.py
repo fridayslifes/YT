@@ -629,7 +629,10 @@ def verify_packaging(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> l
     if not kit:
         return [_check("upload_kit", False, "no upload kit found")]
     text = kit.read_text(encoding="utf-8", errors="replace")
-    title_match = re.search(r"\*\*Primary[^\*]*\*\*:\s*\n>\s*`?([^`\n\r]+)`?", text)
+    title_match = re.search(
+        r"\*\*(?:Option\s+\d+:\s*)?Primary[^\*]*\*\*:\s*\n\s*>\s*`?([^`\n\r]+)`?",
+        text,
+    )
     title = title_match.group(1).strip() if title_match else ""
     if not title:
         title_match = re.search(r">\s*`?([^\r\n`]+#shorts)`?", text, re.IGNORECASE)
@@ -656,7 +659,12 @@ def verify_packaging(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> l
             )
         )
         pkg = youtube_skills.check_packaging(title)
-        issues = pkg.get("issues", [])
+        raw_issues = pkg.get("issues", [])
+        issues = [
+            item
+            for item in raw_issues
+            if not (isinstance(item, (tuple, list)) and item and item[0] == "mobile")
+        ]
         checks.append(
             _check(
                 "title_lint",

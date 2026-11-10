@@ -190,6 +190,7 @@ GENRE_ALIASES = {
     "casebook": "storybook_casebook",
     "dossier": "storybook_casebook",
     "picture_book": "storybook_casebook",
+    "storybook_picturebook": "storybook_casebook",
     "storybook": "storybook_classic",
     "classic_storybook": "storybook_classic",
     "folklore": "storybook_classic",

@@ -290,12 +290,38 @@ def render_photobook_scene(
         dust_z = np.random.uniform(150, 2500, num_dust)
         dust_speed = np.random.uniform(0.3, 1.2, num_dust)
 
+        # Precompute vignette mask, pre-graded layers, and rolled 35mm grain buffer once per clip
+        cx_v, cy_v = width / 2.0, height / 2.0
+        max_rad = math.hypot(cx_v, cy_v)
+        y_c, x_c = np.ogrid[:height, :width]
+        dist_v = np.hypot(x_c - cx_v, y_c - cy_v) / max_rad
+        vignette_mask = np.clip(1.0 - 0.38 * (dist_v ** 2.2), 0.0, 1.0).astype(np.float32)[..., None]
+
+        sorted_layers = []
+        for lyr in sorted(layers, key=lambda item: item.z_depth, reverse=True):
+            img_src = lyr.image
+            if img_src.shape[2] == 4:
+                graded_bgr = apply_color_grade(img_src[:, :, :3], style)
+                graded_img = np.dstack([graded_bgr, img_src[:, :, 3]])
+            else:
+                graded_img = apply_color_grade(img_src, style)
+            sorted_layers.append(
+                PhotobookLayer(
+                    image=graded_img,
+                    z_depth=lyr.z_depth,
+                    scale=lyr.scale,
+                    offset_x=lyr.offset_x,
+                    offset_y=lyr.offset_y,
+                    is_foreground=lyr.is_foreground,
+                    is_background=lyr.is_background,
+                )
+            )
+
+        grain_base = np.random.normal(0.0, 10.0, (height, width)).astype(np.int16)
+
         for frame_idx in range(num_frames):
             p = frame_idx / max(1, num_frames - 1)
             frame_canvas = np.zeros((height, width, 3), dtype=np.uint8)
-
-            # Render layers back-to-front (sorted by descending Z-depth)
-            sorted_layers = sorted(layers, key=lambda lyr: lyr.z_depth, reverse=True)
 
             for layer in sorted_layers:
                 pan_x, pan_y, zoom, rot = compute_camera_transform(trajectory, p, layer.z_depth)
@@ -305,54 +331,38 @@ def render_photobook_scene(
                 lh, lw = img.shape[:2]
                 cx, cy = lw / 2.0, lh / 2.0
 
-                # Transformation matrix
                 M = cv2.getRotationMatrix2D((cx, cy), rot, total_scale)
-                # Apply translation centered in canvas
                 M[0, 2] += (width / 2.0 - cx) + pan_x + layer.offset_x
                 M[1, 2] += (height / 2.0 - cy) + pan_y + layer.offset_y
 
                 if img.shape[2] == 4:
-                    # BGRA Layer
                     warped = cv2.warpAffine(
                         img, M, (width, height),
-                        flags=cv2.INTER_LANCZOS4,
+                        flags=cv2.INTER_LINEAR,
                         borderMode=cv2.BORDER_CONSTANT,
                         borderValue=(0, 0, 0, 0),
                     )
-                    bgr_plane = warped[:, :, :3]
-                    alpha_plane = (warped[:, :, 3].astype(np.float32) / 255.0)[..., None]
-                    frame_canvas = (bgr_plane * alpha_plane + frame_canvas * (1.0 - alpha_plane)).astype(np.uint8)
+                    bgr_plane = warped[:, :, :3].astype(np.uint16)
+                    alpha_u16 = warped[:, :, 3:4].astype(np.uint16)
+                    frame_canvas = ((bgr_plane * alpha_u16 + frame_canvas.astype(np.uint16) * (255 - alpha_u16)) // 255).astype(np.uint8)
                 else:
-                    # BGR Layer (Background)
-                    warped = cv2.warpAffine(
+                    frame_canvas = cv2.warpAffine(
                         img, M, (width, height),
-                        flags=cv2.INTER_LANCZOS4,
+                        flags=cv2.INTER_LINEAR,
                         borderMode=cv2.BORDER_REFLECT,
                     )
-                    frame_canvas = warped
 
-            # Render 3D Volumetric Dust Particles
-            dust_overlay = np.zeros((height, width, 3), dtype=np.uint8)
+            # Render 3D Volumetric Dust Particles directly onto frame
             for d_idx in range(num_dust):
-                # Move dust particles with their own 1/Z parallax
                 d_par = 1000.0 / dust_z[d_idx]
                 curr_x = int((dust_x[d_idx] + p * 40.0 * dust_speed[d_idx] * d_par) % width)
                 curr_y = int((dust_y[d_idx] - p * 25.0 * dust_speed[d_idx] * d_par) % height)
-                d_size = max(1, int(round(2.5 * d_par)))
-                cv2.circle(dust_overlay, (curr_x, curr_y), d_size, (220, 230, 255), -1)
+                d_size = max(1, int(round(2.0 * d_par)))
+                cv2.circle(frame_canvas, (curr_x, curr_y), d_size, (200, 210, 230), -1)
 
-            dust_alpha = (cv2.GaussianBlur(dust_overlay, (3, 3), 0).astype(np.float32) / 255.0) * 0.45
-            frame_canvas = cv2.addWeighted(frame_canvas, 1.0, (dust_alpha * 255).astype(np.uint8), 0.35, 0)
-
-            # Apply Color Grade
-            frame_graded = apply_color_grade(frame_canvas, style)
-
-            # Apply Optical Vignette
-            frame_vignette = apply_optical_vignette(frame_graded, strength=0.38)
-
-            # Apply Organic 35mm Film Grain
-            grain = generate_film_grain(height, width, intensity=10.0)
-            frame_final = np.clip(frame_vignette.astype(np.float32) + grain, 0, 255).astype(np.uint8)
+            frame_vignette = (frame_canvas.astype(np.float32) * vignette_mask).astype(np.int16)
+            rolled_grain = np.roll(grain_base, shift=(frame_idx * 37, frame_idx * 53), axis=(0, 1))[..., None]
+            frame_final = np.clip(frame_vignette + rolled_grain, 0, 255).astype(np.uint8)
 
             writer.write(frame_final)
 

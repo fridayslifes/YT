@@ -1,0 +1,200 @@
+{
+  "schema_version": 2,
+  "id": "SH-26",
+  "variant": "storybook_picturebook",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "image": "images/s01_hook.jpg",
+      "video": "videos/s01_hook.mp4",
+      "shots": [
+        {
+          "video": "videos/s01_hook.mp4",
+          "motion": "depthflow_spiral",
+          "zoom": 1.0,
+          "image": "images/s01_hook.jpg"
+        },
+        {
+          "video": "videos/s01_hook.mp4",
+          "motion": "depthflow_spiral",
+          "focus": [
+            0.5,
+            0.42
+          ],
+          "zoom": 1.18,
+          "image": "images/s01_hook.jpg"
+        }
+      ],
+      "motion": "depthflow_spiral",
+      "preset": "depthflow_spiral",
+      "text": "If you traded your soul to never age, why did Dorian Gray hide 1 *rotting* portrait inside a *locked* schoolroom attic?",
+      "overlay": {
+        "text": "DORIAN GRAY",
+        "until": 2.6
+      },
+      "sfx": "wind_howl",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Gothic Victorian illustrated storybook medium close-up shot at eye-level. Subject (Midground Z-Plane): a handsome Victorian gentleman in an exquisite tailored velvet evening jacket staring in horror at an easel in an antique attic, pulling aside a heavy purple-and-gold satin pall to reveal the hideous sneering face on the hidden canvas. Environment (Deep Background Z-Plane): dusty locked schoolroom attic with spiderwebs, discarded antique toys, and barred windows in deep bokeh. 3D Lighting & Mood: flickering candlelight casting long eerie shadows across the decaying painted canvas, hook symptom atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "HOOK_SYMPTOM",
+      "genre": "storybook_casebook",
+      "id": "s01",
+      "caption": "If you traded your soul to never age, why did Dorian Gray hide 1 *rotting* portrait inside a *locked* schoolroom attic?"
+    },
+    {
+      "image": "images/s02_researchers.jpg",
+      "video": "videos/s02_researchers.mp4",
+      "motion": "depthflow_horizontal",
+      "preset": "depthflow_horizontal",
+      "text": "You tell yourself outward *beauty* reflects your true conscience\u2014Wilde proved a hidden portrait can absorb 18 years of *rot*.",
+      "note": "Oscar Wilde (1890)",
+      "sfx": "paper_swoosh",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Luminous Victorian artist studio medium two-shot with multi-plane depth. Subject (Midground Z-Plane): young Dorian Gray possessing radiant golden beauty standing beside artist Basil Hallward holding a palette, admiring the newly finished life-size oil portrait on a heavy mahogany easel, surrounded by sweet scent of lilacs. Environment (Deep Background Z-Plane): sun-drenched artist studio in Mayfair with open garden French doors and white marble sculptures. 3D Lighting & Mood: warm golden afternoon sunlight streaming across the pristine painted portrait and polished floorboards, false assumption interrupt atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "FALSE_ASSUMPTION_INTERRUPT",
+      "genre": "storybook_casebook",
+      "id": "s02",
+      "caption": "You tell yourself outward *beauty* reflects your true conscience\u2014Wilde proved a hidden portrait can absorb 18 years of *rot*."
+    },
+    {
+      "image": "images/s03_stat.jpg",
+      "video": "videos/s03_stat.mp4",
+      "motion": "spatial_drift",
+      "preset": "spatial_drift",
+      "text": "In the published data, the oil portrait *aged* and scarred with every cruelty while the living man stayed untouched for 18 *years*.",
+      "stat_card": {
+        "title": "1890 & 18 Years",
+        "subtitle": "Gothic Victorian novel (Wilde 1890)"
+      },
+      "sfx": "bell",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Tactile macro tabletop close-up shot at a 35-degree angle. Subject (Midground Z-Plane): an antique gilt-edged Venetian mirror resting beside a heavy brass padlock key on a dark velvet cloth, a trembling young hand touching the flawless smooth skin of his own reflection while glancing at the painted canvas. Environment (Deep Background Z-Plane): ornate Victorian dressing table with crystal perfume flacons and leather-bound French novels. 3D Lighting & Mood: intimate warm lamp glow reflecting off the beveled mirror glass and polished brass key, empirical data proof atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "EMPIRICAL_DATA_PROOF",
+      "genre": "storybook_casebook",
+      "id": "s03",
+      "caption": "In the published data, the oil portrait *aged* and scarred with every cruelty while the living man stayed untouched for 18 *years*."
+    },
+    {
+      "image": "images/s04_biology.jpg",
+      "video": "videos/s04_biology.mp4",
+      "motion": "depthflow_orbit",
+      "preset": "depthflow_orbit",
+      "text": "The painted canvas absorbed every invisible scar of greed, twisting into a sneering *monstrosity* in the locked *attic*.",
+      "sfx": "tension_riser",
+      "sfx_vol": 0.35,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, High-contrast dramatic close-up in the midground plane. Subject (Midground Z-Plane): the painted oil face on the canvas showing a subtle, cruel sneer around the lips that was never painted there, the oil pigment appearing slightly altered, lines of cruelty etching across the perfect painted features. Environment (Deep Background Z-Plane): dimly lit library room with heavy damask curtains drawn shut against the morning light. 3D Lighting & Mood: cold gray dawn light creeping between velvet drapes, exposing the strange corruption of the paint, internal mechanism atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "INTERNAL_MECHANISM",
+      "genre": "storybook_casebook",
+      "id": "s04",
+      "caption": "The painted canvas absorbed every invisible scar of greed, twisting into a sneering *monstrosity* in the locked *attic*."
+    },
+    {
+      "image": "images/s05_consequence.jpg",
+      "video": "videos/s05_consequence.mp4",
+      "motion": "depthflow_dolly",
+      "preset": "depthflow_dolly",
+      "text": "The terror of a double life forced Dorian to guard 1 heavy *key* while madness slowly consumed his *mind*.",
+      "sfx": "click",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Haunting gothic interior shot with strong Z-axis perspective. Subject (Midground Z-Plane): Dorian Gray standing alone before the locked heavy oak door with an iron bolt at the top of the stairs, turning the heavy key in the lock, holding a lantern as he climbs to visit his decaying secret soul. Environment (Deep Background Z-Plane): narrow dark Victorian stairwell with peeling wallpaper and creaking floorboards receding into shadow. 3D Lighting & Mood: single swinging oil lantern casting undulating pools of amber light and clutching shadows, real world consequence atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "REAL_WORLD_CONSEQUENCE",
+      "genre": "storybook_casebook",
+      "id": "s05",
+      "caption": "The terror of a double life forced Dorian to guard 1 heavy *key* while madness slowly consumed his *mind*."
+    },
+    {
+      "image": "images/s06_trap.jpg",
+      "video": "videos/s06_trap.mp4",
+      "motion": "depthflow_horizontal",
+      "preset": "depthflow_horizontal",
+      "text": "Believing you can escape the *moral* consequences of your actions simply by *concealing* them.",
+      "sfx": "desk_thud",
+      "sfx_vol": 0.4,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Grotesque gothic portrait reveal in the midground plane. Subject (Midground Z-Plane): the life-size oil painting now depicting a withered, leering demon with blood-stained hands and rotting skin, the eyes of the portrait gleaming with malevolent life while the living Dorian stands before it unaged and flawless. Environment (Deep Background Z-Plane): the dark attic surrounded by locked iron trunks and dust-covered relics of forgotten childhood. 3D Lighting & Mood: harsh theatrical lantern beam illuminating the grotesque rotting visage of the painting, willpower friction trap atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "WILLPOWER_FRICTION_TRAP",
+      "genre": "storybook_casebook",
+      "id": "s06",
+      "caption": "Believing you can escape the *moral* consequences of your actions simply by *concealing* them."
+    },
+    {
+      "image": "images/s07_override.jpg",
+      "video": "videos/s07_override.mp4",
+      "motion": "spatial_drift",
+      "preset": "spatial_drift",
+      "text": "Confront your shadows before they *consume* you. Comment below and subscribe for more classic novel storybooks.",
+      "sfx": "page_turn",
+      "sfx_vol": 0.45,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Grounded eye-level medium shot with reflective Victorian storybook framing. Subject (Midground Z-Plane): a somber Victorian gentleman standing in a quiet Mayfair study gazing into an antique fireplace, holding the heavy brass attic key over the glowing coals, realizing that the soul cannot be severed from truth. Environment (Deep Background Z-Plane): luxurious London study filled with rare tapestries, carved ivory, and leather-bound volumes. 3D Lighting & Mood: soft glowing embers casting warm contemplative highlights across his immaculate face, five second override atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "FIVE_SECOND_OVERRIDE",
+      "genre": "storybook_casebook",
+      "id": "s07",
+      "caption": "Confront your shadows before they *consume* you. Comment below and subscribe for more classic novel storybooks."
+    },
+    {
+      "image": "images/s08_loop.jpg",
+      "video": "videos/s08_loop.mp4",
+      "motion": "depthflow_orbit",
+      "preset": "depthflow_orbit",
+      "text": "Because the moment Dorian slashed the rotting *canvas* with 1 *knife*...",
+      "pause": 0.0,
+      "sfx": "impact",
+      "sfx_vol": 0.45,
+      "cap_y": 0.66,
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, Dramatic midnight attic tableau with sudden stillness. Subject (Midground Z-Plane): an antique silver knife lying on the floor beside the slashed canvas, where the painting is suddenly radiant and young again, an unrecognizable withered corpse lying on the floor in evening dress with a knife in its heart. Environment (Deep Background Z-Plane): the locked attic chamber illuminated by the cold pale light of the full moon through barred windows. 3D Lighting & Mood: volumetric silver moonlight spilling across the pristine portrait and the dark shadows on the floorboards, infinite loop bridge atmosphere. Optics: soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field, distinct 3-plane Z-depth separation (tactile foreground blur, razor-sharp midground subject, deep background bokeh), primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, 9:16 vertical composition.",
+      "narrative_beat": "INFINITE_LOOP_BRIDGE",
+      "genre": "storybook_casebook",
+      "id": "s08",
+      "caption": "Because the moment Dorian slashed the rotting *canvas* with 1 *knife*..."
+    }
+  ],
+  "title": "The Picture of Dorian Gray - SH-26",
+  "concept": "The Picture of Dorian Gray",
+  "science": "Oscar Wilde (1890)",
+  "citation_stat": "1890 & 18 Years",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "storybook_casebook",
+  "genre_name": "Tactile Archival Detective Casebook (Johnny Harris & LEMMiNO)",
+  "color_palette": {
+    "primary": "#E6C280",
+    "secondary": "#C85A32",
+    "accent": "#D62828",
+    "background": "#1A120B"
+  },
+  "bgm_mood": "tactile_casebook_mystery",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "file": "assets/audio/bgm/piano_horror.mp3",
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 42,
+    "bpm": 74
+  },
+  "metadata": {
+    "cluster": "Cluster 4 (Historical & Investigation Mysteries)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 12,
+    "chapter_title": "Chapter 12: The Portrait in the Attic",
+    "protagonist": "Dorian Gray in an exquisite Victorian velvet evening coat staring at his canvas",
+    "prev_episode": "SH-25",
+    "next_episode": "SH-27",
+    "dossier_source": "Lippincott Monthly Magazine (July 1890)",
+    "hook_score": 73,
+    "hook_band": "STRONG",
+    "hook_weakest": "STAKES",
+    "word_count": 141,
+    "estimated_duration_sec": 56.4
+  }
+}

@@ -26,11 +26,10 @@ numpy==2.4.6
 Pillow==13.0.0              # imported as `PIL`
 opencv-python==4.11.0.86    # imported as `cv2`
 
-# --- Narration TTS: required by the render path -------------------------------
-# tools/build_video.py:60 (module scope, unguarded). Cloud voice `en-US-AndrewNeural`.
-# Without it: no narration synthesis at all (the local Kokoro fallback in
-# requirements-optional.txt is itself optional). Needs network access at render time.
-edge-tts==7.3.1
+# --- Narration TTS: local Kokoro-82M ONNX only -------------------------------
+# Speech synthesis runs strictly via local Kokoro-82M ONNX (`kokoro-onnx` + `soundfile`
+# in requirements-optional.txt, using weights in tools/kokoro_models/). Cloud speech
+# packages (edge-tts, Azure, etc.) are prohibited and removed.
 
 # --- Dev / CI: what `./check.sh` and `pytest` run with ------------------------
 # Not imported by tools/. Pinned so CI lint results are byte-reproducible.

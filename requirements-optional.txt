@@ -26,7 +26,7 @@ transformers==5.20.2
 # tools/visual_engine.py:127 `import mlx.core as mx` (guard: hasattr clear_cache).
 # WITHOUT: _heal_gpu_memory() only flushes PyTorch + GC; long renders may hold Metal memory.
 # macOS-arm64 only - do not install this on Linux.
-mlx==0.32.4
+mlx==0.32.4; sys_platform == "darwin" and platform_machine == "arm64"
 
 # --- Subject cutout / silhouette compositing --------------------------------
 # tools/visual_engine.py (`import rembg`, guarded). Cited by module, not by line: a
@@ -36,12 +36,11 @@ mlx==0.32.4
 rembg==2.0.86
 onnxruntime==1.24.4
 
-# --- Local (offline) neural TTS fallback ------------------------------------
-# tools/build_video.py:181 `from kokoro_onnx import Kokoro`, :182 `import soundfile as sf`.
+# --- Local (offline) neural TTS (sole supported speech backend) --------------
+# tools/build_video.py `from kokoro_onnx import Kokoro`, `import soundfile as sf`.
 # Requires the weight files tools/kokoro_models/kokoro-v1.0.onnx and voices-v1.0.bin,
 # which are .gitignore'd and must be fetched separately.
-# WITHOUT: only edge-tts (network) can produce narration; the am_adam + bm_george local
-# blend described in GEMINI.md section 3 is unavailable offline.
+# Local Kokoro-82M ONNX is the only permitted TTS engine; cloud speech is prohibited.
 kokoro-onnx==0.6.1
 soundfile==0.14.0
 
@@ -54,6 +53,7 @@ faster-whisper==1.1.0
 # --- Inpaint / outpaint for frame edge extension -----------------------------
 # tools/visual_engine.py `from simple_lama_inpainting import SimpleLama`.
 # WITHOUT: edge extension / object removal falls back to plain padding+blur.
+# Note: simple-lama-inpainting declares numpy<2 in package metadata; install with --no-deps on numpy 2.x.
 simple-lama-inpainting==0.1.2
 
 # --- Scientific signal maths ------------------------------------------------
@@ -77,4 +77,4 @@ depthflow==1.0.1
 # --- FLUX local Apple Silicon Metal plate generation ------------------------
 # tools/visual_engine.py FLUX2_BIN and FLUX3_BIN.
 # Invokes mflux CLI for distilled FLUX plate generation.
-mflux==0.24.0
+mflux==0.24.0; sys_platform == "darwin" and platform_machine == "arm64"

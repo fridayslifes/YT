@@ -15,11 +15,13 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 
 import pytest
 
 from conftest import report as honesty_report
 from tools import creative_engine as ce
+from tools.schemas import PROJECT_SCHEMA_VERSION, validate_project
 from tools.youtube_skills import hookscore
 
 # Every field choreograph_scenes() and the upload kit read to build spoken sentences. A dossier
@@ -448,11 +450,18 @@ def test_generate_creative_project_writes_a_blueprint_built_only_from_the_dossie
     project = json.loads(path.read_text(encoding="utf-8"))
     scenes = project["scenes"]
 
+    assert validate_project(project, project_path=path) == []
+    assert project["schema_version"] == PROJECT_SCHEMA_VERSION == 2
     assert project["id"] == "SH-99" and project["format"] == "short"
+    assert project["variant"] == "cinematic_35mm"
+    assert project["channel_id"] == "UC6hwVBnsfvfUGxfZi2sFT3A"
+    assert project["voice"] == "kokoro"
     assert project["title"] == "Loss Aversion - SH-99"
     assert project["science"] == "Daniel Kahneman & Amos Tversky (1979)"
     assert len(scenes) == 8
-    for scene in scenes:
+    for index, scene in enumerate(scenes, 1):
+        assert scene["id"] == f"s{index:02d}"
+        assert scene["caption"] == scene["text"]
         assert str(scene.get("image") or "") or str(scene.get("video") or "")
         assert str(scene.get("text") or "").strip() not in ("", "None")
     blob = json.dumps(project)
@@ -474,6 +483,101 @@ def test_generate_creative_project_writes_a_blueprint_built_only_from_the_dossie
     assert "#shorts" in kit and "#Shorts" not in kit
     card = capsys.readouterr().out
     assert "SH-99" in card, "the creation card is the only confirmation the agent prints"
+
+
+def test_generate_creative_project_preserves_supplied_scenes_and_identity(repo_shaped_tmp, monkeypatch):
+    scenes = ce.choreograph_scenes(ce.synthesize_dossier("Loss Aversion"))
+    scenes[0].update({
+        "id": "opening",
+        "caption": "Authored caption, distinct from narration.",
+        "pose": {"sprite": "images/aversion_pose.png", "x": 0.4},
+        "clue": {"answer": "loss aversion", "reveal_at": 1.5},
+        "overlay": {"image": "images/aversion_overlay.png", "text": "Keep this overlay", "until": 2.6},
+        "audio": "audio/opening.wav",
+        "sound_cues": [{"asset": "audio/aversion.wav", "at": 0.5}],
+        "images": ["images/aversion_detail.png"],
+    })
+    original = deepcopy(scenes)
+    monkeypatch.setattr(ce, "choreograph_scenes", lambda *args, **kwargs: pytest.fail("supplied scenes rechoreographed"))
+
+    path = ce.generate_creative_project(
+        "Loss Aversion", "SH-99", "short_supplied", scenes=scenes,
+        variant="photobook", channel_id="test_channel", voice="af_heart",
+    )
+    project = json.loads(path.read_text(encoding="utf-8"))
+
+    assert validate_project(project, project_path=path) == []
+    assert project["variant"] == "photobook"
+    assert project["channel_id"] == "test_channel"
+    assert project["voice"] == "af_heart"
+    assert scenes == original
+    for index, (authored, generated) in enumerate(zip(original, project["scenes"], strict=True), 1):
+        expected = {"id": f"s{index:02d}", "caption": authored["text"], **authored}
+        assert generated == expected
+
+
+@pytest.mark.parametrize("scenes", [[], {}, "not a scene list", False, (), [None] * 8, ["not an object"] * 8, [{}]])
+def test_invalid_scene_containers_fail_before_artifacts(repo_shaped_tmp, monkeypatch, scenes):
+    for name in ("choreograph_scenes", "score_hook_candidate"):
+        monkeypatch.setattr(ce, name, lambda *args, **kwargs: pytest.fail("invalid scenes reached choreography or scoring"))
+
+    with pytest.raises(ValueError, match="scenes"):
+        ce.generate_creative_project("Loss Aversion", "SH-99", "short_invalid", scenes=scenes)
+
+    assert not (repo_shaped_tmp / "shorts").exists()
+
+
+@pytest.mark.parametrize(
+    "invalid_scene, field",
+    [
+        ({}, "text"),
+        ({"text": None}, "text"),
+        ({"text": ""}, "text"),
+        ({"text": " \t"}, "text"),
+        ({"text": 42}, "text"),
+        ({"text": "Hook", "caption": ""}, "caption"),
+        ({"text": "Hook", "caption": None}, "caption"),
+        ({"text": "Hook", "id": "s02"}, "id"),
+        ({"text": "Hook", "id": None}, "id"),
+        ({"text": "Hook", "prompt": ""}, "prompt"),
+        ({"text": "Hook", "image": "../escape.png"}, "image"),
+        ({"text": "Hook", "overlay": {"image": "../escape.png"}}, "overlay"),
+    ],
+)
+def test_invalid_scene_fields_fail_before_artifacts(repo_shaped_tmp, monkeypatch, invalid_scene, field):
+    scenes = [{"text": "Loss aversion narration.", "prompt": "Loss aversion visual."} for _ in range(8)]
+    scenes[0] = {"prompt": "Loss aversion visual.", **invalid_scene}
+    original = deepcopy(scenes)
+    for name in ("choreograph_scenes", "score_hook_candidate"):
+        monkeypatch.setattr(ce, name, lambda *args, **kwargs: pytest.fail("invalid scenes reached choreography or scoring"))
+
+    with pytest.raises(ValueError, match=rf"\.{field}"):
+        ce.generate_creative_project("Loss Aversion", "SH-99", "short_invalid", scenes=scenes)
+
+    assert scenes == original
+    assert not (repo_shaped_tmp / "shorts").exists()
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        {"voice": "unknown_voice"},
+        {"variant": "3d_cgi"},
+        {"channel_id": "invalid/channel"},
+        {"voice": "unknown_voice", "variant": "3d_cgi", "channel_id": "invalid/channel"},
+    ],
+)
+def test_invalid_project_identity_fails_before_artifacts(repo_shaped_tmp, monkeypatch, options):
+    scenes = [{"text": "Loss aversion narration.", "prompt": "Loss aversion visual."} for _ in range(8)]
+    monkeypatch.setattr(ce, "score_hook_candidate", lambda *args, **kwargs: pytest.fail("invalid project reached scoring"))
+
+    with pytest.raises(ValueError) as exc:
+        ce.generate_creative_project("Loss Aversion", "SH-99", "short_invalid", scenes=scenes, **options)
+
+    assert len(str(exc.value).splitlines()) == len(options)
+    for field in options:
+        assert field in str(exc.value)
+    assert not (repo_shaped_tmp / "shorts").exists()
 
 
 def test_generate_creative_project_supplies_a_dossier_it_was_given(repo_shaped_tmp, capsys):
@@ -518,7 +622,7 @@ def test_score_hook_candidate_reports_the_same_number_as_the_scorer_it_wraps():
 
 def test_project_collision_preserves_original_project_and_upload_kit(repo_shaped_tmp):
     path = ce.generate_creative_project("Loss Aversion", "SH-99", "short_collision")
-    assert json.loads(path.read_text())["schema_version"] == 1
+    assert json.loads(path.read_text())["schema_version"] == PROJECT_SCHEMA_VERSION
     original = {item.name: item.read_bytes() for item in path.parent.glob("*") if item.is_file()}
 
     with pytest.raises(FileExistsError, match=str(path)):

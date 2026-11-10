@@ -33,8 +33,8 @@ KOKORO_MODEL = TOOLS_DIR / "kokoro_models" / "kokoro-v1.0.onnx"
 KOKORO_VOICES = TOOLS_DIR / "kokoro_models" / "voices-v1.0.bin"
 OUTPUT_DIR = REPO_ROOT / "output"
 
-FONT_PATH = "/System/Library/Fonts/Supplemental/Georgia.ttf"
-FONT_BOLD = "/System/Library/Fonts/Supplemental/Georgia Bold.ttf"
+FONT_PATH = str(TOOLS_DIR / "fonts" / "BeVietnamPro-Regular.ttf")
+FONT_BOLD = str(TOOLS_DIR / "fonts" / "BeVietnamPro-Bold.ttf")
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))

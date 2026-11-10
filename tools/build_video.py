@@ -3,7 +3,7 @@
 
 Upgraded FrameForge 3D Spatial Compositor (v5.0 — 3D Diegetic Cards + Self-Healing TTS & Alignment):
   - Best-Engine First with Active Self-Healing:
-      Retries & heals transient errors on the primary neural TTS (`Edge-TTS` / `Kokoro-82M` custom vector blend)
+      Retries & heals transient errors on the primary local neural TTS (`Kokoro-82M` ONNX custom vector blend)
       and primary Apple Silicon `h264_videotoolbox` 14M High-Profile encoder rather than silently downgrading.
   - Reference Precision & Recall Word-Timestamp Aligner:
       Verifies 100% token recall (`recall == 1.0`, every script token mapped to an exact spoken timestamp)
@@ -15,7 +15,6 @@ Upgraded FrameForge 3D Spatial Compositor (v5.0 — 3D Diegetic Cards + Self-Hea
 from __future__ import annotations
 
 import argparse
-import asyncio
 import hashlib
 import json
 import math
@@ -24,7 +23,6 @@ import re
 import subprocess
 import sys
 import tempfile
-import time
 import wave
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,15 +56,16 @@ try:
 except OSError:
     pass
 
-import edge_tts  # noqa: E402
 from tools import audio_bank  # noqa: E402
 from tools import visual_engine  # noqa: E402
 from tools.processes import run_process  # noqa: E402
+from tools.schemas import KOKORO_VOICES  # noqa: E402
 
 SR = 44100
 FPS = 30
 FONT_DIR = TOOLS_DIR / "fonts"
 KOKORO_DIR = TOOLS_DIR / "kokoro_models"
+TTS_CACHE_NAMESPACE = "kokoro-v1.0-local"
 BREAK_CHARS = (",", ".", "?", "!", ";", ":", "…", "—")
 VIDEO_EXTS = {".mp4", ".mov", ".webm", ".mkv", ".m4v", ".gif"}
 
@@ -154,21 +153,26 @@ def _estimate_word_timings(text: str, audio: np.ndarray) -> list[dict]:
 def _align_with_faster_whisper(mp3_path: Path, text: str, audio: np.ndarray) -> list[dict]:
     """Extract millisecond word timestamps via faster-whisper and heal any missing/drifted word boundaries."""
     global _WHISPER_MODEL
-    try:
-        from faster_whisper import WhisperModel
-        if _WHISPER_MODEL is None:
-            _WHISPER_MODEL = WhisperModel("tiny.en", device="cpu", compute_type="int8")
-        segments, _ = _WHISPER_MODEL.transcribe(str(mp3_path), word_timestamps=True, condition_on_previous_text=False)
-        words = []
-        for seg in segments:
-            for w in (seg.words or []):
-                cleaned = w.word.strip()
-                if cleaned:
-                    words.append({"text": cleaned, "start": round(float(w.start), 4), "end": round(float(w.end), 4)})
-        if words:
-            return words
-    except Exception as e:
-        print(f"  [Self-Heal: Whisper Aligner] Using acoustic energy envelope alignment ({e})")
+    if _WHISPER_MODEL is not False:
+        try:
+            from faster_whisper import WhisperModel
+            if _WHISPER_MODEL is None:
+                try:
+                    _WHISPER_MODEL = WhisperModel("tiny.en", device="cpu", compute_type="int8", local_files_only=True)
+                except Exception:
+                    _WHISPER_MODEL = WhisperModel("tiny.en", device="cpu", compute_type="int8")
+            segments, _ = _WHISPER_MODEL.transcribe(str(mp3_path), word_timestamps=True, condition_on_previous_text=False)
+            words = []
+            for seg in segments:
+                for w in (seg.words or []):
+                    cleaned = w.word.strip()
+                    if cleaned:
+                        words.append({"text": cleaned, "start": round(float(w.start), 4), "end": round(float(w.end), 4)})
+            if words:
+                return words
+        except Exception as e:
+            _WHISPER_MODEL = False
+            print(f"  [Self-Heal: Whisper Aligner] Using acoustic energy envelope alignment ({e})")
     return _estimate_word_timings(text, audio)
 
 
@@ -179,22 +183,17 @@ def _sanitize_tts_text(text: str) -> str:
     return t
 
 
-async def _synthesize_edge(text: str, voice: str, rate: str, pitch: str, mp3: Path) -> list[dict]:
-    comm = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
-    words = []
-    with open(mp3, "wb") as fh:
-        async for chunk in comm.stream():
-            if chunk["type"] == "audio":
-                fh.write(chunk["data"])
-            elif chunk["type"] == "WordBoundary":
-                start = chunk["offset"] / 1e7
-                words.append({"text": chunk["text"], "start": start,
-                              "end": start + chunk["duration"] / 1e7})
-    return words
+def _validate_kokoro_voice(voice: object) -> str:
+    if not isinstance(voice, str) or voice not in KOKORO_VOICES:
+        raise ValueError(
+            f"Unsupported voice {voice!r}; must be a registered local Kokoro voice in KOKORO_VOICES."
+        )
+    return voice
 
 
 def _synthesize_kokoro(text: str, mp3: Path, voice_spec: str = "am_adam") -> list[dict]:
-    """Synthesize speech via local Kokoro-82M ONNX with custom documentary voice vector blending and self-healing."""
+    """Synthesize speech via local Kokoro-82M ONNX with explicit documentary voice vector blending and self-healing."""
+    voice_spec = _validate_kokoro_voice(voice_spec)
     global _KOKORO_INSTANCE
     onnx_file = KOKORO_DIR / "kokoro-v1.0.onnx"
     voices_file = KOKORO_DIR / "voices-v1.0.bin"
@@ -211,21 +210,17 @@ def _synthesize_kokoro(text: str, mp3: Path, voice_spec: str = "am_adam") -> lis
             kokoro = _KOKORO_INSTANCE
 
             voices = kokoro.get_voices()
-            if voice_spec in voices:
-                used_voice = voice_spec
-                voice_arg = kokoro.get_voice_style(voice_spec)
-            else:
-                # Channel house voice: a 0.68/0.32 blend. An Edge-TTS name (en-US-AndrewNeural) can
-                # never resolve to a Kokoro voice, so say which narrator the fallback actually used.
+            if voice_spec == "kokoro":
+                if "am_adam" not in voices:
+                    raise ValueError("Kokoro house-blend base voice 'am_adam' is missing from voices-v1.0.bin")
                 v1 = kokoro.get_voice_style("am_adam")
                 used_voice = "bm_george" if "bm_george" in voices else ("am_michael" if "am_michael" in voices else "am_adam")
                 v2 = kokoro.get_voice_style(used_voice)
                 voice_arg = (0.68 * v1 + 0.32 * v2).astype(np.float32)
-                if voice_spec != "am_adam":
-                    print(
-                        f"  [Kokoro] requested voice '{voice_spec}' is not a local Kokoro voice - "
-                        f"rendering the channel house blend (am_adam + {used_voice}) instead."
-                    )
+            elif voice_spec in voices:
+                voice_arg = kokoro.get_voice_style(voice_spec)
+            else:
+                raise ValueError(f"Requested Kokoro voice {voice_spec!r} is not available in voices-v1.0.bin")
 
             clean_txt = _sanitize_tts_text(text) if attempt > 0 else text.replace("*", "")
             samples, sample_rate = kokoro.create(clean_txt, voice=voice_arg, speed=1.06, lang="en-us")
@@ -242,6 +237,8 @@ def _synthesize_kokoro(text: str, mp3: Path, voice_spec: str = "am_adam") -> lis
                 wav_path.unlink(missing_ok=True)
             audio = decode_audio(mp3)
             return _align_with_faster_whisper(mp3, clean_txt, audio)
+        except ValueError:
+            raise
         except Exception as e:
             print(f"  [Self-Heal: Kokoro-82M] Attempt {attempt+1} error ({e}); resetting ONNX session & sanitizing text...")
             visual_engine._heal_gpu_memory()
@@ -249,35 +246,19 @@ def _synthesize_kokoro(text: str, mp3: Path, voice_spec: str = "am_adam") -> lis
 
 
 def tts_cached(text: str, voice: str, rate: str, pitch: str, cache: Path) -> tuple[Path, list[dict]]:
-    """Synthesize speech using the best neural engine with active 3-attempt self-healing before last-resort fallback."""
+    """Synthesize speech strictly via local Kokoro-82M ONNX with versioned cache isolation."""
+    voice = _validate_kokoro_voice(voice)
+    cache = Path(cache)
     cache.mkdir(parents=True, exist_ok=True)
-    key = hashlib.sha1(f"{voice}|{rate}|{pitch}|{text}".encode(), usedforsecurity=False).hexdigest()[:16]
+    key = hashlib.sha1(
+        f"{TTS_CACHE_NAMESPACE}|{voice}|{rate}|{pitch}|{text}".encode("utf-8"),
+        usedforsecurity=False,
+    ).hexdigest()[:16]
     mp3, meta = cache / f"{key}.mp3", cache / f"{key}.json"
     if not (mp3.exists() and meta.exists() and mp3.stat().st_size > 256):
-        words = None
-        if "kokoro" in voice.lower():
-            words = _synthesize_kokoro(text, mp3, voice_spec=voice)
-        else:
-            for attempt in range(3):
-                try:
-                    t_input = text if attempt == 0 else _sanitize_tts_text(text)
-                    words = asyncio.run(asyncio.wait_for(_synthesize_edge(t_input, voice, rate, pitch, mp3), timeout=15.0 + attempt * 5.0))
-                    if words and mp3.exists() and mp3.stat().st_size > 256:
-                        break
-                    if mp3.exists() and mp3.stat().st_size > 256 and not words:
-                        print("  [Self-Heal: Edge-TTS] Audio stream valid but WordBoundary empty -> healing via faster-whisper...")
-                        words = _align_with_faster_whisper(mp3, t_input, decode_audio(mp3))
-                        break
-                except Exception as e:
-                    print(f"  [Self-Heal: Edge-TTS] Attempt {attempt+1}/3 failed ({e}); healing text & retrying in {0.8*(attempt+1):.1f}s...")
-                    time.sleep(0.8 * (attempt + 1))
-
-            if not words:
-                print("  [Self-Heal: TTS] Switching to local SOTA Kokoro-82M Neural Voice Blend...")
-                words = _synthesize_kokoro(text, mp3, voice_spec=voice)
-
-        meta.write_text(json.dumps(words))
-    return mp3, json.loads(meta.read_text())
+        words = _synthesize_kokoro(text, mp3, voice_spec=voice)
+        meta.write_text(json.dumps(words), encoding="utf-8")
+    return mp3, json.loads(meta.read_text(encoding="utf-8"))
 
 
 def decode_audio(path: Path, af: str | None = None) -> np.ndarray:
@@ -450,6 +431,7 @@ def make_music(
     enable_sound_hooks: bool = True,
     stereo: bool = True,
     music_file: str | Path | None = None,
+    scene_sfx_cues: list[tuple[float, str, float]] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     audio_bank.ensure_studio_sfx_pack(try_remote_cc0=False)
 
@@ -589,67 +571,33 @@ def make_music(
 
     sfx = np.zeros((2, n), dtype=np.float32)
 
-    boom_sample = _load_sfx_sample("boom")
-    if boom_sample is not None:
-        blen = min(n, boom_sample.shape[1])
-        sfx[:, :blen] += boom_sample[:, :blen] * 0.90
-
-    shutter_sample = _load_sfx_sample("shutter")
-    if shutter_sample is None:
-        shutter_sample = _load_sfx_sample("click")
-    if shutter_sample is not None:
-        slen = min(n, shutter_sample.shape[1])
-        sfx[:, :slen] += shutter_sample[:, :slen] * 0.55
-
-    whoosh_sample = _load_sfx_sample("whoosh")
-    if whoosh_sample is not None:
-        for ct, motion in shot_cues:
-            if ct <= 0.05:
-                continue
-            L = whoosh_sample.shape[1]
-            a = int((ct - 0.18) * SR)
-            if 0 <= a and a + L <= n:
-                # Subtle, non-tonal deep air movement + soft 50Hz felt thud on scene cuts
-                if motion in ("pan_right", "drift_right"):
-                    sfx[0, a:a + L] += whoosh_sample[0] * np.linspace(0.42, 0.12, L)
-                    sfx[1, a:a + L] += whoosh_sample[1] * np.linspace(0.12, 0.42, L)
-                elif motion in ("pan_left", "drift_left"):
-                    sfx[0, a:a + L] += whoosh_sample[0] * np.linspace(0.12, 0.42, L)
-                    sfx[1, a:a + L] += whoosh_sample[1] * np.linspace(0.42, 0.12, L)
-                else:
-                    sfx[:, a:a + L] += whoosh_sample * 0.28
-
-    # Warm sub-bass swell (45Hz -> 85Hz) before empirical stat cards — zero high-pitched 750Hz siren
-    if enable_sound_hooks and stat_times:
-        for st in stat_times:
-            r_len = int(0.65 * SR)
-            r_end = int((st - 0.10) * SR)
-            r_start = r_end - r_len
-            if 0 <= r_start and r_end < n:
-                rt = np.arange(r_len) / SR
-                rfreq = 42.0 + 40.0 * (rt / (r_len / SR)) ** 1.5
-                rphase = 2 * np.pi * np.cumsum(rfreq) / SR
-                renv = np.sin(np.pi * (rt / (r_len / SR))) ** 2.0
-                riser = np.sin(rphase) * renv * 0.25
-                sfx[0, r_start:r_end] += riser
-                sfx[1, r_start:r_end] += riser
-
-    if enable_sound_hooks and stat_times:
-        chime_sample = _load_sfx_sample("chime")
-        for st in stat_times:
-            idx = int(st * SR)
-            if chime_sample is not None and 0 <= idx and idx + chime_sample.shape[1] < n:
-                clen = chime_sample.shape[1]
-                sfx[:, idx:idx + clen] += chime_sample * 0.24
-
-    if enable_sound_hooks and emphasis_times:
-        pop_sample = _load_sfx_sample("pop")
-        if pop_sample is not None:
-            plen = pop_sample.shape[1]
-            for et in emphasis_times:
-                idx = int(et * SR)
-                if 0 <= idx and idx + plen < n:
-                    sfx[:, idx:idx + plen] += pop_sample * 0.18
+    # 1. Authentic script-driven sound effects defined intentionally per scene
+    if scene_sfx_cues:
+        for at_time, sfx_name, vol in scene_sfx_cues:
+            sample = _load_sfx_sample(sfx_name)
+            if sample is not None:
+                idx = int(at_time * SR)
+                slen = min(sample.shape[1], n - idx)
+                if 0 <= idx and slen > 0:
+                    sfx[:, idx:idx + slen] += sample[:, :slen] * vol
+    elif enable_sound_hooks:
+        # Subtle scene transition whoosh only if no specific scene cues were defined
+        whoosh_sample = _load_sfx_sample("whoosh")
+        if whoosh_sample is not None:
+            for ct, motion in shot_cues:
+                if ct <= 0.05:
+                    continue
+                L = whoosh_sample.shape[1]
+                a = int((ct - 0.18) * SR)
+                if 0 <= a and a + L <= n:
+                    if motion in ("pan_right", "drift_right"):
+                        sfx[0, a:a + L] += whoosh_sample[0] * np.linspace(0.28, 0.08, L)
+                        sfx[1, a:a + L] += whoosh_sample[1] * np.linspace(0.08, 0.28, L)
+                    elif motion in ("pan_left", "drift_left"):
+                        sfx[0, a:a + L] += whoosh_sample[0] * np.linspace(0.08, 0.28, L)
+                        sfx[1, a:a + L] += whoosh_sample[1] * np.linspace(0.28, 0.08, L)
+                    else:
+                        sfx[:, a:a + L] += whoosh_sample * 0.18
 
     if not stereo:
         music, sfx = music[0], sfx[0]
@@ -734,6 +682,7 @@ class ImageBank:
         self.max_cache_entries = max(1, int(max_cache_entries))
         self.cache: dict[Path, Image.Image] = {}
         self.caps: dict[Path, tuple[cv2.VideoCapture, int, float]] = {}
+        self._last_vid_frame: dict[Path, tuple[int, Image.Image]] = {}
 
     def get_video_frame(self, path: Path, rel_t: float) -> Image.Image:
         if not path.exists():
@@ -751,12 +700,21 @@ class ImageBank:
             target_idx = (n_frames - 1 - rem) if (cycle % 2 == 1) else rem
         else:
             target_idx = 0
-        cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
+
+        last_entry = self._last_vid_frame.get(path)
+        if last_entry is not None and last_entry[0] == target_idx:
+            return last_entry[1].copy()
+
+        expected_next = 0 if last_entry is None else (last_entry[0] + 1)
+        if target_idx != expected_next:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
         ret, frame_bgr = cap.read()
         if not ret or frame_bgr is None:
             cap.release()
             cap = cv2.VideoCapture(str(path))
             self.caps[path] = (cap, n_frames, v_fps)
+            if target_idx != 0:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
             ret, frame_bgr = cap.read()
         if not ret or frame_bgr is None:
             raise RuntimeError(f"Failed to decode video frame from {path}")
@@ -768,7 +726,8 @@ class ImageBank:
             img = img.resize((math.ceil(img.width * scale), math.ceil(img.height * scale)), Image.LANCZOS)
             left, top = (img.width - self.W) // 2, (img.height - self.H) // 2
             img = img.crop((left, top, left + self.W, top + self.H))
-        return img
+        self._last_vid_frame[path] = (target_idx, img)
+        return img.copy()
 
     def get(self, path: Path) -> Image.Image:
         if path not in self.cache:
@@ -801,6 +760,7 @@ class ImageBank:
             print(f"  [ImageBank] WARNING {len(errors)} capture(s) failed to release: {'; '.join(errors)}")
         self.caps.clear()
         self.cache.clear()
+        self._last_vid_frame.clear()
 
 
 def _ease(p: float) -> float:
@@ -1237,7 +1197,7 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
     # Natural Warm Studio Ribbon-Mic Vocal Profile:
     # Unhurried human cadence (+1% rate, -2Hz chest warmth) + Shure SM7B / Ribbon EQ curve
     # (boosts 135Hz chest warmth, cuts 3400Hz metallic AI glare, gentle optical compression)
-    voice = proj.get("voice", "en-US-AndrewNeural")
+    voice = _validate_kokoro_voice(proj.get("voice", "kokoro"))
     rate = proj.get("rate", "+1%")
     pitch = proj.get("pitch", "-2Hz")
     default_gap = proj.get("gap", 0.08)
@@ -1327,9 +1287,16 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
                 stat_times.append(st)
                 vacuum_times.append((max(0.0, st - 0.35), st))
 
+    scene_sfx_cues = []
+    for sc_idx, sc in enumerate(proj.get("scenes", [])):
+        sfx_cue = sc.get("sfx") or sc.get("sound") or sc.get("sfx_cue")
+        if sfx_cue and sc_idx < len(vis_spans):
+            vol = float(sc.get("sfx_vol") or sc.get("sfx_volume") or 0.6)
+            scene_sfx_cues.append((vis_spans[sc_idx][0], str(sfx_cue), vol))
+
     shot_cues = [(s.start, getattr(s, "motion", "zoom_in")) for s in shots]
     eff_mood = mcfg.get("mood") or proj.get("bgm_mood", "cinematic")
-    music_file = mcfg.get("file")
+    music_file = mcfg.get("file") or proj.get("bgm_file")
     if not music_file and proj.get("genre") in ("storybook_casebook", "cinematic_35mm"):
         # Auto-select authentic cinematic tension track if available in assets/audio/bgm
         default_bgm = TOOLS_DIR.parent / "assets" / "audio" / "bgm" / "vertigo_tension.mp3"
@@ -1342,6 +1309,7 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
         stat_times=stat_times, vacuum_times=vacuum_times,
         enable_sound_hooks=mcfg.get("sound_hooks", True), stereo=mcfg.get("stereo", True),
         music_file=music_file,
+        scene_sfx_cues=scene_sfx_cues,
     )
     mix = mix_audio(voice_track, music, sfx, mcfg)
     sfx_mono = np.abs(sfx[0] if sfx.ndim == 2 else sfx)
@@ -1446,7 +1414,7 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
         "ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
         "-r", str(FPS), "-i", "-", "-i", str(wav),
         *vcodec_args,
-        "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "320k", "-ar", "48000",
+        "-af", "loudnorm=I=-14:TP=-1.7:LRA=11", "-c:a", "aac", "-b:a", "320k", "-ar", "48000",
         "-shortest", "-movflags", "+faststart", str(out),
     ]
     # stderr goes to a sidecar log file, never an unread PIPE: an unread pipe that fills up

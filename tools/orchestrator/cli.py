@@ -64,6 +64,8 @@ def cmd_produce(args) -> int:
         video_id=args.id,
         slug=args.slug,
         genre=args.genre,
+        variant=getattr(args, "variant", None),
+        channel=getattr(args, "channel", "cognitive_core"),
         hook_min=args.hook_min,
         build=not args.blueprint,
         force_motion=args.force_motion,
@@ -81,6 +83,8 @@ def run_production_workflow(
     video_id: str,
     slug: str,
     genre: str = "3d_cgi",
+    variant: str | None = None,
+    channel: str = "cognitive_core",
     hook_min: int = 70,
     build: bool = True,
     force_motion: bool = False,
@@ -92,17 +96,22 @@ def run_production_workflow(
     from tools.orchestrator.master import MasterAgent
     from tools.orchestrator.workflows import produce
 
-    workflow = produce(
+    produce_kwargs = dict(
         topic=topic,
         video_id=video_id,
         slug=slug,
-        genre=genre,
+        genre=variant or genre,
         hook_min=hook_min,
         build=build,
         publish=False,
         force_motion=force_motion,
         dossier=dossier,
     )
+    if variant is not None:
+        produce_kwargs["variant"] = variant
+    if channel != "cognitive_core":
+        produce_kwargs["channel"] = channel
+    workflow = produce(**produce_kwargs)
     return MasterAgent(ROOT).new_run(workflow, dry_run=dry_run, approve=approve)
 
 
@@ -304,6 +313,8 @@ def build_parser() -> argparse.ArgumentParser:
     produce.add_argument("--id", required=True, dest="id")
     produce.add_argument("--slug", required=True)
     produce.add_argument("--genre", default="3d_cgi")
+    produce.add_argument("--variant", default=None, help="Canonical style variant (overrides --genre)")
+    produce.add_argument("--channel", default="cognitive_core", help="Target channel profile identifier")
     produce.add_argument("--hook-min", type=int, default=70)
     produce.add_argument("--dossier", help="Path to a verified dossier JSON")
     produce.add_argument("--blueprint", action="store_true", help="Research/script/project only; no render")

@@ -26,6 +26,7 @@ tools/kokoro_models/*.bin
 tools/ntsc-rs.app/
 
 # Rendered Video Outputs, Per-Scene Caches & Scratch Experiments
+output/
 shorts/*/output/*.mp4
 shorts/*/output/*.wav
 shorts/*/videos/*.mp4
@@ -37,6 +38,7 @@ long_form/*/cache/
 demos/*.mp4
 scratch/
 *.tmp
+*.lock
 
 # Google OAuth secrets (never commit)
 client_secrets.json

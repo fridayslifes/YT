@@ -719,7 +719,7 @@ def verify_rendered_mp4(
 # --------------------------------------------------------------------------- #
 def compute_scene_durations(proj: dict, cache_dir: Path) -> list[float]:
     """Pre-synthesize TTS for each scene with active cache self-healing to get exact spoken durations."""
-    voice = proj.get("voice", "en-US-AndrewNeural")
+    voice = build_video._validate_kokoro_voice(proj.get("voice", "kokoro"))
     rate = proj.get("rate", "+1%")
     pitch = proj.get("pitch", "-2Hz")
     default_gap = proj.get("gap", 0.08)
@@ -915,6 +915,7 @@ def build_and_verify(project_dir_or_json: Path, hw_accel: bool = True, force_mot
             target_vid = project_dir / "videos" / f"{stem}.mp4"
             sc["video"] = f"videos/{stem}.mp4"
 
+        variant_name = str(proj_data.get("variant") or proj_data.get("genre") or "cinematic_35mm")
         src_img = None
         if img_rel and Path(img_rel).suffix.lower() in {".jpg", ".jpeg", ".png"}:
             candidate = project_dir / img_rel
@@ -932,21 +933,34 @@ def build_and_verify(project_dir_or_json: Path, hw_accel: bool = True, force_mot
                 src_img = matches[0]
             else:
                 src_img = project_dir / "images" / f"{stem}.jpg"
-                visual_engine.generate_scene_image(
-                    sc.get("prompt", f"Scene {idx+1}"),
+                prompt = sc.get("prompt")
+                if not prompt or not prompt.strip():
+                    raise ValueError(f"Scene {idx+1} in {proj_json} is missing a visual prompt; no fallback allowed.")
+                print(f"  [FLUX MLX] Generating scene {idx+1} visual plate: {src_img.name}...")
+                ok = visual_engine.generate_scene_image(
+                    prompt,
                     src_img,
                     width=img_w,
                     height=img_h,
                     steps=sc.get("steps"),
                     seed=scene_seed(str(proj_data.get("id") or project_dir.name), idx),
+                    genre=variant_name,
                 )
+                if not ok or not src_img.exists():
+                    raise RuntimeError(f"Scene {idx+1} AI image generation failed for {src_img}. No fallback permitted.")
         sc["image"] = str(src_img.relative_to(project_dir))
-        target_preset = _resolve_3d_preset(sc, idx)
+        target_preset = _resolve_3d_preset(sc, idx) if variant_name == "cinematic_35mm" else (sc.get("preset") or sc.get("motion") or variant_name)
         sc["preset"] = target_preset
         sc["motion"] = target_preset
         fingerprint = scene_fingerprint(
-            scene_index=idx, scene=sc, source_image=src_img, duration_s=dur,
-            preset=target_preset, width=vid_w, height=vid_h,
+            scene_index=idx,
+            scene=sc,
+            source_image=src_img,
+            duration_s=dur,
+            preset=target_preset,
+            width=vid_w,
+            height=vid_h,
+            variant=variant_name,
         )
         scene_key = str(idx)
         needs_render = force_motion or not manifest.can_reuse(scene_key, fingerprint, target_vid)
@@ -955,7 +969,7 @@ def build_and_verify(project_dir_or_json: Path, hw_accel: bool = True, force_mot
             if not q_check.get("valid", False):
                 print(
                     f"  [Self-Heal: Scene {idx+1}] Existing clip {target_vid.name} flagged {q_check.get('score')} "
-                    f"(shear={q_check.get('flow_shear_ratio')}) -> re-rendering 3D spatial clip..."
+                    f"(shear={q_check.get('flow_shear_ratio')}) -> re-rendering clip..."
                 )
                 needs_render = True
 

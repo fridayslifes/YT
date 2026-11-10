@@ -1353,8 +1353,21 @@ class OrchestratorAgent:
         all_words = len(re.findall(r"\b\w+\b", " ".join(s.get("text", "") for s in enriched_scenes)))
         est_sec = round((all_words / 150.0) * 60.0, 1)
 
-        proj_data["scenes"] = enriched_scenes
+        from tools.schemas import PROJECT_SCHEMA_VERSION, validate_project
+        from tools.build_video import _validate_kokoro_voice
+
+        resolved_variant = creative_engine.resolve_variant(eff_genre)
+        proj_data["schema_version"] = PROJECT_SCHEMA_VERSION
+        proj_data["variant"] = resolved_variant
         proj_data["genre"] = eff_genre
+        proj_data.setdefault("id", f"SH-{proj_path.parent.name[:8].upper()}")
+        proj_data.setdefault("channel_id", "cognitive_core")
+        proj_data.setdefault("format", fmt_type)
+        proj_data["voice"] = _validate_kokoro_voice(proj_data.get("voice", "kokoro"))
+        for idx, sc in enumerate(enriched_scenes, 1):
+            sc.setdefault("id", f"s{idx:02d}")
+            sc["caption"] = str(sc.get("caption") or sc.get("text") or "").strip()
+        proj_data["scenes"] = enriched_scenes
         proj_data.setdefault("metadata", {}).update({
             "dossier_source": dossier.get("publication"),
             "hook_score": hook_score,
@@ -1364,6 +1377,9 @@ class OrchestratorAgent:
             "estimated_duration_sec": est_sec,
             "upgraded_by": "MultiAgentCrew_v7.0_3DSpatial",
         })
+        schema_errors = validate_project(proj_data, project_path=proj_path)
+        if schema_errors:
+            raise ValueError("Invalid upgraded project.json:\n" + "\n".join(schema_errors))
         proj_path.write_text(json.dumps(proj_data, indent=2), encoding="utf-8")
 
         pkg_rep = self.packaging_agent.run(proj_path, dossier=dossier)

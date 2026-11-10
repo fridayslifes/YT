@@ -40,7 +40,25 @@ def test_manifest_roundtrip_reuses_unchanged_content_and_records_relative_output
     assert data["scenes"]["0"]["output_sha256"] == "8814c612b726f156c69334351c397aa7e37b6e513677a0835b64752fbb0b4ddd"
 
 
-@pytest.mark.parametrize("changed", ["prompt", "source", "source_stem", "duration", "preset", "dimensions", "renderer", "steps", "index"])
+@pytest.mark.parametrize(
+    "changed",
+    [
+        "prompt",
+        "text",
+        "variant",
+        "audio_sha256",
+        "timings",
+        "overlay",
+        "source",
+        "source_stem",
+        "duration",
+        "preset",
+        "dimensions",
+        "renderer",
+        "steps",
+        "index",
+    ],
+)
 def test_fingerprint_invalidation_affects_only_the_changed_scene(tmp_path, manifest_inputs, monkeypatch, changed):
     from tools import render_manifest as rm
 
@@ -59,6 +77,16 @@ def test_fingerprint_invalidation_affects_only_the_changed_scene(tmp_path, manif
     changed_inputs = {**manifest_inputs, "scene": dict(manifest_inputs["scene"])}
     if changed == "prompt":
         changed_inputs["scene"]["prompt"] = "A stone maze"
+    elif changed == "text":
+        changed_inputs["scene"]["text"] = "Updated spoken narration."
+    elif changed == "variant":
+        changed_inputs["variant"] = "riddle"
+    elif changed == "audio_sha256":
+        changed_inputs["audio_sha256"] = "abc123def456"
+    elif changed == "timings":
+        changed_inputs["timings"] = [{"text": "Updated", "start": 0.0, "end": 0.5}]
+    elif changed == "overlay":
+        changed_inputs["scene"]["stamp"] = "CONFIDENTIAL"
     elif changed == "source":
         manifest_inputs["source_image"].write_bytes(b"edited-image")
     elif changed == "source_stem":

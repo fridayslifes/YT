@@ -27,6 +27,8 @@ def produce(
     video_id: str,
     slug: str,
     genre: str = "3d_cgi",
+    variant: str | None = None,
+    channel: str = "cognitive_core",
     hook_min: int = 70,
     build: bool = True,
     publish: bool = False,
@@ -38,6 +40,7 @@ def produce(
         raise ValueError(
             "produce cannot publish directly; finish production, then use release-existing with reviewed evidence"
         )
+    effective_genre = variant or genre
     tasks = [
         TaskSpec(
             id="research",
@@ -51,7 +54,7 @@ def produce(
             id="script",
             kind="script",
             title="Write script and repair hook from dossier facts",
-            params={"genre": genre, "hook_min": hook_min},
+            params={"genre": effective_genre, "variant": effective_genre, "hook_min": hook_min},
             depends_on=["research"],
             verifiers=["script"],
             max_attempts=1,
@@ -60,7 +63,14 @@ def produce(
             id="project",
             kind="project",
             title="Assemble project.json and upload kit",
-            params={"topic": topic, "video_id": video_id, "slug": slug, "genre": genre},
+            params={
+                "topic": topic,
+                "video_id": video_id,
+                "slug": slug,
+                "genre": effective_genre,
+                "variant": effective_genre,
+                "channel": channel,
+            },
             depends_on=["script"],
             verifiers=["project"],
             max_attempts=1,
@@ -93,7 +103,9 @@ def produce(
         "topic": topic,
         "video_id": video_id,
         "slug": slug,
-        "genre": genre,
+        "genre": effective_genre,
+        "variant": effective_genre,
+        "channel": channel,
         "build": build,
         "publish": publish,
         "public": public,

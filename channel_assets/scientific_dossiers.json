@@ -387,5 +387,81 @@
     "overlay_text": "THE SMELL OF RAIN",
     "related_target": "LV-02",
     "related_title": "The 3 Hidden Brain Traps Destroying Your Focus"
+  },
+  "the_adventure_of_the_speckled_band": {
+    "topic": "The Adventure of the Speckled Band",
+    "cluster": "Cluster 4 (Historical & Investigation Mysteries)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 11,
+    "chapter_title": "Chapter 11: The Speckled Band",
+    "protagonist": "Sherlock Holmes in an olive Inverness cape with Dr. John Watson at 221B Baker Street",
+    "prev_episode": "SH-24",
+    "next_episode": "SH-26",
+    "primary_researchers": "Arthur Conan Doyle",
+    "institution": "The Strand Magazine & 221B Baker Street Archive",
+    "year": "1892",
+    "publication": "The Strand Magazine 3(14), 142-158",
+    "primary_source": {
+      "title": "The Adventure of the Speckled Band",
+      "authors": [
+        "Arthur Conan Doyle"
+      ],
+      "year": 1892,
+      "publication": "The Strand Magazine 3(14), 142-158",
+      "url": "https://www.gutenberg.org/ebooks/1661"
+    },
+    "experiment_design": "Forensic Victorian locked-room examination of a clamped bedstead, dummy bell-rope, small ventilator shaft, and swamp adder venom.",
+    "quantitative_stat": "1892 & 1 Clue",
+    "stat_subtitle": "Strand Magazine (Doyle 1892)",
+    "comparison_text": "the ventilator and dummy bell-rope revealed the deadly swamp adder trained to return at a low midnight whistle",
+    "broken_assumption": "You assume a locked bedroom protects you from murder—Holmes proved 1 ventilator shaft turned the ceiling into a hunting ground.",
+    "biological_mechanism": "The deadly swamp adder was slipped through the wall ventilator, descending the bell-rope directly onto the pillow.",
+    "real_world_tax": "The sinister Dr. Roylott weaponized an undetectable predator to retain his stepdaughters thirty-thousand-pound inheritance.",
+    "willpower_trap": "Overlooking tiny anomalies like a bell-rope that rang no bell.",
+    "five_second_override": "When you eliminate the impossible, whatever remains, however improbable, must be the truth. Subscribe for more classic mystery storybooks.",
+    "best_hook": "If you were trapped inside a locked bedroom with zero escape, why did Sherlock Holmes realize the bell-rope was 1 deadly trap?",
+    "hook_formula": "The Question",
+    "loop_bridge": "Because the second the low whistle sounded through the ventilator shaft...",
+    "overlay_text": "THE SPECKLED BAND",
+    "related_target": "LV-02",
+    "related_title": "The 3 Hidden Brain Traps Destroying Your Focus"
+  },
+  "the_picture_of_dorian_gray": {
+    "topic": "The Picture of Dorian Gray",
+    "cluster": "Cluster 4 (Historical & Investigation Mysteries)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 12,
+    "chapter_title": "Chapter 12: The Portrait in the Attic",
+    "protagonist": "Dorian Gray in an exquisite Victorian velvet evening coat staring at his canvas",
+    "prev_episode": "SH-25",
+    "next_episode": "SH-27",
+    "primary_researchers": "Oscar Wilde",
+    "institution": "Lippincott Monthly & London Literary Archive",
+    "year": "1890",
+    "publication": "Lippincott Monthly Magazine (July 1890)",
+    "primary_source": {
+      "title": "The Picture of Dorian Gray",
+      "authors": [
+        "Oscar Wilde"
+      ],
+      "year": 1890,
+      "publication": "Lippincott Monthly Magazine (July 1890)",
+      "url": "https://www.gutenberg.org/ebooks/174"
+    },
+    "experiment_design": "Gothic psychological narrative of a portrait bearing the physical decay, wrinkles, and corruption of its subject for 18 years while the living man stays unblemished.",
+    "quantitative_stat": "1890 & 18 Years",
+    "stat_subtitle": "Gothic Victorian novel (Wilde 1890)",
+    "comparison_text": "the oil portrait aged and scarred with every cruelty while the living man stayed untouched for 18 years",
+    "broken_assumption": "You tell yourself outward beauty reflects your true conscience—Wilde proved a hidden portrait can absorb 18 years of rot.",
+    "biological_mechanism": "The painted canvas absorbed every invisible scar of greed, twisting into a sneering monstrosity in the locked attic.",
+    "real_world_tax": "The terror of a double life forced Dorian to guard 1 heavy key while madness slowly consumed his mind.",
+    "willpower_trap": "Believing you can escape the moral consequences of your actions simply by concealing them.",
+    "five_second_override": "Confront your shadows before they consume you. Comment below and subscribe for more classic novel storybooks.",
+    "best_hook": "If you traded your soul to never age, why did Dorian Gray hide 1 rotting portrait inside a locked schoolroom attic?",
+    "hook_formula": "The Question",
+    "loop_bridge": "Because the moment Dorian slashed the rotting canvas with 1 knife...",
+    "overlay_text": "DORIAN GRAY",
+    "related_target": "LV-02",
+    "related_title": "The 3 Hidden Brain Traps Destroying Your Focus"
   }
 }

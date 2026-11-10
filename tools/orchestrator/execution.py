@@ -33,6 +33,8 @@ def _worker_child(worker, spec, ctx, reader: int, writer: int, group_reader: int
             raise SystemExit(128 + signum)
 
         signal.signal(signal.SIGTERM, stop)
+        if hasattr(signal, "pthread_sigmask"):
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGTERM])
         try:
             result = worker.run(spec, ctx)
         except SystemExit as exc:

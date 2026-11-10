@@ -487,11 +487,25 @@ def check_registries(index: Index) -> list[Finding]:
     return findings
 
 
+def _gitignored_literals(root: Path) -> set[str]:
+    """Paths explicitly listed in .gitignore (e.g. OAuth client_secrets.json) are local/secret, not checked-in."""
+    gitignore = root / ".gitignore"
+    if not gitignore.exists():
+        return set()
+    ignored: set[str] = set()
+    for line in gitignore.read_text(encoding="utf-8", errors="replace").splitlines():
+        clean = line.strip()
+        if clean and not clean.startswith("#"):
+            ignored.add(clean.lstrip("/"))
+    return ignored
+
+
 def check_missing_assets(index: Index) -> list[Finding]:
     """A checked-in asset path named by code or a document that is not on disk."""
+    ignored = _gitignored_literals(index.root)
     grouped: dict[str, list[Site]] = {}
     for rel, line, literal in index.asset_paths:
-        if (index.root / literal).exists():
+        if literal in ignored or (index.root / literal).exists():
             continue
         grouped.setdefault(literal, []).append(Site(rel, line, "asset-path", literal))
     return [

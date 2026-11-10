@@ -14,7 +14,7 @@ shorts/
 ├── short_01_doorway_effect/
 │   ├── project.json            # Scene script, camera motions, overlays, notes
 │   ├── images/                 # 9:16 cinematic visuals (no flat grids)
-│   ├── cache/                  # Edge TTS / Kokoro cache
+│   ├── cache/                  # Local Kokoro-82M ONNX TTS & render manifest cache
 │   ├── output/                 # Rendered MP4, SRT subtitles, cover image
 │   └── UPLOAD_KIT_SHORT_1.md   # Titles, description, pinned comment, tags
 ...

@@ -138,6 +138,7 @@ from tools.processes import ProcessDeadlineExceeded, process_group, run_process 
 _REMBG_SESSION = None
 _DEPTH_PIPE = None
 _VIDEOTOOLBOX_AVAILABLE: bool | None = None
+_NVENC_AVAILABLE: bool | None = None
 
 
 # --------------------------------------------------------------------------- #
@@ -183,12 +184,14 @@ def remotion_spring(
 
 
 def _heal_gpu_memory() -> None:
-    """Actively flush Python GC, Apple Silicon MLX Metal cache, and PyTorch MPS cache."""
+    """Actively flush Python GC, Apple Silicon MLX Metal cache, and PyTorch MPS/CUDA cache."""
     gc.collect()
     try:
         import torch
         if torch.backends.mps.is_available():
             torch.mps.empty_cache()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
     except Exception:
         pass
     try:
@@ -199,6 +202,26 @@ def _heal_gpu_memory() -> None:
             mx.metal.clear_cache()
     except Exception:
         pass
+
+
+def _can_use_nvenc() -> bool:
+    """Probe once whether NVIDIA NVENC H.264 hardware encoding is actually usable."""
+    global _NVENC_AVAILABLE
+    if _NVENC_AVAILABLE is None:
+        ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+        try:
+            res = subprocess.run(
+                [
+                    ffmpeg_bin, "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=128x128:r=30:d=0.05",
+                    "-frames:v", "1", "-c:v", "h264_nvenc", "-f", "null", "-",
+                ],
+                capture_output=True,
+                timeout=5,
+            )
+            _NVENC_AVAILABLE = (res.returncode == 0)
+        except Exception:
+            _NVENC_AVAILABLE = False
+    return _NVENC_AVAILABLE
 
 
 def _can_use_videotoolbox() -> bool:
@@ -219,6 +242,23 @@ def _can_use_videotoolbox() -> bool:
         except Exception:
             _VIDEOTOOLBOX_AVAILABLE = False
     return _VIDEOTOOLBOX_AVAILABLE
+
+
+def select_h264_encoder_args(bitrate: str = "14M", preview: bool = False, hw_accel: bool = True) -> list[str]:
+    """Select verified H.264 encoder args: NVENC when usable -> VideoToolbox on Mac -> libx264."""
+    if hw_accel and not preview:
+        if _can_use_nvenc():
+            return [
+                "-c:v", "h264_nvenc", "-b:v", bitrate, "-profile:v", "high",
+            ]
+        if _can_use_videotoolbox():
+            return [
+                "-c:v", "h264_videotoolbox", "-b:v", bitrate, "-profile:v", "high", "-allow_sw", "1", "-prio_speed", "0",
+            ]
+    return [
+        "-c:v", "libx264", "-preset", "ultrafast" if preview else "fast",
+        "-b:v", "4M" if preview else bitrate, "-maxrate", "16M", "-bufsize", "28M", "-profile:v", "high",
+    ]
 
 
 def _ffmpeg_stderr_log_path(output_path: Path) -> Path:
@@ -388,18 +428,9 @@ def _tail_stderr(log_path: Path, chars: int = 240) -> str:
 
 
 def _open_ffmpeg_writer(output_path: Path, W: int, H: int, fps: int = 30, bitrate: str = "14M") -> _FFmpegWriter:
-    """Open high-precision H.264 writer (VideoToolbox with automatic libx264 High-Profile self-healing)."""
+    """Open high-precision H.264 writer (NVENC -> VideoToolbox -> libx264 High-Profile self-healing)."""
     ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
-    if _can_use_videotoolbox():
-        vcodec_args = [
-            "-c:v", "h264_videotoolbox",
-            "-b:v", bitrate, "-profile:v", "high", "-allow_sw", "1", "-prio_speed", "0",
-        ]
-    else:
-        vcodec_args = [
-            "-c:v", "libx264", "-preset", "fast",
-            "-b:v", bitrate, "-maxrate", "16M", "-bufsize", "28M", "-profile:v", "high",
-        ]
+    vcodec_args = select_h264_encoder_args(bitrate=bitrate, preview=False, hw_accel=True)
     log_path = _ffmpeg_stderr_log_path(output_path)
     cmd = [
         ffmpeg_bin, "-v", "error", "-y",

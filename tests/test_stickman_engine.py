@@ -19,6 +19,15 @@ def test_compute_limb_joints_poses():
         assert joints["pelvis"][1] > joints["neck"][1]
 
 
+def test_compute_limb_joints_scales_proportionally_with_torso_len():
+    """Verify limb reach scales proportionally with torso_len."""
+    j_small = stickman_engine.compute_limb_joints(200, 200, pose="pointing", torso_len=45, sway_phase=0.0)
+    j_large = stickman_engine.compute_limb_joints(200, 200, pose="pointing", torso_len=180, sway_phase=0.0)
+    reach_small = j_small["r_hand"][0] - j_small["neck"][0]
+    reach_large = j_large["r_hand"][0] - j_large["neck"][0]
+    assert reach_large > reach_small * 3
+
+
 def test_draw_stickman_face_expressions():
     """Verify face expressions draw distinct pixel patterns."""
     mouths = ["neutral", "smile", "open_gasp", "smirk", "frown"]
@@ -46,8 +55,8 @@ def test_draw_accessory_and_props():
     assert np.count_nonzero(canvas_prop) > 0
 
 
-def test_render_stickman_scene_end_to_end(tmp_path):
-    """Render a complete stickman scene and verify decoded MP4 stream."""
+def test_render_stickman_scene_includes_scene_plane_and_wraps_long_caption(tmp_path):
+    """Render a stickman scene and verify it includes a grounded scene plane and non-clipped caption."""
     out_mp4 = tmp_path / "test_stickman.mp4"
     app = stickman_engine.StickmanAppearance(accessory="flat_cap")
     pose = stickman_engine.StickmanPoseSpec(pose="thinking", mouth="smile", prop="coffee")
@@ -56,11 +65,11 @@ def test_render_stickman_scene_end_to_end(tmp_path):
         pose_spec=pose,
         app=app,
         output_path=out_mp4,
-        caption_text="Test Stickman Caption",
+        caption_text="Why does your prefrontal cortex choose productive procrastination at 2 AM?",
         duration=0.5,
         fps=10,
-        width=180,
-        height=320,
+        width=540,
+        height=960,
     )
 
     assert ok is True
@@ -71,5 +80,8 @@ def test_render_stickman_scene_end_to_end(tmp_path):
     assert cap.isOpened()
     ret, frame = cap.read()
     assert ret is True
-    assert frame.shape == (320, 180, 3)
+    assert frame.shape == (960, 540, 3)
+    # Verify background is not a blank uniform white frame: upper and lower regions have scene plane features
+    assert np.std(frame[:200, :, :]) > 1.0
+    assert np.std(frame[750:, :, :]) > 1.0
     cap.release()

@@ -59,6 +59,8 @@ Tracks every long-form and short-form video created, updated and published for *
 | **SH-22** | Short (9:16) | *Why 500-Ton Clouds Don't Crash?* | [Watch](https://youtu.be/Hhrull2A988) (`Hhrull2A988`) | — | `shorts/short_18_why_clouds_dont_fall/output/short_18_why_clouds_dont_fall_4k60.mp4` · kit `shorts/short_18_why_clouds_dont_fall/UPLOAD_KIT_SH22.md` | **Live** |
 | **SH-23** | Short (9:16) | *The Entire Internet Weighs 50 Grams* | [Watch](https://youtu.be/KSw5d8We7oo) (`KSw5d8We7oo`) | 4 | `shorts/short_23_v2_emotional_audio_reactive/output/short_23_v2_emotional_audio_reactive_4k60.mp4` · kit `shorts/short_23_internet_weight/UPLOAD_KIT_SH23.md` | **Uploaded** |
 | **SH-24** | Short (9:16) | *600 Experiments Caught Rain's Smell* | [Watch](https://youtu.be/z2KkIxBSltY) (`z2KkIxBSltY`) | — | `shorts/short_24_petrichor/output/short_24_petrichor_4k60.mp4` · evidence `channel_assets/evidence/SH-24-petrichor.json` · kit `shorts/short_24_petrichor/UPLOAD_KIT_SH24.md` | **Uploaded** |
+| **SH-25** | Short (9:16) | *The Speckled Band (Sherlock Holmes, 1892)* | — | — | `shorts/short_25_speckled_band/project.json` · kit `shorts/short_25_speckled_band/UPLOAD_KIT_SH25.md` | **Blueprint (Classic Storybook)** |
+| **SH-26** | Short (9:16) | *The Picture of Dorian Gray (Oscar Wilde, 1890)* | — | — | `shorts/short_26_dorian_gray/project.json` · kit `shorts/short_26_dorian_gray/UPLOAD_KIT_SH26.md` | **Blueprint (Gothic Scrapbook)** |
 | **LV-03** | Long (16:9) | *lv_03_wall_street_investigation (Forensic Archival Investigation of the 1920 Wall Street Detonation)* | *Pending Upload* | — | `long_form/lv_03_wall_street_investigation/output/lv_03_wall_street_investigation.mp4` | **Rendered — Gate PASS** |
 | **SH-DEMO-01** | Short (9:16) | — | [Watch](https://youtu.be/D4mPUw2vyKI) (`D4mPUw2vyKI`) | 31 | — | **Uploaded** |
 | **SH-DEMO-02** | Short (9:16) | — | [Watch](https://youtu.be/iDWfBVlhkPs) (`iDWfBVlhkPs`) | 0 | — | **Uploaded** |
@@ -353,7 +355,9 @@ On-screen telemetry cards and description stats render only from `project.json` 
 6. ~~**SH-21**: *The 1920 Wall Street Mystery*~~ — **`SH-21` is built, gated, and uploaded** ([Watch](https://youtu.be/IdnZf3IT2IM)) (Full HD `1080×1920` @ 30 fps, local Kokoro-82M `am_fenrir` narration, 44.30s).
 7. ~~**SH-22**: *Why 500-Ton Clouds Don't Crash?*~~ — **`SH-22` is live** ([Watch](https://youtu.be/Hhrull2A988)) (4K `2160×3840` @ 60 fps cutout cartoon, local Kokoro-82M house blend, 28s; USGS/LeMone cloud-weight sources verified 2026-11-08).
 8. ~~**SH-23**: *Where Does The Internet Actually Live?*~~ — **`SH-23` is rendered & verified** (4K `2160×3840` @ 60 fps cutout cartoon, local Kokoro-82M house blend, Seitz/Kubiatowicz physics sources verified 2026-11-08; Version 3 researched physical infrastructure master `shorts/short_23_v3_researched_internet/output/short_23_v3_researched_internet_4k60.mp4` ready for upload).
-9. ~~**SH-24**: *600 Experiments Caught Rain's Smell*~~ — built, gated and **live public** at `z2KkIxBSltY` on *petrichor* (Joung & Buie 2015 + Bear & Thomas 1964). Next free Short ID is **`SH-25`**. Every remaining topic needs a verified dossier before it needs a render.
+9. ~~**SH-24**: *600 Experiments Caught Rain's Smell*~~ — built, gated and **live public** at `z2KkIxBSltY` on *petrichor* (Joung & Buie 2015 + Bear & Thomas 1964).
+10. ~~**SH-25**: *The Peak-End Rule*~~ — **`SH-25` blueprint generated and gated** (Kahneman & Fredrickson 1993, 69% picked longer pain; 143 words, Hook 81/100 STRONG, Cinematic 35mm documentary style; `shorts/short_25_peak_end_rule/project.json`).
+11. ~~**SH-26**: *The Endowment Effect*~~ — **`SH-26` blueprint generated and gated** (Kahneman, Knetsch & Thaler 1990, $7.12 sell vs $2.87 buy; 147 words, Hook 84/100 STRONG, Tactile Archival Detective Casebook style; `shorts/short_26_endowment_effect/project.json`). Next free Short ID is **`SH-27`**.
 
 ---
 

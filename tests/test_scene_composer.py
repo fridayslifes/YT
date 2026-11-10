@@ -5,11 +5,13 @@ Rules live in .agents/personas/scene_composer.md and tools/scene_composer.py.
 
 from __future__ import annotations
 
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 from tools import scene_composer as sc
 
-FONT = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Rounded Bold.ttf", 64)
+FONT_PATH = Path(__file__).resolve().parent.parent / "tools" / "fonts" / "BeVietnamPro-Bold.ttf"
+FONT = ImageFont.truetype(str(FONT_PATH), 64)
 
 
 def test_band_pixels_is_the_documented_44_to_76_band():

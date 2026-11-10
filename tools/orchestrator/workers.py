@@ -162,7 +162,7 @@ class ScriptWorker(Worker):
         from tools import creative_engine, youtube_skills
 
         dossier = ctx.dep_data("research").get("dossier") or {}
-        genre = str(spec.params.get("genre", "3d_cgi"))
+        genre = str(spec.params.get("variant") or spec.params.get("genre") or "3d_cgi")
         min_hook = int(spec.params.get("hook_min", 70))
         scenes = creative_engine.choreograph_scenes(dossier, genre=genre)
         if not scenes:
@@ -247,7 +247,9 @@ class ProjectWorker(Worker):
         topic = str(spec.params.get("topic", dossier.get("topic", "")))
         video_id = str(spec.params.get("video_id", ""))
         slug = str(spec.params.get("slug", ""))
-        genre = str(spec.params.get("genre", "3d_cgi"))
+        genre = str(spec.params.get("variant") or spec.params.get("genre") or "3d_cgi")
+        variant = spec.params.get("variant")
+        channel_id = str(spec.params.get("channel") or spec.params.get("channel_id") or "cognitive_core")
         if not (topic and video_id and slug):
             return WorkerResult(ok=False, summary="missing project identity", error="topic/id/slug required", retryable=False)
 
@@ -257,6 +259,8 @@ class ProjectWorker(Worker):
                 video_id=video_id,
                 slug=slug,
                 genre=genre,
+                variant=variant,
+                channel_id=channel_id,
                 dossier=dossier,
                 scenes=scenes,
             )
@@ -281,17 +285,63 @@ class BuildWorker(Worker):
     description = "Render scene images, 3D spatial clips and the mastered MP4."
 
     def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
-        from tools import pipeline
+        import sys
+        from tools import pipeline, processes
 
         project_json = _project_json_from_ctx(ctx, spec)
         if not project_json or not project_json.exists():
             return WorkerResult(ok=False, summary="project missing", error=str(project_json), retryable=False)
         started = time.time()
-        meta = pipeline.build_and_verify(
-            project_json,
-            hw_accel=True,
-            force_motion=bool(spec.params.get("force_motion", False)),
-        )
+        force_motion = bool(spec.params.get("force_motion", False))
+        fn_mod = getattr(pipeline.build_and_verify, "__module__", "")
+        if sys.platform == "darwin" and fn_mod == "tools.pipeline":
+            # Execute in a clean exec'd Python interpreter so macOS libobjc/libdispatch/Metal/ONNXRuntime
+            # never abort inside a fork-without-exec worker child.
+            cmd = [
+                sys.executable,
+                "-c",
+                (
+                    "import json, pathlib, sys; "
+                    "from tools import pipeline; "
+                    "meta = pipeline.build_and_verify("
+                    "pathlib.Path(sys.argv[1]), hw_accel=True, force_motion=(sys.argv[2] == '1')"
+                    "); "
+                    "print('__BUILD_META__:' + json.dumps(meta))"
+                ),
+                str(project_json),
+                "1" if force_motion else "0",
+            ]
+            proc = processes.run_process(
+                cmd,
+                timeout_s=max(30, int(spec.timeout_s)),
+                cwd=ctx.root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            meta = {}
+            for line in reversed((proc.stdout or "").splitlines()):
+                if line.startswith("__BUILD_META__:"):
+                    try:
+                        meta = json.loads(line.split("__BUILD_META__:", 1)[1])
+                    except Exception:
+                        meta = {}
+                    break
+            if proc.returncode != 0 and not meta:
+                err_tail = ((proc.stderr or "") + "\n" + (proc.stdout or "")).strip()[-600:]
+                return WorkerResult(
+                    ok=False,
+                    summary="build subprocess failed",
+                    artifacts={"project_json": str(project_json)},
+                    error=err_tail or f"exit code {proc.returncode}",
+                    retryable=True,
+                )
+        else:
+            meta = pipeline.build_and_verify(
+                project_json,
+                hw_accel=True,
+                force_motion=force_motion,
+            )
         output = project_json.parent / "output" / f"{project_json.parent.name}.mp4"
         ok = bool(meta.get("valid")) and output.exists()
         return WorkerResult(

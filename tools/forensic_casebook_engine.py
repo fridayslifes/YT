@@ -52,8 +52,8 @@ SFX_DIR = REPO_ROOT / "assets" / "audio" / "sfx"
 BGM_FILE_1 = REPO_ROOT / "assets" / "audio" / "bgm" / "echoes_mystery.mp3"
 BGM_FILE_2 = REPO_ROOT / "assets" / "audio" / "bgm" / "vertigo_tension.mp3"
 
-FONT_MONO = "/System/Library/Fonts/Supplemental/Courier New.ttf"
-FONT_SANS = "/System/Library/Fonts/Helvetica.ttc"
+FONT_MONO = str(REPO_ROOT / "tools" / "fonts" / "BeVietnamPro-Medium.ttf")
+FONT_SANS = str(REPO_ROOT / "tools" / "fonts" / "BeVietnamPro-Regular.ttf")
 FONT_BEBAS = str(REPO_ROOT / "tools" / "fonts" / "BebasNeue-Regular.ttf")
 FONT_BOLD = str(REPO_ROOT / "tools" / "fonts" / "BeVietnamPro-Bold.ttf")
 

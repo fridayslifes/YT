@@ -35,6 +35,7 @@ if __name__ == "__main__":
 from tools import genre_director  # noqa: E402
 from tools import output_format as fmt  # noqa: E402
 from tools import youtube_skills  # noqa: E402
+from tools.schemas import PROJECT_SCHEMA_VERSION, validate_project  # noqa: E402
 from tools.visual_director import S4VisualDirector  # noqa: E402
 
 
@@ -323,9 +324,10 @@ def generate_upload_kit_content(
     title_markdown_blocks = []
     for idx, t in enumerate(titles, 1):
         clean_t = re.sub(r"\s*#Shorts\b", "", t["title"], flags=re.IGNORECASE).strip()
+        heading = f"**Primary Title — Option {idx}: {t['angle']}**" if idx == 1 else f"**Option {idx}: {t['angle']}**"
         title_markdown_blocks.append(
-            f"* **Option {idx}: {t['angle']}**:\n"
-            f"  > `{clean_t} #shorts`\n"
+            f"* {heading}:\n"
+            f"> `{clean_t} #shorts`\n"
             f"  *({t['notes']})*"
         )
     titles_rendered = "\n".join(title_markdown_blocks)
@@ -570,6 +572,8 @@ def generate_creative_project(
     scenes: List[Dict[str, Any]] | None = None,
     overwrite: bool = False,
     voice: str = "kokoro",
+    variant: str = "cinematic_35mm",
+    channel_id: str = "UC6hwVBnsfvfUGxfZi2sFT3A",
 ) -> Path:
     """End-to-end dialectic blueprint synthesis: Research Dossier -> Hook Verification -> 8-Scene 3D Choreography -> Upload Kit.
 
@@ -585,7 +589,28 @@ def generate_creative_project(
     eff_genre = genre or dossier.get("recommended_genre", "3d_cgi")
     prof = genre_director.get_genre_profile(eff_genre)
 
-    scenes = scenes or choreograph_scenes(dossier, genre=prof.id)
+    if scenes is None:
+        scenes = choreograph_scenes(dossier, genre=prof.id)
+    if isinstance(scenes, list):
+        scenes = [scene.copy() if isinstance(scene, dict) else scene for scene in scenes]
+        for index, scene in enumerate(scenes, 1):
+            if isinstance(scene, dict):
+                scene.setdefault("id", f"s{index:02d}")
+                scene.setdefault("caption", scene.get("text"))
+
+    draft = {
+        "schema_version": PROJECT_SCHEMA_VERSION,
+        "id": video_id,
+        "variant": variant,
+        "format": "short",
+        "voice": voice,
+        "channel_id": channel_id,
+        "scenes": scenes,
+    }
+    errors = validate_project(draft, project_path=proj_path)
+    if errors:
+        raise ValueError("\n".join(errors))
+
     hook_text = scenes[0]["text"]
     h_score, h_band, h_weak = score_hook_candidate(hook_text)
 
@@ -601,18 +626,15 @@ def generate_creative_project(
         primary_title = f"The {year} {dossier['topic']} Study: Why You Freeze"
 
     proj_data = {
-        "schema_version": 1,
-        "id": video_id,
+        **draft,
         "title": f"{dossier['topic']} - {video_id}",
         "concept": dossier["topic"],
         "science": f"{dossier.get('primary_researchers')} ({year})",
         "citation_stat": dossier.get("quantitative_stat", ""),
         "citation_verified": True,
         "contains_synthetic_media": True,
-        "format": "short",
         "genre": prof.id,
         "genre_name": prof.name,
-        "voice": voice,
         "color_palette": prof.color_palette,
         "bgm_mood": prof.bgm_mood,
         "rate": "+1%",
@@ -641,7 +663,6 @@ def generate_creative_project(
             "word_count": all_words,
             "estimated_duration_sec": est_duration,
         },
-        "scenes": scenes,
     }
 
     # Exclusive creation also protects a project created after the preflight check.

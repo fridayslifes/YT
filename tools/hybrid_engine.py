@@ -30,9 +30,7 @@ import numpy as np  # noqa: E402
 
 from tools.photobook_engine import (  # noqa: E402
     apply_color_grade,
-    apply_optical_vignette,
     compute_camera_transform,
-    generate_film_grain,
 )
 from tools.riddle_director import (  # noqa: E402
     CharacterAnchor,
@@ -71,8 +69,16 @@ def render_hybrid_scene(
     height = (height // 2) * 2
     num_frames = int(round(duration * fps))
 
-    # Extended background plate to avoid edge-clip during camera drift
-    bg_resized = cv2.resize(bg_image, (int(width * 1.25), int(height * 1.25)), interpolation=cv2.INTER_LANCZOS4)
+    # Extended background plate to avoid edge-clip during camera drift (pre-graded once)
+    bg_resized = cv2.resize(bg_image, (int(width * 1.25), int(height * 1.25)), interpolation=cv2.INTER_LINEAR)
+    bg_resized = apply_color_grade(bg_resized, style)
+
+    cx_v, cy_v = width / 2.0, height / 2.0
+    max_rad = (cx_v ** 2 + cy_v ** 2) ** 0.5
+    y_c, x_c = np.ogrid[:height, :width]
+    dist_v = ((x_c - cx_v) ** 2 + (y_c - cy_v) ** 2) ** 0.5 / max_rad
+    vignette_mask = np.clip(1.0 - 0.35 * (dist_v ** 2.2), 0.0, 1.0).astype(np.float32)[..., None]
+    grain_base = np.random.normal(0.0, 9.0, (height, width)).astype(np.int16)
 
     tmp_raw_mp4 = output_path.with_suffix(".hybrid.raw.mp4")
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -83,6 +89,7 @@ def render_hybrid_scene(
 
     char_cx = int(round(char_pos[0] * width))
     char_cy = int(round(char_pos[1] * height))
+    ui_scale = max(0.35, min(width, height) / 1080.0)
 
     try:
         for frame_idx in range(num_frames):
@@ -98,38 +105,34 @@ def render_hybrid_scene(
             M_bg[0, 2] += (width / 2.0 - bcx) + pan_x
             M_bg[1, 2] += (height / 2.0 - bcy) + pan_y
 
-            frame = cv2.warpAffine(bg_resized, M_bg, (width, height), flags=cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_REFLECT)
-
-            # Apply Cinematic Color Grade to background plate
-            frame = apply_color_grade(frame, style)
+            frame = cv2.warpAffine(bg_resized, M_bg, (width, height), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
 
             # ---------------------------------------------------------------
             # 2. LAYER 2: Character Plane with Contact Shadow
             # ---------------------------------------------------------------
-            # Subtle parallax drift on character (Z-Mid ~ 1000px)
             c_pan_x, c_pan_y, c_zoom, c_rot = compute_camera_transform(trajectory, p, z_depth=1000.0)
-            cur_cx = int(char_cx + c_pan_x)
-            cur_cy = int(char_cy + c_pan_y)
+            cur_cx = int(char_cx + c_pan_x * ui_scale)
+            cur_cy = int(char_cy + c_pan_y * ui_scale)
 
-            # Ambient contact shadow beneath feet
-            shadow_y = cur_cy + appearance.torso_length + 115
-            cv2.ellipse(frame, (cur_cx, shadow_y), (48, 14), 0, 0, 360, (15, 18, 22), -1, cv2.LINE_AA)
+            shadow_y = int(cur_cy + (appearance.torso_length + 115) * ui_scale)
+            cv2.ellipse(
+                frame,
+                (cur_cx, shadow_y),
+                (max(12, int(48 * ui_scale)), max(4, int(14 * ui_scale))),
+                0, 0, 360,
+                (15, 18, 22), -1, cv2.LINE_AA,
+            )
 
-            # Render Stickman Character
-            render_stickman_frame(frame, cur_cx, cur_cy, pose_spec, appearance, sway_phase=p * 2.0)
+            render_stickman_frame(frame, cur_cx, cur_cy, pose_spec, appearance, sway_phase=p * 2.0, scale=1.25 * ui_scale)
 
             # ---------------------------------------------------------------
             # 3. LAYER 3: Interactive Riddle HUD (if specified)
             # ---------------------------------------------------------------
             if riddle_spec:
                 char_dict = {c.id: c for c in riddle_spec.characters}
-                # Sightlines
                 draw_sightlines(frame, riddle_spec.sightlines, char_dict, dash_offset=(p * 2.0) % 1.0)
-                # Badges
                 draw_character_badges(frame, riddle_spec.characters, pulse_phase=p * 2.0)
-                # Top Inventory Bar
                 draw_inventory_hud(frame, riddle_spec.inventory, top_margin=int(height * 0.05))
-                # Countdown Ticker
                 if riddle_spec.countdown_seconds is not None:
                     rem_sec = max(0.0, riddle_spec.countdown_seconds * (1.0 - p))
                     draw_countdown_hud(
@@ -139,16 +142,15 @@ def render_hybrid_scene(
                         center_x=int(width * 0.88),
                         center_y=int(height * 0.17),
                     )
-                # Cliffhanger CTA
                 if riddle_spec.cta_banner:
                     draw_cliffhanger_cta(frame, riddle_spec.cta_banner, y_pos=int(height * 0.72))
 
             # ---------------------------------------------------------------
             # 4. LAYER 4: Unifying Film Chemistry (Vignette + 35mm Grain)
             # ---------------------------------------------------------------
-            frame_vignette = apply_optical_vignette(frame, strength=0.35)
-            grain = generate_film_grain(height, width, intensity=9.0)
-            frame_final = np.clip(frame_vignette.astype(np.float32) + grain, 0, 255).astype(np.uint8)
+            frame_vignette = (frame.astype(np.float32) * vignette_mask).astype(np.int16)
+            rolled_grain = np.roll(grain_base, shift=(frame_idx * 31, frame_idx * 47), axis=(0, 1))[..., None]
+            frame_final = np.clip(frame_vignette + rolled_grain, 0, 255).astype(np.uint8)
 
             writer.write(frame_final)
 

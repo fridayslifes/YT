@@ -71,80 +71,84 @@ def compute_limb_joints(
     torso_len: int = 90,
     sway_phase: float = 0.0,
 ) -> dict:
-    """Computes (x, y) joint coordinates for head, spine, arms, and legs."""
+    """Computes (x, y) joint coordinates for head, spine, arms, and legs scaled by torso_len."""
+    s = max(0.25, float(torso_len) / 90.0)
+    def sc(v: float) -> int:
+        return int(round(v * s))
+
     # Micro-sway breathing
-    sway_x = int(math.sin(sway_phase * math.pi * 2) * 2.0)
-    sway_y = int(math.cos(sway_phase * math.pi * 2) * 1.5)
+    sway_x = int(round(math.sin(sway_phase * math.pi * 2) * 2.0 * s))
+    sway_y = int(round(math.cos(sway_phase * math.pi * 2) * 1.5 * s))
 
     neck = (cx + sway_x, cy + sway_y)
-    pelvis = (cx + sway_x, cy + torso_len + sway_y)
+    pelvis = (cx + sway_x, cy + int(round(torso_len)) + sway_y)
 
     # Defaults
-    l_shoulder = (neck[0] - 10, neck[1] + 12)
-    r_shoulder = (neck[0] + 10, neck[1] + 12)
+    l_shoulder = (neck[0] - sc(10), neck[1] + sc(12))
+    r_shoulder = (neck[0] + sc(10), neck[1] + sc(12))
 
-    l_elbow = (l_shoulder[0] - 22, l_shoulder[1] + 35)
-    r_elbow = (r_shoulder[0] + 22, r_shoulder[1] + 35)
+    l_elbow = (l_shoulder[0] - sc(22), l_shoulder[1] + sc(35))
+    r_elbow = (r_shoulder[0] + sc(22), r_shoulder[1] + sc(35))
 
-    l_hand = (l_elbow[0] - 10, l_elbow[1] + 35)
-    r_hand = (r_elbow[0] + 10, r_elbow[1] + 35)
+    l_hand = (l_elbow[0] - sc(10), l_elbow[1] + sc(35))
+    r_hand = (r_elbow[0] + sc(10), r_elbow[1] + sc(35))
 
-    l_hip = (pelvis[0] - 8, pelvis[1])
-    r_hip = (pelvis[0] + 8, pelvis[1])
+    l_hip = (pelvis[0] - sc(8), pelvis[1])
+    r_hip = (pelvis[0] + sc(8), pelvis[1])
 
-    l_knee = (l_hip[0] - 14, l_hip[1] + 55)
-    r_knee = (r_hip[0] + 14, r_hip[1] + 55)
+    l_knee = (l_hip[0] - sc(14), l_hip[1] + sc(55))
+    r_knee = (r_hip[0] + sc(14), r_hip[1] + sc(55))
 
-    l_foot = (l_knee[0] - 6, l_knee[1] + 55)
-    r_foot = (r_knee[0] + 6, r_knee[1] + 55)
+    l_foot = (l_knee[0] - sc(6), l_knee[1] + sc(55))
+    r_foot = (r_knee[0] + sc(6), r_knee[1] + sc(55))
 
     if pose == "thinking":
         # Right hand touching chin, left arm crossed
-        l_elbow = (neck[0] - 26, neck[1] + 45)
-        l_hand = (neck[0] + 5, neck[1] + 48)
+        l_elbow = (neck[0] - sc(26), neck[1] + sc(45))
+        l_hand = (neck[0] + sc(5), neck[1] + sc(48))
 
-        r_elbow = (neck[0] + 32, neck[1] + 36)
-        r_hand = (neck[0] + 12, neck[1] - 8)  # Near chin
+        r_elbow = (neck[0] + sc(32), neck[1] + sc(36))
+        r_hand = (neck[0] + sc(12), neck[1] - sc(8))  # Near chin
 
     elif pose == "pointing":
         # Right arm pointing forward/upward
-        r_elbow = (r_shoulder[0] + 40, r_shoulder[1] - 10)
-        r_hand = (r_elbow[0] + 48, r_elbow[1] - 18)
+        r_elbow = (r_shoulder[0] + sc(40), r_shoulder[1] - sc(10))
+        r_hand = (r_elbow[0] + sc(48), r_elbow[1] - sc(18))
 
     elif pose == "shocked":
         # Both hands on head/cheeks
-        l_elbow = (neck[0] - 38, neck[1] + 10)
-        l_hand = (neck[0] - 22, neck[1] - 26)
+        l_elbow = (neck[0] - sc(38), neck[1] + sc(10))
+        l_hand = (neck[0] - sc(22), neck[1] - sc(26))
 
-        r_elbow = (neck[0] + 38, neck[1] + 10)
-        r_hand = (neck[0] + 22, neck[1] - 26)
+        r_elbow = (neck[0] + sc(38), neck[1] + sc(10))
+        r_hand = (neck[0] + sc(22), neck[1] - sc(26))
 
     elif pose == "facepalm":
         # Right hand slapping forehead
-        r_elbow = (neck[0] + 28, neck[1] + 16)
-        r_hand = (neck[0], neck[1] - 32)  # Forehead
+        r_elbow = (neck[0] + sc(28), neck[1] + sc(16))
+        r_hand = (neck[0], neck[1] - sc(32))  # Forehead
 
     elif pose == "shrugging":
         # Both hands raised, elbows bent
-        l_elbow = (l_shoulder[0] - 30, l_shoulder[1] + 15)
-        l_hand = (l_elbow[0] - 15, l_elbow[1] - 24)
+        l_elbow = (l_shoulder[0] - sc(30), l_shoulder[1] + sc(15))
+        l_hand = (l_elbow[0] - sc(15), l_elbow[1] - sc(24))
 
-        r_elbow = (r_shoulder[0] + 30, r_shoulder[1] + 15)
-        r_hand = (r_elbow[0] + 15, r_elbow[1] - 24)
+        r_elbow = (r_shoulder[0] + sc(30), r_shoulder[1] + sc(15))
+        r_hand = (r_elbow[0] + sc(15), r_elbow[1] - sc(24))
 
     elif pose == "running":
         # Dynamic stride
-        l_elbow = (l_shoulder[0] - 30, l_shoulder[1] - 15)
-        l_hand = (l_elbow[0] - 20, l_elbow[1] - 15)
+        l_elbow = (l_shoulder[0] - sc(30), l_shoulder[1] - sc(15))
+        l_hand = (l_elbow[0] - sc(20), l_elbow[1] - sc(15))
 
-        r_elbow = (r_shoulder[0] + 30, r_shoulder[1] + 35)
-        r_hand = (r_elbow[0] + 25, r_elbow[1] + 25)
+        r_elbow = (r_shoulder[0] + sc(30), r_shoulder[1] + sc(35))
+        r_hand = (r_elbow[0] + sc(25), r_elbow[1] + sc(25))
 
-        l_knee = (l_hip[0] + 35, l_hip[1] + 30)
-        l_foot = (l_knee[0] + 30, l_knee[1] + 45)
+        l_knee = (l_hip[0] + sc(35), l_hip[1] + sc(30))
+        l_foot = (l_knee[0] + sc(30), l_knee[1] + sc(45))
 
-        r_knee = (r_hip[0] - 35, r_hip[1] + 40)
-        r_foot = (r_knee[0] - 30, r_knee[1] + 25)
+        r_knee = (r_hip[0] - sc(35), r_hip[1] + sc(40))
+        r_foot = (r_knee[0] - sc(30), r_knee[1] + sc(25))
 
     return {
         "neck": neck,
@@ -176,43 +180,48 @@ def draw_stickman_face(
     eyebrows: str,
     color: Tuple[int, int, int],
 ) -> None:
-    """Draws expressive 2D facial features (dot eyes, eyebrows, mouth)."""
+    """Draws expressive 2D facial features (dot eyes, eyebrows, mouth) scaled to head radius."""
     hx, hy = head_center
+    rs = max(0.30, float(radius) / 36.0)
+    def sc(v: float) -> int:
+        return max(1, int(round(v * rs)))
 
     # Eye positions
-    eye_offset_x = int(radius * 0.32)
-    eye_offset_y = int(radius * 0.12)
+    eye_offset_x = max(2, int(round(radius * 0.32)))
+    eye_offset_y = max(1, int(round(radius * 0.12)))
     l_eye = (hx - eye_offset_x, hy - eye_offset_y)
     r_eye = (hx + eye_offset_x, hy - eye_offset_y)
-    eye_radius = max(2, int(radius * 0.10))
+    eye_radius = max(2, int(round(radius * 0.10)))
 
     cv2.circle(canvas, l_eye, eye_radius, color, -1, cv2.LINE_AA)
     cv2.circle(canvas, r_eye, eye_radius, color, -1, cv2.LINE_AA)
 
     # Eyebrows
-    eb_y = l_eye[1] - 8
+    eb_y = l_eye[1] - sc(8)
+    eb_th = max(1, int(round(2 * rs)))
     if eyebrows == "surprised":
-        cv2.line(canvas, (l_eye[0] - 8, eb_y - 6), (l_eye[0] + 8, eb_y - 8), color, 2, cv2.LINE_AA)
-        cv2.line(canvas, (r_eye[0] - 8, eb_y - 8), (r_eye[0] + 8, eb_y - 6), color, 2, cv2.LINE_AA)
+        cv2.line(canvas, (l_eye[0] - sc(8), eb_y - sc(6)), (l_eye[0] + sc(8), eb_y - sc(8)), color, eb_th, cv2.LINE_AA)
+        cv2.line(canvas, (r_eye[0] - sc(8), eb_y - sc(8)), (r_eye[0] + sc(8), eb_y - sc(6)), color, eb_th, cv2.LINE_AA)
     elif eyebrows == "furrowed":
-        cv2.line(canvas, (l_eye[0] - 8, eb_y - 2), (l_eye[0] + 8, eb_y + 4), color, 2, cv2.LINE_AA)
-        cv2.line(canvas, (r_eye[0] - 8, eb_y + 4), (r_eye[0] + 8, eb_y - 2), color, 2, cv2.LINE_AA)
+        cv2.line(canvas, (l_eye[0] - sc(8), eb_y - sc(2)), (l_eye[0] + sc(8), eb_y + sc(4)), color, eb_th, cv2.LINE_AA)
+        cv2.line(canvas, (r_eye[0] - sc(8), eb_y + sc(4)), (r_eye[0] + sc(8), eb_y - sc(2)), color, eb_th, cv2.LINE_AA)
     else:
-        cv2.line(canvas, (l_eye[0] - 8, eb_y), (l_eye[0] + 8, eb_y), color, 2, cv2.LINE_AA)
-        cv2.line(canvas, (r_eye[0] - 8, eb_y), (r_eye[0] + 8, eb_y), color, 2, cv2.LINE_AA)
+        cv2.line(canvas, (l_eye[0] - sc(8), eb_y), (l_eye[0] + sc(8), eb_y), color, eb_th, cv2.LINE_AA)
+        cv2.line(canvas, (r_eye[0] - sc(8), eb_y), (r_eye[0] + sc(8), eb_y), color, eb_th, cv2.LINE_AA)
 
     # Mouth
-    my = hy + int(radius * 0.40)
+    my = hy + int(round(radius * 0.40))
+    m_th = max(1, int(round(3 * rs)))
     if mouth == "smile":
-        cv2.ellipse(canvas, (hx, my - 4), (14, 10), 0, 10, 170, color, 3, cv2.LINE_AA)
+        cv2.ellipse(canvas, (hx, my - sc(4)), (sc(14), sc(10)), 0, 10, 170, color, m_th, cv2.LINE_AA)
     elif mouth == "open_gasp":
-        cv2.circle(canvas, (hx, my + 2), 8, color, -1, cv2.LINE_AA)
+        cv2.circle(canvas, (hx, my + sc(2)), sc(8), color, -1, cv2.LINE_AA)
     elif mouth == "smirk":
-        cv2.line(canvas, (hx - 8, my), (hx + 10, my - 5), color, 3, cv2.LINE_AA)
+        cv2.line(canvas, (hx - sc(8), my), (hx + sc(10), my - sc(5)), color, m_th, cv2.LINE_AA)
     elif mouth == "frown":
-        cv2.ellipse(canvas, (hx, my + 8), (14, 10), 0, 190, 350, color, 3, cv2.LINE_AA)
+        cv2.ellipse(canvas, (hx, my + sc(8)), (sc(14), sc(10)), 0, 190, 350, color, m_th, cv2.LINE_AA)
     else:  # neutral
-        cv2.line(canvas, (hx - 10, my), (hx + 10, my), color, 3, cv2.LINE_AA)
+        cv2.line(canvas, (hx - sc(10), my), (hx + sc(10), my), color, m_th, cv2.LINE_AA)
 
 
 def draw_accessory(
@@ -222,96 +231,90 @@ def draw_accessory(
     accessory: str,
     color: Tuple[int, int, int],
 ) -> None:
-    """Renders locked signature accessory onto the stick figure head."""
+    """Renders locked signature accessory onto the stick figure head scaled to head radius."""
     hx, hy = head_center
+    rs = max(0.30, float(radius) / 36.0)
+    def sc(v: float) -> int:
+        return max(1, int(round(v * rs)))
+    outline_th = max(1, int(round(2 * rs)))
 
     if accessory == "flat_cap":
-        # Classic vintage flat cap (e.g. Peaky Blinders / detective style)
-        cap_y = hy - int(radius * 0.70)
-        # Cap crown
-        cv2.ellipse(canvas, (hx, cap_y), (radius + 6, int(radius * 0.55)), 0, 180, 360, color, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (hx, cap_y), (radius + 6, int(radius * 0.55)), 0, 180, 360, (20, 20, 20), 2, cv2.LINE_AA)
-        # Peak / Visor
+        cap_y = hy - int(round(radius * 0.70))
+        cv2.ellipse(canvas, (hx, cap_y), (radius + sc(6), int(round(radius * 0.55))), 0, 180, 360, color, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (hx, cap_y), (radius + sc(6), int(round(radius * 0.55))), 0, 180, 360, (20, 20, 20), outline_th, cv2.LINE_AA)
         visor_pts = np.array([
-            [hx - radius - 2, cap_y + 4],
-            [hx + radius + 14, cap_y + 4],
-            [hx + radius + 10, cap_y + 12],
-            [hx - radius, cap_y + 8],
+            [hx - radius - sc(2), cap_y + sc(4)],
+            [hx + radius + sc(14), cap_y + sc(4)],
+            [hx + radius + sc(10), cap_y + sc(12)],
+            [hx - radius, cap_y + sc(8)],
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [visor_pts], color, cv2.LINE_AA)
-        cv2.polylines(canvas, [visor_pts], True, (20, 20, 20), 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [visor_pts], True, (20, 20, 20), outline_th, cv2.LINE_AA)
 
     elif accessory == "glasses":
-        # Round glasses
-        l_center = (hx - int(radius * 0.32), hy - int(radius * 0.12))
-        r_center = (hx + int(radius * 0.32), hy - int(radius * 0.12))
-        g_radius = int(radius * 0.22)
-        cv2.circle(canvas, l_center, g_radius, color, 2, cv2.LINE_AA)
-        cv2.circle(canvas, r_center, g_radius, color, 2, cv2.LINE_AA)
-        # Bridge
-        cv2.line(canvas, (l_center[0] + g_radius, l_center[1]), (r_center[0] - g_radius, r_center[1]), color, 2, cv2.LINE_AA)
+        l_center = (hx - int(round(radius * 0.32)), hy - int(round(radius * 0.12)))
+        r_center = (hx + int(round(radius * 0.32)), hy - int(round(radius * 0.12)))
+        g_radius = max(2, int(round(radius * 0.22)))
+        cv2.circle(canvas, l_center, g_radius, color, outline_th, cv2.LINE_AA)
+        cv2.circle(canvas, r_center, g_radius, color, outline_th, cv2.LINE_AA)
+        cv2.line(canvas, (l_center[0] + g_radius, l_center[1]), (r_center[0] - g_radius, r_center[1]), color, outline_th, cv2.LINE_AA)
 
     elif accessory == "fedora":
-        # Detective fedora hat
-        fedora_y = hy - int(radius * 0.80)
-        # Brim
-        cv2.ellipse(canvas, (hx, fedora_y + 8), (radius + 16, 6), 0, 0, 360, color, -1, cv2.LINE_AA)
-        cv2.ellipse(canvas, (hx, fedora_y + 8), (radius + 16, 6), 0, 0, 360, (20, 20, 20), 2, cv2.LINE_AA)
-        # Crown
+        fedora_y = hy - int(round(radius * 0.80))
+        cv2.ellipse(canvas, (hx, fedora_y + sc(8)), (radius + sc(16), sc(6)), 0, 0, 360, color, -1, cv2.LINE_AA)
+        cv2.ellipse(canvas, (hx, fedora_y + sc(8)), (radius + sc(16), sc(6)), 0, 0, 360, (20, 20, 20), outline_th, cv2.LINE_AA)
         pts = np.array([
-            [hx - radius + 2, fedora_y + 6],
-            [hx - int(radius * 0.65), fedora_y - 28],
-            [hx + int(radius * 0.65), fedora_y - 28],
-            [hx + radius - 2, fedora_y + 6],
+            [hx - radius + sc(2), fedora_y + sc(6)],
+            [hx - int(round(radius * 0.65)), fedora_y - sc(28)],
+            [hx + int(round(radius * 0.65)), fedora_y - sc(28)],
+            [hx + radius - sc(2), fedora_y + sc(6)],
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [pts], color, cv2.LINE_AA)
-        cv2.polylines(canvas, [pts], True, (20, 20, 20), 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts], True, (20, 20, 20), outline_th, cv2.LINE_AA)
 
 
 def draw_prop(
     canvas: np.ndarray,
     hand_pos: Tuple[int, int],
     prop_name: str,
+    scale: float = 1.0,
 ) -> None:
-    """Snaps a vector prop into the stick figure's hand."""
+    """Snaps a vector prop into the stick figure's hand scaled by `scale`."""
     hx, hy = hand_pos
+    s = max(0.30, float(scale))
+    def sc(v: float) -> int:
+        return max(1, int(round(v * s)))
 
     if prop_name == "magnifying_glass":
-        # Detective magnifying glass
-        glass_center = (hx + 18, hy - 18)
-        cv2.circle(canvas, glass_center, 16, (230, 240, 255), -1, cv2.LINE_AA)
-        cv2.circle(canvas, glass_center, 16, (180, 130, 40), 4, cv2.LINE_AA)  # Brass rim
-        # Handle
-        cv2.line(canvas, (hx, hy), (hx - 14, hy + 14), (100, 70, 30), 5, cv2.LINE_AA)
+        glass_center = (hx + sc(18), hy - sc(18))
+        cv2.circle(canvas, glass_center, sc(16), (230, 240, 255), -1, cv2.LINE_AA)
+        cv2.circle(canvas, glass_center, sc(16), (180, 130, 40), max(1, sc(4)), cv2.LINE_AA)
+        cv2.line(canvas, (hx, hy), (hx - sc(14), hy + sc(14)), (100, 70, 30), max(1, sc(5)), cv2.LINE_AA)
 
     elif prop_name == "coffee":
-        # Coffee mug
         pts = np.array([
-            [hx - 10, hy - 14],
-            [hx + 10, hy - 14],
-            [hx + 8, hy + 14],
-            [hx - 8, hy + 14],
+            [hx - sc(10), hy - sc(14)],
+            [hx + sc(10), hy - sc(14)],
+            [hx + sc(8), hy + sc(14)],
+            [hx - sc(8), hy + sc(14)],
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [pts], (240, 240, 240), cv2.LINE_AA)
-        cv2.polylines(canvas, [pts], True, (30, 30, 30), 2, cv2.LINE_AA)
-        # Handle
-        cv2.ellipse(canvas, (hx + 11, hy), (5, 8), 0, -90, 90, (30, 30, 30), 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts], True, (30, 30, 30), max(1, sc(2)), cv2.LINE_AA)
+        cv2.ellipse(canvas, (hx + sc(11), hy), (sc(5), sc(8)), 0, -90, 90, (30, 30, 30), max(1, sc(2)), cv2.LINE_AA)
 
     elif prop_name == "phone":
-        # Smartphone
         pts = np.array([
-            [hx - 7, hy - 16],
-            [hx + 7, hy - 16],
-            [hx + 7, hy + 16],
-            [hx - 7, hy + 16],
+            [hx - sc(7), hy - sc(16)],
+            [hx + sc(7), hy - sc(16)],
+            [hx + sc(7), hy + sc(16)],
+            [hx - sc(7), hy + sc(16)],
         ], dtype=np.int32)
         cv2.fillPoly(canvas, [pts], (40, 40, 45), cv2.LINE_AA)
-        cv2.polylines(canvas, [pts], True, (200, 200, 200), 2, cv2.LINE_AA)
+        cv2.polylines(canvas, [pts], True, (200, 200, 200), max(1, sc(2)), cv2.LINE_AA)
 
     elif prop_name == "pointer":
-        # Teacher / Explainer pointer stick
-        cv2.line(canvas, (hx, hy), (hx + 70, hy - 40), (140, 100, 50), 3, cv2.LINE_AA)
-        cv2.circle(canvas, (hx + 70, hy - 40), 4, (0, 0, 220), -1, cv2.LINE_AA)
+        cv2.line(canvas, (hx, hy), (hx + sc(70), hy - sc(40)), (140, 100, 50), max(1, sc(3)), cv2.LINE_AA)
+        cv2.circle(canvas, (hx + sc(70), hy - sc(40)), sc(4), (0, 0, 220), -1, cv2.LINE_AA)
 
 
 # ---------------------------------------------------------------------------
@@ -325,14 +328,19 @@ def render_stickman_frame(
     pose_spec: StickmanPoseSpec,
     app: StickmanAppearance,
     sway_phase: float = 0.0,
+    scale: float = 1.0,
 ) -> None:
-    """Renders a single stickman character at (cx, cy) onto the canvas."""
-    head_c = (cx, cy - app.head_radius)
-    joints = compute_limb_joints(cx, cy, pose_spec.pose, app.torso_length, sway_phase)
+    """Renders a single stickman character at (cx, cy) onto the canvas scaled by `scale`."""
+    s = max(0.30, float(scale))
+    head_r = max(8, int(round(app.head_radius * s)))
+    torso_len = max(20, int(round(app.torso_length * s)))
+    th = max(2, int(round(app.line_thickness * s)))
+
+    head_c = (cx, cy - head_r)
+    joints = compute_limb_joints(cx, cy, pose_spec.pose, torso_len, sway_phase)
 
     # 1. Draw Limbs & Spine
     col = app.line_color
-    th = app.line_thickness
 
     # Spine (Torso)
     cv2.line(canvas, joints["neck"], joints["pelvis"], col, th + 1, cv2.LINE_AA)
@@ -354,19 +362,52 @@ def render_stickman_frame(
     cv2.line(canvas, joints["r_elbow"], joints["r_hand"], col, th, cv2.LINE_AA)
 
     # 2. Draw Head (Filled white or transparent with outline)
-    cv2.circle(canvas, head_c, app.head_radius, (255, 255, 255), -1, cv2.LINE_AA)
-    cv2.circle(canvas, head_c, app.head_radius, col, th, cv2.LINE_AA)
+    cv2.circle(canvas, head_c, head_r, (255, 255, 255), -1, cv2.LINE_AA)
+    cv2.circle(canvas, head_c, head_r, col, th, cv2.LINE_AA)
 
     # 3. Draw Face
-    draw_stickman_face(canvas, head_c, app.head_radius, pose_spec.mouth, pose_spec.eyebrows, col)
+    draw_stickman_face(canvas, head_c, head_r, pose_spec.mouth, pose_spec.eyebrows, col)
 
     # 4. Draw Signature Accessory
     if app.accessory and app.accessory != "none":
-        draw_accessory(canvas, head_c, app.head_radius, app.accessory, app.accessory_color)
+        draw_accessory(canvas, head_c, head_r, app.accessory, app.accessory_color)
 
     # 5. Draw Prop
     if pose_spec.prop:
-        draw_prop(canvas, joints["r_hand"], pose_spec.prop)
+        draw_prop(canvas, joints["r_hand"], pose_spec.prop, scale=s)
+
+
+def draw_stickman_scene_plane(
+    canvas: np.ndarray,
+    char_cx: int,
+    char_cy: int,
+    torso_len: int,
+    scale: float,
+) -> None:
+    """Draws a grounded sketchbook/whiteboard scene plane with drafting grid, stage horizon, and contact shadow."""
+    h, w = canvas.shape[:2]
+    grid_step = max(16, int(round(64 * scale)))
+    grid_color = (236, 232, 224)
+
+    for gx in range(grid_step, w, grid_step):
+        cv2.line(canvas, (gx, 0), (gx, h), grid_color, 1)
+    for gy in range(grid_step, h, grid_step):
+        cv2.line(canvas, (0, gy), (w, gy), grid_color, 1)
+
+    # Ground horizon & stage plane beneath feet
+    foot_y = min(h - max(12, int(round(40 * scale))), char_cy + torso_len + int(round(112 * scale)))
+    floor_top = max(0, foot_y - int(round(8 * scale)))
+    canvas[floor_top:h, :] = np.clip(canvas[floor_top:h, :].astype(np.int16) - 12, 0, 255).astype(np.uint8)
+    cv2.line(canvas, (int(w * 0.08), floor_top), (int(w * 0.92), floor_top), (70, 72, 78), max(1, int(round(3 * scale))), cv2.LINE_AA)
+
+    # Contact shadow ellipse under character
+    sh_rx = max(12, int(round(48 * scale)))
+    sh_ry = max(4, int(round(12 * scale)))
+    cv2.ellipse(canvas, (char_cx, foot_y), (sh_rx, sh_ry), 0, 0, 360, (190, 186, 178), -1, cv2.LINE_AA)
+
+    # Subtle framing border
+    inset = max(6, int(round(20 * scale)))
+    cv2.rectangle(canvas, (inset, inset), (w - inset, h - inset), (160, 156, 148), max(1, int(round(2 * scale))), cv2.LINE_AA)
 
 
 # ---------------------------------------------------------------------------
@@ -378,13 +419,13 @@ def render_stickman_scene(
     app: StickmanAppearance,
     output_path: Path,
     caption_text: Optional[str] = None,
-    bg_color: Tuple[int, int, int] = (255, 255, 255),  # Pure white paper default
+    bg_color: Tuple[int, int, int] = (250, 247, 238),  # Warm sketchbook paper default
     duration: float = 3.5,
     fps: int = 30,
     width: int = 1080,
     height: int = 1920,
 ) -> bool:
-    """Renders a standalone stickman explainer scene to broadcast MP4."""
+    """Renders a standalone stickman explainer scene to broadcast MP4 with scaled geometry & scene plane."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     width = (width // 2) * 2
     height = (height // 2) * 2
@@ -397,28 +438,73 @@ def render_stickman_scene(
     if not writer.isOpened():
         raise RuntimeError(f"Failed to open video writer for {tmp_raw_mp4}")
 
-    # Anchor character at middle-lower area (safe zone)
+    scale = max(0.28, min(width, height) / 1080.0)
+    char_scale = scale * 1.35
     char_cx = width // 2
-    char_cy = int(height * 0.48)
+    char_cy = int(height * 0.44)
+    scaled_torso = max(20, int(round(app.torso_length * char_scale)))
 
     try:
         for frame_idx in range(num_frames):
             p = frame_idx / max(1, num_frames - 1)
             frame = np.full((height, width, 3), bg_color, dtype=np.uint8)
 
-            # Render Stickman with natural breathing/sway
-            render_stickman_frame(frame, char_cx, char_cy, pose_spec, app, sway_phase=p * 2.0)
+            # 1. Grounded scene plane & notebook environment
+            draw_stickman_scene_plane(frame, char_cx, char_cy, scaled_torso, scale=char_scale)
 
-            # Optional floating speech / caption bubble
+            # 2. Render Stickman with natural breathing/sway and scaled geometry
+            render_stickman_frame(frame, char_cx, char_cy, pose_spec, app, sway_phase=p * 2.0, scale=char_scale)
+
+            # 3. Optional floating speech / caption bubble scaled & wrapped inside safe zone
             if caption_text:
                 font = cv2.FONT_HERSHEY_DUPLEX
-                t_size = cv2.getTextSize(caption_text, font, 0.78, 2)[0]
-                tx = (width - t_size[0]) // 2
-                ty = int(height * 0.76)
-                # Frosted card behind text
-                cv2.rectangle(frame, (tx - 18, ty - t_size[1] - 14), (tx + t_size[0] + 18, ty + 14), (240, 240, 240), -1)
-                cv2.rectangle(frame, (tx - 18, ty - t_size[1] - 14), (tx + t_size[0] + 18, ty + 14), (40, 40, 40), 2)
-                cv2.putText(frame, caption_text, (tx, ty), font, 0.78, (20, 20, 20), 2, cv2.LINE_AA)
+                font_scale = max(0.32, 0.78 * scale)
+                thickness = max(1, int(round(2 * scale)))
+                pad_x = max(8, int(round(18 * scale)))
+                pad_y = max(6, int(round(14 * scale)))
+                max_card_w = max(60, int(width * 0.88))
+                max_text_w = max(40, max_card_w - 2 * pad_x)
+
+                words = caption_text.strip().split()
+                lines: list[str] = []
+                cur = words[0] if words else ""
+                for w_tok in words[1:]:
+                    cand = f"{cur} {w_tok}"
+                    if cv2.getTextSize(cand, font, font_scale, thickness)[0][0] <= max_text_w:
+                        cur = cand
+                    else:
+                        lines.append(cur)
+                        cur = w_tok
+                if cur:
+                    lines.append(cur)
+                lines = lines[:3]
+
+                longest = max((cv2.getTextSize(ln, font, font_scale, thickness)[0][0] for ln in lines), default=0)
+                if longest > max_text_w and longest > 0:
+                    font_scale = max(0.24, font_scale * (max_text_w / float(longest)))
+
+                sizes = [cv2.getTextSize(ln, font, font_scale, thickness)[0] for ln in lines]
+                line_h = max((sz[1] for sz in sizes), default=12)
+                line_gap = max(4, int(round(8 * scale)))
+                block_w = max((sz[0] for sz in sizes), default=40)
+                block_h = len(lines) * line_h + max(0, len(lines) - 1) * line_gap
+
+                box_w = min(max_card_w, block_w + 2 * pad_x)
+                box_h = block_h + 2 * pad_y
+                bx1 = max(4, (width - box_w) // 2)
+                bx2 = min(width - 4, bx1 + box_w)
+                safe_bot = int(round(height * 0.76))
+                by2 = min(height - 4, safe_bot)
+                by1 = max(int(round(height * 0.44)), by2 - box_h)
+
+                cv2.rectangle(frame, (bx1, by1), (bx2, by2), (242, 240, 234), -1)
+                cv2.rectangle(frame, (bx1, by1), (bx2, by2), (40, 40, 40), max(1, int(round(2 * scale))))
+
+                start_y = by1 + ((by2 - by1) - block_h) // 2 + line_h
+                for idx_l, (ln, sz) in enumerate(zip(lines, sizes)):
+                    tx = bx1 + ((bx2 - bx1) - sz[0]) // 2
+                    ty = start_y + idx_l * (line_h + line_gap)
+                    cv2.putText(frame, ln, (tx, ty), font, font_scale, (20, 20, 20), thickness, cv2.LINE_AA)
 
             writer.write(frame)
 

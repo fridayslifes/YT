@@ -20,14 +20,53 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+_OVERLAY_FINGERPRINT_KEYS = (
+    "caption",
+    "clue",
+    "stamp",
+    "plate_label",
+    "pose",
+    "mouth",
+    "eyebrows",
+    "prop",
+    "accessory",
+    "riddle",
+    "inventory",
+    "characters",
+    "sightlines",
+    "countdown_seconds",
+    "elimination_banner",
+    "cta_banner",
+    "highlighter_phrase",
+    "exhibit_code",
+    "location_text",
+    "timestamp_text",
+    "overlay",
+)
+
+
 def scene_fingerprint(
     *, scene_index: int, scene: dict, source_image: Path, duration_s: float,
     preset: str, width: int, height: int,
+    variant: str | None = None,
+    audio_path: Path | None = None,
+    audio_sha256: str | None = None,
+    timings: list[dict] | None = None,
 ) -> str:
-    """Bind every spatial-render input; exclude caption and operational cache data."""
+    """Bind spatial-render, variant, script, audio, timing, and overlay inputs."""
+    resolved_variant = variant if variant is not None else (scene.get("variant") or scene.get("engine"))
+    resolved_audio_sha = _sha256(audio_path) if audio_path is not None else (audio_sha256 or scene.get("audio_sha256"))
+    resolved_timings = list(timings) if timings is not None else scene.get("timings")
+    overlay_params = {k: scene[k] for k in _OVERLAY_FINGERPRINT_KEYS if k in scene}
+
     payload = {
         "scene_index": scene_index,
         "prompt": scene.get("prompt", ""),
+        "text": scene.get("text", ""),
+        "variant": resolved_variant,
+        "audio_sha256": resolved_audio_sha,
+        "timings": resolved_timings,
+        "overlay_parameters": overlay_params,
         "source_image_sha256": _sha256(source_image),
         # The renderer derives its deterministic particle seed from this stem.
         "source_image_stem": Path(source_image).stem,

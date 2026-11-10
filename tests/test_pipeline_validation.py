@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -295,11 +296,14 @@ def scene_build(tmp_path, monkeypatch):
         stem = f"s{number:02d}"
         (project_dir / "images" / f"{stem}.jpg").write_bytes(stem.encode())
         (project_dir / "videos" / f"{stem}.mp4").write_bytes(b"untracked clip")
-        scenes.append({"text": f"Schema-valid narration for scene {number}.",
+        scenes.append({"id": stem, "text": f"Schema-valid narration for scene {number}.",
+                       "caption": f"Schema-valid narration for scene {number}.",
                        "image": f"images/{stem}.jpg", "video": f"videos/{stem}.mp4",
                        "prompt": f"Image {stem}", "duration": 3.5, "preset": "depthflow_orbit"})
     path = project_dir / "project.json"
-    path.write_text(json.dumps({"schema_version": 1, "id": "SH-99", "format": "short", "scenes": scenes}))
+    path.write_text(json.dumps({"schema_version": 2, "id": "SH-99", "format": "short",
+                                "variant": "cinematic_35mm", "channel_id": "test_channel",
+                                "voice": "kokoro", "scenes": scenes}))
     rendered = []
     bad_motion = set()
 
@@ -458,3 +462,232 @@ def test_build_manifest_rejects_fresh_corrupt_clip_and_preserves_canonical_outpu
         pipeline.build_and_verify(scene_build.path, force_motion=True)
 
     assert output.read_bytes() == original
+
+
+# --------------------------------------------------------------------------- #
+# Local-only Kokoro speech routing & cache isolation
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("voice", ["am_adam", "af_heart", "bm_george", "bf_emma", "kokoro"])
+def test_tts_cached_routes_supported_voices_to_local_kokoro(tmp_path, monkeypatch, voice):
+    from tools import build_video as bv
+    from tools.schemas import KOKORO_VOICES
+
+    assert voice in KOKORO_VOICES
+    assert not hasattr(bv, "_synthesize_edge"), "_synthesize_edge must be removed from build_video"
+    assert "edge_tts" not in bv.__dict__, "edge_tts import must be removed from build_video"
+
+    calls = []
+
+    def fake_kokoro(text, mp3, voice_spec="am_adam"):
+        calls.append((text, mp3, voice_spec))
+        mp3.write_bytes(b"kokoro-mp3-" * 40)
+        return [{"text": "Narration", "start": 0.05, "end": 0.45}]
+
+    monkeypatch.setattr(bv, "_synthesize_kokoro", fake_kokoro)
+    cache_dir = tmp_path / "cache"
+
+    mp3_path, words = bv.tts_cached("Narration line.", voice, "+1%", "-2Hz", cache_dir)
+
+    assert calls == [("Narration line.", mp3_path, voice)]
+    assert mp3_path.parent == cache_dir
+    assert mp3_path.is_file()
+    assert words == [{"text": "Narration", "start": 0.05, "end": 0.45}]
+
+
+@pytest.mark.parametrize(
+    "invalid_voice",
+    [
+        "en-US-AndrewNeural",
+        "en-US-JennyNeural",
+        "af_unknown",
+        "kokoro_blend",
+        "KOKORO",
+        "",
+        "   ",
+        None,
+        123,
+        True,
+        False,
+        [],
+        {},
+    ],
+)
+def test_tts_cached_rejects_unknown_or_malformed_voice_before_side_effects(tmp_path, monkeypatch, invalid_voice):
+    from tools import build_video as bv
+
+    monkeypatch.setattr(
+        bv,
+        "_synthesize_kokoro",
+        lambda *a, **kw: pytest.fail("invalid voice must fail before synthesis"),
+    )
+    cache_dir = tmp_path / "cache_must_not_be_created"
+
+    with pytest.raises(ValueError, match="voice"):
+        bv.tts_cached("Test narration.", invalid_voice, "+1%", "-2Hz", cache_dir)
+
+    assert not cache_dir.exists()
+
+
+@pytest.mark.parametrize("bad_voice", ["en-US-AndrewNeural", "af_unknown", "kokoro_custom"])
+def test_tts_cached_existing_cache_cannot_bypass_voice_validation(tmp_path, monkeypatch, bad_voice):
+    import hashlib
+    from tools import build_video as bv
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True)
+    namespace = getattr(bv, "TTS_CACHE_NAMESPACE", "kokoro-v1.0-local")
+    for raw_key in (
+        f"{bad_voice}|+1%|-2Hz|Cached text",
+        f"{namespace}|{bad_voice}|+1%|-2Hz|Cached text",
+    ):
+        digest = hashlib.sha1(raw_key.encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
+        (cache_dir / f"{digest}.mp3").write_bytes(b"cached-audio-" * 40)
+        (cache_dir / f"{digest}.json").write_text(json.dumps([{"text": "Cached", "start": 0.0, "end": 0.3}]))
+
+    monkeypatch.setattr(
+        bv,
+        "_synthesize_kokoro",
+        lambda *a, **kw: pytest.fail("invalid voice must fail before synthesis"),
+    )
+
+    with pytest.raises(ValueError, match="voice"):
+        bv.tts_cached("Cached text", bad_voice, "+1%", "-2Hz", cache_dir)
+
+
+def test_tts_cached_reuses_valid_cache_and_invalidates_on_text_or_voice_change(tmp_path, monkeypatch):
+    from tools import build_video as bv
+
+    calls = []
+
+    def fake_kokoro(text, mp3, voice_spec="am_adam"):
+        calls.append((text, voice_spec, mp3.name))
+        mp3.write_bytes(f"audio-{len(calls)}-{voice_spec}-{text}".encode("utf-8") * 20)
+        return [{"text": text.split()[0], "start": 0.0, "end": 0.4, "call": len(calls)}]
+
+    monkeypatch.setattr(bv, "_synthesize_kokoro", fake_kokoro)
+    cache_dir = tmp_path / "cache"
+
+    mp3_a1, words_a1 = bv.tts_cached("Alpha script.", "am_adam", "+1%", "-2Hz", cache_dir)
+    mp3_a2, words_a2 = bv.tts_cached("Alpha script.", "am_adam", "+1%", "-2Hz", cache_dir)
+
+    assert len(calls) == 1
+    assert mp3_a1 == mp3_a2
+    assert words_a1 == words_a2
+
+    mp3_b, words_b = bv.tts_cached("Beta script.", "am_adam", "+1%", "-2Hz", cache_dir)
+    assert len(calls) == 2
+    assert mp3_b != mp3_a1
+    assert words_b[0]["call"] == 2
+
+    mp3_c, words_c = bv.tts_cached("Alpha script.", "af_heart", "+1%", "-2Hz", cache_dir)
+    assert len(calls) == 3
+    assert mp3_c not in {mp3_a1, mp3_b}
+    assert words_c[0]["call"] == 3
+
+
+def test_tts_cached_isolates_old_unversioned_backend_cache(tmp_path, monkeypatch):
+    import hashlib
+    from tools import build_video as bv
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True)
+    legacy_key = hashlib.sha1("am_adam|+1%|-2Hz|Legacy line.".encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
+    legacy_mp3 = cache_dir / f"{legacy_key}.mp3"
+    legacy_meta = cache_dir / f"{legacy_key}.json"
+    legacy_mp3.write_bytes(b"legacy-unverified-backend-" * 30)
+    legacy_meta.write_text(json.dumps([{"text": "legacy", "start": 0.0, "end": 0.2}]))
+
+    calls = []
+
+    def fake_kokoro(text, mp3, voice_spec="am_adam"):
+        calls.append((text, voice_spec, mp3))
+        mp3.write_bytes(b"fresh-local-kokoro-" * 30)
+        return [{"text": "Legacy", "start": 0.05, "end": 0.55}]
+
+    monkeypatch.setattr(bv, "_synthesize_kokoro", fake_kokoro)
+
+    mp3_path, words = bv.tts_cached("Legacy line.", "am_adam", "+1%", "-2Hz", cache_dir)
+
+    assert len(calls) == 1
+    assert mp3_path != legacy_mp3
+    assert mp3_path.read_bytes() == b"fresh-local-kokoro-" * 30
+    assert words == [{"text": "Legacy", "start": 0.05, "end": 0.55}]
+
+
+@pytest.mark.parametrize("bad_voice", ["en-US-AndrewNeural", "af_unknown", "KOKORO", "", None, True, 99])
+def test_synthesize_kokoro_rejects_unknown_voice_directly_before_model_load(tmp_path, monkeypatch, bad_voice):
+    from tools import build_video as bv
+
+    monkeypatch.setattr(bv, "KOKORO_DIR", tmp_path / "missing_models")
+    out_mp3 = tmp_path / "out.mp3"
+
+    with pytest.raises(ValueError, match="voice"):
+        bv._synthesize_kokoro("Direct synthesis test.", out_mp3, voice_spec=bad_voice)
+
+    assert not out_mp3.exists()
+
+
+def test_synthesize_kokoro_uses_exact_voice_styles_and_only_blends_explicit_kokoro(tmp_path, monkeypatch):
+    import numpy as np
+    from tools import build_video as bv
+
+    model_dir = tmp_path / "kokoro_models"
+    model_dir.mkdir()
+    (model_dir / "kokoro-v1.0.onnx").write_bytes(b"onnx")
+    (model_dir / "voices-v1.0.bin").write_bytes(b"voices")
+    monkeypatch.setattr(bv, "KOKORO_DIR", model_dir)
+    monkeypatch.setattr(bv, "_KOKORO_INSTANCE", None)
+
+    style_vectors = {
+        "am_adam": np.array([1.0, 0.0], dtype=np.float32),
+        "bm_george": np.array([0.0, 1.0], dtype=np.float32),
+        "af_heart": np.array([0.2, 0.8], dtype=np.float32),
+    }
+    create_calls = []
+
+    class FakeKokoro:
+        def __init__(self, onnx_path, voices_path):
+            self.onnx_path = onnx_path
+            self.voices_path = voices_path
+
+        def get_voices(self):
+            return list(style_vectors)
+
+        def get_voice_style(self, name):
+            return style_vectors[name]
+
+        def create(self, text, voice, speed, lang):
+            create_calls.append((text, np.array(voice, dtype=np.float32), speed, lang))
+            return np.zeros(2400, dtype=np.float32), 24000
+
+    import kokoro_onnx
+    import soundfile as sf
+
+    monkeypatch.setattr(kokoro_onnx, "Kokoro", FakeKokoro)
+    monkeypatch.setattr(sf, "write", lambda path, samples, sr: Path(path).write_bytes(b"wav"))
+    monkeypatch.setattr(
+        bv.subprocess,
+        "run",
+        lambda cmd, **kw: Path(cmd[-1]).write_bytes(b"mp3" * 120),
+    )
+    monkeypatch.setattr(bv, "decode_audio", lambda path, af=None: np.zeros(bv.SR, dtype=np.float32))
+    monkeypatch.setattr(
+        bv,
+        "_align_with_faster_whisper",
+        lambda mp3, txt, aud: [{"text": "Hello", "start": 0.0, "end": 0.4}],
+    )
+
+    bv._synthesize_kokoro("Hello world", tmp_path / "adam.mp3", voice_spec="am_adam")
+    assert np.allclose(create_calls[-1][1], style_vectors["am_adam"])
+
+    bv._synthesize_kokoro("Hello world", tmp_path / "heart.mp3", voice_spec="af_heart")
+    assert np.allclose(create_calls[-1][1], style_vectors["af_heart"])
+
+    bv._synthesize_kokoro("Hello world", tmp_path / "house.mp3", voice_spec="kokoro")
+    expected_blend = (0.68 * style_vectors["am_adam"] + 0.32 * style_vectors["bm_george"]).astype(np.float32)
+    assert np.allclose(create_calls[-1][1], expected_blend)
+
+    # A schema-listed voice absent from the loaded model bin must fail directly, not blend.
+    with pytest.raises(ValueError, match="voice"):
+        bv._synthesize_kokoro("Hello world", tmp_path / "missing_in_bin.mp3", voice_spec="af_bella")
+

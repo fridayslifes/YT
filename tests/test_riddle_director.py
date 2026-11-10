@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
+import pytest
 
 from tools import riddle_director
 
@@ -37,6 +38,61 @@ def test_character_badges_and_thoughts():
     # Check pixels around character 1 and 2 positions
     assert np.count_nonzero(canvas[100:250, 80:160]) > 0
     assert np.count_nonzero(canvas[100:250, 240:320]) > 0
+
+
+def test_character_badges_and_sightlines_transform_with_camera_matrix():
+    """Verify camera matrix shifts badge and sightline coordinates accordingly."""
+    canvas_base = np.zeros((400, 400, 3), dtype=np.uint8)
+    canvas_shifted = np.zeros((400, 400, 3), dtype=np.uint8)
+    c1 = riddle_director.CharacterAnchor(id="1", name="P1", x=0.25, y=0.5, badge_label="1")
+    c2 = riddle_director.CharacterAnchor(id="2", name="P2", x=0.75, y=0.5, badge_label="2")
+    chars = [c1, c2]
+    rays = [riddle_director.SightlineRay(from_id="1", to_id="2")]
+    char_dict = {"1": c1, "2": c2}
+
+    M = np.array([[1.0, 0.0, 30.0], [0.0, 1.0, -20.0]], dtype=np.float32)
+    riddle_director.draw_character_badges(canvas_base, chars, pulse_phase=0.0)
+    riddle_director.draw_sightlines(canvas_base, rays, char_dict, dash_offset=0.1)
+
+    riddle_director.draw_character_badges(canvas_shifted, chars, pulse_phase=0.0, camera_matrix=M)
+    riddle_director.draw_sightlines(canvas_shifted, rays, char_dict, dash_offset=0.1, camera_matrix=M)
+
+    assert not np.array_equal(canvas_base, canvas_shifted)
+    base_xs = np.where(canvas_base.sum(axis=2) > 0)[1]
+    shift_xs = np.where(canvas_shifted.sum(axis=2) > 0)[1]
+    assert shift_xs.mean() > base_xs.mean() + 15.0
+
+
+@pytest.mark.parametrize("w,h", [(540, 960), (1080, 1920), (1920, 1080)])
+def test_cliffhanger_cta_and_hud_never_clip_or_touch_frame_border(w, h):
+    """Ensure CTA banner and HUD stay within safe bounds at 540x960, 1080x1920, and 1920x1080."""
+    canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    items = [
+        riddle_director.InventoryItem(label="White", count=3, color=(255, 255, 255)),
+        riddle_director.InventoryItem(label="Black", count=2, color=(40, 40, 40)),
+    ]
+    riddle_director.draw_inventory_hud(canvas, items, top_margin=int(h * 0.05))
+    riddle_director.draw_countdown_hud(
+        canvas, remaining_seconds=5.0, total_seconds=7.0, center_x=int(w * 0.88), center_y=int(h * 0.17)
+    )
+    riddle_director.draw_cliffhanger_cta(
+        canvas, "WHO DEDUCED IT FIRST? DROP YOUR FULL LOGICAL ANSWER IN THE COMMENTS BELOW!", y_pos=int(h * 0.70)
+    )
+
+    # Outer 4px border must stay completely untouched (zero clipping)
+    assert np.count_nonzero(canvas[:, :4]) == 0
+    assert np.count_nonzero(canvas[:, w - 4 :]) == 0
+    assert np.count_nonzero(canvas[:4, :]) == 0
+    assert np.count_nonzero(canvas[h - 4 :, :]) == 0
+
+    # CTA must lie strictly inside the 44%..76% vertical safe zone
+    cta_only = np.zeros((h, w, 3), dtype=np.uint8)
+    riddle_director.draw_cliffhanger_cta(
+        cta_only, "WHO DEDUCED IT FIRST? DROP YOUR FULL LOGICAL ANSWER IN THE COMMENTS BELOW!", y_pos=int(h * 0.70)
+    )
+    ys = np.where(cta_only.sum(axis=2) > 0)[0]
+    assert ys.min() >= int(round(h * 0.44))
+    assert ys.max() <= int(round(h * 0.76))
 
 
 def test_sightlines_active_and_blocked():
