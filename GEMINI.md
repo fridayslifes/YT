@@ -103,7 +103,7 @@ Legacy production flags in `tools/agents.py` and `tools/pipeline.py` are compati
 
 ### 3. Audio Engineering, TTS & Render Standards (`tools/build_video.py` v4.0 & `tools/audio_bank.py` v5.0)
 - **Studio Ribbon-Mic TTS Narration**:
-  - Primary voice: `en-US-AndrewNeural` (or local `Kokoro-82M` neural blend `am_adam` + `bm_george` fallback) at **`rate: "+1%"`** and **`pitch: "-2Hz"`** (`gap: 0.08s`).
+  - Primary voice: Local `Kokoro-82M` neural blend of `am_adam` (68%) and `bm_george` (32%) at **`rate: "+1%"`** and **`pitch: "-2Hz"`** (`gap: 0.08s`). Zero cloud voice or Edge-TTS endpoints permitted.
   - Processed through the warm Shure SM7B / Studio Ribbon EQ & dynamics chain:
     `highpass=f=65,equalizer=f=135:t=q:w=1.1:g=+2.4,equalizer=f=2400:t=q:w=1.4:g=+0.8,equalizer=f=3400:t=q:w=1.6:g=-1.6,lowpass=f=13500,deesser=i=0.6:m=0.4:f=0.5:s=o,acompressor=threshold=-16dB:ratio=2.0:attack=15:release=160,alimiter=limit=-1.2dB`
 - **Rich Audible BGM (`0.18`) with Mid/Side Vocal Pocket Ducking**:

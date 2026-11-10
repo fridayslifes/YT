@@ -63,7 +63,7 @@ from tools.youtube_skills import hookscore  # noqa: E402
 # the exact measured delta (Before -> After).
 BEFORE_BASELINE = {
     "scene_1_raw_cap_y": 0.34,
-    "default_voice": "en-US-AndrewNeural (Edge-TTS consumer endpoint)",
+    "default_voice": "en-US-AndrewNeural (legacy cloud voice endpoint)",
     "dossiers_with_closing_ask": "2/6 (33.3%)",
     "dossiers_with_connected_story_arc": "0/6 (0.0%)",
     "retained_projects_missing_citation_stat": 2,

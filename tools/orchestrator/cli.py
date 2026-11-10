@@ -65,7 +65,7 @@ def cmd_produce(args) -> int:
         slug=args.slug,
         genre=args.genre,
         variant=getattr(args, "variant", None),
-        channel=getattr(args, "channel", "cognitive_core"),
+        channel=args.channel,
         hook_min=args.hook_min,
         build=not args.blueprint,
         force_motion=args.force_motion,
@@ -109,8 +109,7 @@ def run_production_workflow(
     )
     if variant is not None:
         produce_kwargs["variant"] = variant
-    if channel != "cognitive_core":
-        produce_kwargs["channel"] = channel
+    produce_kwargs["channel"] = channel
     workflow = produce(**produce_kwargs)
     return MasterAgent(ROOT).new_run(workflow, dry_run=dry_run, approve=approve)
 
@@ -314,7 +313,7 @@ def build_parser() -> argparse.ArgumentParser:
     produce.add_argument("--slug", required=True)
     produce.add_argument("--genre", default="3d_cgi")
     produce.add_argument("--variant", default=None, help="Canonical style variant (overrides --genre)")
-    produce.add_argument("--channel", default="cognitive_core", help="Target channel profile identifier")
+    produce.add_argument("--channel", required=True, help="Target channel profile identifier")
     produce.add_argument("--hook-min", type=int, default=70)
     produce.add_argument("--dossier", help="Path to a verified dossier JSON")
     produce.add_argument("--blueprint", action="store_true", help="Research/script/project only; no render")

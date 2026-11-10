@@ -251,7 +251,12 @@ class ProjectWorker(Worker):
         variant = spec.params.get("variant")
         channel_id = str(spec.params.get("channel") or spec.params.get("channel_id") or "cognitive_core")
         if not (topic and video_id and slug):
-            return WorkerResult(ok=False, summary="missing project identity", error="topic/id/slug required", retryable=False)
+            return WorkerResult(
+                ok=False,
+                summary="missing project identity",
+                error="topic/id/slug required",
+                retryable=False,
+            )
 
         try:
             proj_path = creative_engine.generate_creative_project(

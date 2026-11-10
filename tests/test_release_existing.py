@@ -163,7 +163,7 @@ def test_produce_publish_cannot_bypass_reviewed_release(monkeypatch):
     with pytest.raises(ValueError, match="release-existing"):
         workflows.produce(topic="Test", video_id="SH-99", slug="short_test", publish=True)
     args = cli.build_parser().parse_args(
-        ["produce", "--topic", "Test", "--id", "SH-99", "--slug", "short_test", "--publish", "--yes"]
+        ["produce", "--topic", "Test", "--id", "SH-99", "--slug", "short_test", "--channel", "cognitive_core", "--publish", "--yes"]
     )
     monkeypatch.setattr(MasterAgent, "new_run", lambda *a, **kw: pytest.fail("produce must not start"))
     assert args.func(args) == 2

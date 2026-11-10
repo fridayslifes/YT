@@ -1,6 +1,6 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** PHASE 3 COMPLETED (Thumbnail policy aligned: zero Shorts thumbnails; long-form 16:9 custom thumbnails enabled & policy-gated); PHASE 4 (Environment & CLI Hardening) READY.  
+**Status:** PHASE 4 COMPLETED (Environment, explicit encoder config, and CLI --channel required); PHASE 5 (Channel Governance & Policy Gate) READY.  
 **Last Updated:** 2026-11-11 02:56:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
@@ -206,6 +206,19 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 - **Documentation & Impact Tests:** Updated `AGENTS.md`, `GEMINI.md`, `VIDEO_GUIDE_SHORTS_AND_LONG.md`, and `tests/test_impact.py`.
 - **Verification Evidence:** `tools/master.py impact --all` reports 0 dangling references. All 22 tests in `tests/test_impact.py` pass.
 
+### Task 4.1–4.4: Environment & CLI Hardening [COMPLETED]
+- **Purged Stale Cloud Speech Text:** Removed `en-US-AndrewNeural` and Edge-TTS references in `GEMINI.md:106` and updated `tools/guard.py:66`.
+- **Environment-Safe Path Resolution:** Eliminated hardcoded `/opt/homebrew` and `/Users` assumptions across `tools/build_video.py`, `tools/pipeline.py`, and `tools/visual_engine.py`. Replaced with `_resolve_ffmpeg()` and `_resolve_ffprobe()` which fail fast with typed `RenderingError` if binaries are missing on `PATH`.
+- **Explicit Encoder Configuration (`tools/encoder_config.py` & `configs/encoder.yaml`):**
+  - Built unified hardware/software encoder configuration supporting `"auto"`, `"h264_videotoolbox"`, `"libx264"`, and `"h264_nvenc"`.
+  - Replaced all encoder fallback loops (`for enc in ["h264_videotoolbox", "libx264"]: ... shutil.move(...)`) in `hybrid_engine.py`, `longform_orchestrator.py`, `riddle_director.py`, `stickman_engine.py`, `storybook_engine.py`, `universal_engine.py`, and `cutout_director.py`. If an encoder is requested that is unsupported or unavailable in ffmpeg, it fails closed with `RenderingError(stage="encoder_selection")`.
+  - Added 8 unit tests in `tests/test_encoder_config.py`.
+- **Required `--channel` CLI Argument:**
+  - Removed `--channel` default (`"cognitive_core"`) in `tools/orchestrator/cli.py:317`, making `--channel` strictly required.
+  - Added regression test `test_cli_produce_requires_channel_argument` in `tests/test_orchestrator.py`.
+- **Verification Evidence:**
+  - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `990 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
+
 ---
 
 ## 5. Master Task DAG & Implementation Order
@@ -223,11 +236,15 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 [Phase 3: Thumbnail Policy Alignment (User Decided)] [COMPLETED]
   └── Task 3.1: Update tests/test_impact.py, AGENTS.md, GEMINI.md, and VIDEO_GUIDE to forbid Shorts thumbnails while explicitly allowing long-form thumbnails via render_longform_thumbnail() [DONE]
 
-[Phase 4: Environment & CLI Hardening] [NEXT]
-  ├── Task 4.1: Eliminate stale Edge-TTS references in GEMINI.md and tools/guard.py
-  ├── Task 4.2: Replace hardcoded `/opt/homebrew` and `/Users` paths with environment-safe resolution
-  ├── Task 4.3: Make hardware encoder selection explicit and fail closed if unavailable
-  └── Task 4.4: Remove `--channel` default ("cognitive_core"); make `--channel` required
+[Phase 4: Environment & CLI Hardening] [COMPLETED]
+  ├── Task 4.1: Eliminate stale Edge-TTS references in GEMINI.md and tools/guard.py [DONE]
+  ├── Task 4.2: Replace hardcoded `/opt/homebrew` and `/Users` paths with environment-safe resolution [DONE]
+  ├── Task 4.3: Make hardware encoder selection explicit and fail closed if unavailable [DONE]
+  └── Task 4.4: Remove `--channel` default ("cognitive_core"); make `--channel` required [DONE]
+
+[Phase 5: Channel Governance & Policy Gate] [NEXT]
+  ├── Task 5.1: Support dynamic channel configs in `configs/channels/`
+  └── Task 5.2: Build comprehensive `policy_gate` (licensing, AI disclosure, study grounding, likeness checks)
 
 [Phase 5: Channel Governance & Policy Gate]
   ├── Task 5.1: Support dynamic channel configs in `configs/channels/`

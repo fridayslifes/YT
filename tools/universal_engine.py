@@ -83,32 +83,33 @@ def get_font(path: Path, size: int) -> ImageFont.FreeTypeFont:
 
 
 def reencode_broadcast_mp4(src_path: Path, dst_path: Path, fps: int = 30, bitrate: str = "8M") -> bool:
-    """Encodes raw video to crisp, web-optimized broadcast H.264 MP4."""
+    """Encodes raw video to crisp, web-optimized broadcast H.264 MP4 using explicit encoder config."""
+    from tools.encoder_config import resolve_encoder
+
     ffmpeg_bin = shutil.which("ffmpeg")
     if not ffmpeg_bin:
-        shutil.move(str(src_path), str(dst_path))
-        return True
+        raise RenderingError(stage="reencode_broadcast_mp4", artifact=str(dst_path), cause="ffmpeg not found on PATH")
 
-    for enc in ("h264_videotoolbox", "libx264"):
-        cmd = [ffmpeg_bin, "-y", "-i", str(src_path), "-c:v", enc]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", bitrate, "-profile:v", "high", "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "20", "-preset", "fast", "-pix_fmt", "yuv420p"])
-
-        cmd.extend([
-            "-colorspace", "bt709",
-            "-color_primaries", "bt709",
-            "-color_trc", "bt709",
-            "-movflags", "+faststart",
-            str(dst_path),
-        ])
-        res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
-        if res.returncode == 0 and dst_path.exists() and dst_path.stat().st_size > 1000:
-            return True
-
-    shutil.move(str(src_path), str(dst_path))
-    return dst_path.exists()
+    _, enc_args = resolve_encoder(bitrate=bitrate, crf=20)
+    cmd = [
+        ffmpeg_bin, "-y",
+        "-i", str(src_path),
+        *enc_args,
+        "-colorspace", "bt709",
+        "-color_primaries", "bt709",
+        "-color_trc", "bt709",
+        "-movflags", "+faststart",
+        "-r", str(fps),
+        str(dst_path),
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    if res.returncode != 0 or not dst_path.exists() or dst_path.stat().st_size <= 1000:
+        raise RenderingError(
+            stage="reencode_broadcast_mp4",
+            artifact=str(dst_path),
+            cause=f"Broadcast MP4 encoding failed (returncode={res.returncode}): {res.stderr[-200:] if res.stderr else 'unknown'}",
+        )
+    return True
 
 
 def reencode_broadcast_mp4_with_audio(
@@ -118,40 +119,39 @@ def reencode_broadcast_mp4_with_audio(
     fps: int = 30,
     bitrate: str = "12M",
 ) -> bool:
-    """Multiplexes raw video and master audio into pristine broadcast Full HD H.264 MP4."""
+    """Multiplexes raw video and master audio into pristine broadcast Full HD H.264 MP4 using explicit encoder config."""
+    from tools.encoder_config import resolve_encoder
+
     ffmpeg_bin = shutil.which("ffmpeg")
     if not ffmpeg_bin:
-        return False
+        raise RenderingError(stage="reencode_broadcast_mp4_with_audio", artifact=str(dst_path), cause="ffmpeg not found on PATH")
 
-    for enc in ("h264_videotoolbox", "libx264"):
-        cmd = [
-            ffmpeg_bin, "-y",
-            "-i", str(video_path),
-            "-i", str(audio_path),
-            "-c:v", enc,
-        ]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", bitrate, "-profile:v", "high", "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "17", "-preset", "fast", "-pix_fmt", "yuv420p"])
-
-        cmd.extend([
-            "-c:a", "aac",
-            "-b:a", "192k",
-            "-ar", "48000",
-            "-ac", "2",
-            "-colorspace", "bt709",
-            "-color_primaries", "bt709",
-            "-color_trc", "bt709",
-            "-movflags", "+faststart",
-            "-shortest",
-            str(dst_path),
-        ])
-        res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
-        if res.returncode == 0 and dst_path.exists() and dst_path.stat().st_size > 1000:
-            return True
-
-    return False
+    _, enc_args = resolve_encoder(bitrate=bitrate, crf=17)
+    cmd = [
+        ffmpeg_bin, "-y",
+        "-i", str(video_path),
+        "-i", str(audio_path),
+        *enc_args,
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-ar", "48000",
+        "-ac", "2",
+        "-colorspace", "bt709",
+        "-color_primaries", "bt709",
+        "-color_trc", "bt709",
+        "-movflags", "+faststart",
+        "-r", str(fps),
+        "-shortest",
+        str(dst_path),
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    if res.returncode != 0 or not dst_path.exists() or dst_path.stat().st_size <= 1000:
+        raise RenderingError(
+            stage="reencode_broadcast_mp4_with_audio",
+            artifact=str(dst_path),
+            cause=f"Broadcast multiplexing failed (returncode={res.returncode}): {res.stderr[-200:] if res.stderr else 'unknown'}",
+        )
+    return True
 
 
 def synthesize_studio_speech(

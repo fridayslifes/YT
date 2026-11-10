@@ -33,8 +33,9 @@ import time
 from pathlib import Path
 from typing import Callable, TypeVar
 
-if "/opt/homebrew/bin" not in os.environ.get("PATH", ""):
-    os.environ["PATH"] = f"/opt/homebrew/bin:{os.environ.get('PATH', '')}"
+for _bin_dir in ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin"):
+    if os.path.isdir(_bin_dir) and _bin_dir not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = f"{_bin_dir}:{os.environ.get('PATH', '')}"
 
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent

@@ -1,0 +1,11 @@
+# FrameForge Video Encoder Configuration
+# Supported encoders:
+#   - auto: selects platform-specific standard (h264_videotoolbox on Darwin, libx264 on Linux)
+#   - h264_videotoolbox: Apple Silicon / macOS hardware encoder
+#   - libx264: CPU software encoder (standard across Linux / Docker)
+#   - h264_nvenc: NVIDIA GPU hardware encoder
+encoder: "auto"
+h264_bitrate: "14M"
+libx264_crf: 18
+libx264_preset: "fast"
+fail_on_unavailable: true

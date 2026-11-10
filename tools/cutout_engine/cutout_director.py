@@ -368,6 +368,8 @@ def render_cutout_short_video(
 
     # Final FFmpeg broadcast mux (-14 LUFS)
     bitrate = "28M" if width > 1080 else "14M"
+    from tools.encoder_config import resolve_encoder
+    _, enc_args = resolve_encoder(bitrate=bitrate)
     cmd_mux = [
         "ffmpeg", "-y",
         "-i", str(temp_raw),
@@ -377,8 +379,7 @@ def render_cutout_short_video(
         f"[1:a]volume=1.0[v];[2:a]volume={drone_vol:.4f}[d];[v][d]amix=inputs=2:normalize=0,loudnorm=I=-14.0:TP=-1.5:LRA=7.0[aout]",
         "-map", "0:v",
         "-map", "[aout]",
-        "-c:v", "h264_videotoolbox",
-        "-b:v", bitrate,
+        *enc_args,
         "-c:a", "aac",
         "-b:a", "320k",
         "-ar", "48000",

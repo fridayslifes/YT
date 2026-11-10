@@ -164,37 +164,33 @@ def render_hybrid_scene(
 
 
 def reencode_broadcast_mp4(src_path: Path, dst_path: Path, fps: int = 30) -> bool:
-    """Encodes to broadcast H.264 MP4."""
+    """Encodes to broadcast H.264 MP4 using explicit encoder config."""
+    from tools.encoder_config import resolve_encoder
+    from tools.errors import RenderingError
+
     ffmpeg_bin = shutil.which("ffmpeg")
     if not ffmpeg_bin:
-        shutil.move(str(src_path), str(dst_path))
-        return True
+        raise RenderingError(stage="reencode_broadcast_mp4", artifact=str(dst_path), cause="ffmpeg not found on PATH")
 
-    encoders = ["h264_videotoolbox", "libx264"]
-    for enc in encoders:
-        cmd = [
-            ffmpeg_bin, "-y",
-            "-i", str(src_path),
-            "-c:v", enc,
-        ]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", "14M", "-profile:v", "high", "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "17", "-preset", "fast", "-pix_fmt", "yuv420p"])
+    _, enc_args = resolve_encoder(crf=17)
+    cmd = [
+        ffmpeg_bin, "-y",
+        "-i", str(src_path),
+        *enc_args,
+        "-colorspace", "bt709",
+        "-color_trc", "bt709",
+        "-color_primaries", "bt709",
+        "-r", str(fps),
+        str(dst_path),
+    ]
 
-        cmd.extend([
-            "-colorspace", "bt709",
-            "-color_trc", "bt709",
-            "-color_primaries", "bt709",
-            "-r", str(fps),
-            str(dst_path),
-        ])
-
-        proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if proc.returncode == 0 and dst_path.exists() and dst_path.stat().st_size > 0:
-            return True
-
-    shutil.move(str(src_path), str(dst_path))
+    proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if proc.returncode != 0 or not dst_path.exists() or dst_path.stat().st_size == 0:
+        raise RenderingError(
+            stage="reencode_broadcast_mp4",
+            artifact=str(dst_path),
+            cause=f"Failed to encode broadcast MP4 (returncode={proc.returncode})",
+        )
     return True
 
 

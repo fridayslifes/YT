@@ -106,6 +106,20 @@ def test_legacy_production_runner_builds_and_dispatches_one_canonical_workflow(m
     assert dispatched[0][0] is workflow
 
 
+def test_cli_produce_requires_channel_argument():
+    from tools.orchestrator import cli
+
+    parser = cli.build_parser()
+    with pytest.raises(SystemExit) as exc:
+        parser.parse_args(["produce", "--topic", "Loss Aversion", "--id", "SH-99", "--slug", "short_99"])
+    assert exc.value.code == 2
+
+    args = parser.parse_args([
+        "produce", "--topic", "Loss Aversion", "--id", "SH-99", "--slug", "short_99", "--channel", "cognitive_core"
+    ])
+    assert args.channel == "cognitive_core"
+
+
 def test_failed_task_blocks_dependents(tmp_path):
     def failing(spec, result, ctx):
         return [CheckResult(name="bad", passed=False, message="nope")]

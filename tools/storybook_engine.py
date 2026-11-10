@@ -714,30 +714,34 @@ def render_storybook_clip(
     finally:
         writer.release()
 
-    # Re-encode via broadcast pipeline (h264_videotoolbox or libx264)
+    # Re-encode via broadcast pipeline using explicit encoder config
+    from tools.encoder_config import resolve_encoder
+    from tools.errors import RenderingError
+
     ffmpeg_bin = shutil.which("ffmpeg")
     if not ffmpeg_bin:
-        shutil.move(str(tmp_raw), str(output_mp4))
-        return True
+        raise RenderingError(stage="render_storybook_clip", artifact=str(output_mp4), cause="ffmpeg not found on PATH")
 
-    encoders = ["h264_videotoolbox", "libx264"]
-    for enc in encoders:
-        cmd = [ffmpeg_bin, "-y", "-i", str(tmp_raw), "-c:v", enc]
-        if enc == "h264_videotoolbox":
-            cmd.extend(["-b:v", "14M", "-profile:v", "high", "-pix_fmt", "yuv420p"])
-        else:
-            cmd.extend(["-crf", "17", "-preset", "fast", "-pix_fmt", "yuv420p"])
-        cmd.extend([
-            "-colorspace", "bt709", "-color_trc", "bt709", "-color_primaries", "bt709",
-            "-r", str(fps), str(output_mp4),
-        ])
-        proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if proc.returncode == 0 and output_mp4.exists() and output_mp4.stat().st_size > 0:
-            if tmp_raw.exists():
-                tmp_raw.unlink(missing_ok=True)
-            return True
-
-    shutil.move(str(tmp_raw), str(output_mp4))
+    _, enc_args = resolve_encoder(crf=17)
+    cmd = [
+        ffmpeg_bin, "-y",
+        "-i", str(tmp_raw),
+        *enc_args,
+        "-colorspace", "bt709",
+        "-color_trc", "bt709",
+        "-color_primaries", "bt709",
+        "-r", str(fps),
+        str(output_mp4),
+    ]
+    proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if proc.returncode != 0 or not output_mp4.exists() or output_mp4.stat().st_size == 0:
+        raise RenderingError(
+            stage="render_storybook_clip",
+            artifact=str(output_mp4),
+            cause=f"Failed to encode storybook clip (returncode={proc.returncode})",
+        )
+    if tmp_raw.exists():
+        tmp_raw.unlink(missing_ok=True)
     return True
 
 

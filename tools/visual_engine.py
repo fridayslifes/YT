@@ -35,14 +35,37 @@ import zlib
 from dataclasses import dataclass
 from pathlib import Path
 
-if "/opt/homebrew/bin" not in os.environ.get("PATH", ""):
-    os.environ["PATH"] = f"/opt/homebrew/bin:{os.environ.get('PATH', '')}"
+for _bin_dir in ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin"):
+    if os.path.isdir(_bin_dir) and _bin_dir not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = f"{_bin_dir}:{os.environ.get('PATH', '')}"
 
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent
 # Unified root .venv holds mflux 0.24 alongside Pillow 13.
 FLUX2_BIN = YT_ROOT / ".venv" / "bin" / "mflux-generate-flux2"
 FLUX3_BIN = YT_ROOT / ".venv" / "bin" / "mflux-generate-flux3"
+
+
+def _resolve_ffmpeg() -> str:
+    path = shutil.which("ffmpeg")
+    if not path:
+        raise RenderingError(
+            stage="resolve_binary",
+            artifact="ffmpeg",
+            cause="ffmpeg executable not found on system PATH",
+        )
+    return path
+
+
+def _resolve_ffprobe() -> str:
+    path = shutil.which("ffprobe")
+    if not path:
+        raise RenderingError(
+            stage="resolve_binary",
+            artifact="ffprobe",
+            cause="ffprobe executable not found on system PATH",
+        )
+    return path
 
 # Weight stores sit in models/, which .gitignore excludes — so a fresh clone of this repo has no
 # renderer at all, and _renderer_for raises rather than downloading one. Set YT_MODELS_DIR to keep
@@ -203,8 +226,8 @@ def _can_use_nvenc() -> bool:
     """Probe once whether NVIDIA NVENC H.264 hardware encoding is actually usable."""
     global _NVENC_AVAILABLE
     if _NVENC_AVAILABLE is None:
-        ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
         try:
+            ffmpeg_bin = _resolve_ffmpeg()
             res = subprocess.run(
                 [
                     ffmpeg_bin, "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=128x128:r=30:d=0.05",
@@ -223,8 +246,8 @@ def _can_use_videotoolbox() -> bool:
     """Probe once whether Apple VideoToolbox hardware encoding is accessible."""
     global _VIDEOTOOLBOX_AVAILABLE
     if _VIDEOTOOLBOX_AVAILABLE is None:
-        ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
         try:
+            ffmpeg_bin = _resolve_ffmpeg()
             res = subprocess.run(
                 [
                     ffmpeg_bin, "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=64x64:r=30:d=0.05",
@@ -263,7 +286,7 @@ def _ffmpeg_stderr_log_path(output_path: Path) -> Path:
 
 def _probe_video_metadata(video_path: Path, timeout: int = 20) -> dict:
     """Fast ffprobe of an encoded clip; returns {} when the file is not a readable video."""
-    ffprobe_bin = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
+    ffprobe_bin = _resolve_ffprobe()
     try:
         res = subprocess.run(
             [
@@ -309,7 +332,7 @@ def verify_video_decodable(output_path: Path, timeout: float = 90.0) -> tuple[bo
         return False, "video stream reports zero dimensions"
 
     # Tail decode: a render killed mid-stream usually leaves a readable moov atom with cut-off frames.
-    ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+    ffmpeg_bin = _resolve_ffmpeg()
     dur = float(meta.get("duration") or 0.0)
     seek = max(0.0, dur - 0.5) if dur > 0.5 else 0.0
     try:
@@ -409,7 +432,7 @@ def _tail_stderr(log_path: Path, chars: int = 240) -> str:
 
 def _open_ffmpeg_writer(output_path: Path, W: int, H: int, fps: int = 30, bitrate: str = "14M") -> _FFmpegWriter:
     """Open high-precision H.264 writer (NVENC -> VideoToolbox -> libx264 High-Profile self-healing)."""
-    ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+    ffmpeg_bin = _resolve_ffmpeg()
     vcodec_args = select_h264_encoder_args(bitrate=bitrate, preview=False, hw_accel=True)
     log_path = _ffmpeg_stderr_log_path(output_path)
     cmd = [
@@ -872,7 +895,7 @@ BLENDER_TIMEOUT_S = 600.0
 
 def _probe_video_shape(video_path: Path) -> tuple[int, int, float, int]:
     """Return (width, height, fps, n_frames) for a clip via ffprobe."""
-    ffprobe_bin = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
+    ffprobe_bin = _resolve_ffprobe()
     try:
         res = run_process(
             [
@@ -941,7 +964,7 @@ def _decode_gray_frames(
     no select filter and indexes the frames in Python, so pairing never silently misaligns.
     stderr is discarded instead of piped, so a chatty decoder cannot fill a 64KB pipe and hang.
     """
-    ffmpeg_bin = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+    ffmpeg_bin = _resolve_ffmpeg()
     wanted_sorted = sorted(set(wanted))
 
     def _run(expr: str | None) -> dict[int, np.ndarray]:
