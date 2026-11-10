@@ -81,21 +81,23 @@ class ResearchAgent(BaseAgent):
     role = "Evidence & Primary Source Synthesist"
     emoji = "🔍"
 
-    # Best-effort word-boundary matching to prevent false positives (e.g., 'marvelous')
+    # Best-effort lookaround matching to prevent false positives and correctly handle non-word boundaries
+    COPYRIGHT_TERMS = (
+        "harry potter", "marvel", "star wars", "disney", "pokemon",
+        "lord of the rings", "game of thrones",
+    )
+    PSEUDOSCIENCE_TERMS = (
+        "flat earth", "astrology", "perpetual motion", "anti-vaccine",
+        "chemtrails", "telepathy", "crystal healing",
+        "dopamine detox removes 90%",
+    )
     COPYRIGHT_PATTERNS = [
-        re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
-        for term in (
-            "harry potter", "marvel", "star wars", "disney", "pokemon",
-            "lord of the rings", "game of thrones",
-        )
+        (term, re.compile(r"(?<!\w)" + re.escape(term) + r"(?!\w)", re.IGNORECASE))
+        for term in COPYRIGHT_TERMS
     ]
     PSEUDOSCIENCE_PATTERNS = [
-        re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
-        for term in (
-            "flat earth", "astrology", "perpetual motion", "anti-vaccine",
-            "chemtrails", "telepathy", "crystal healing",
-            "dopamine detox removes 90%",
-        )
+        (term, re.compile(r"(?<!\w)" + re.escape(term) + r"(?!\w)", re.IGNORECASE))
+        for term in PSEUDOSCIENCE_TERMS
     ]
 
     def run(self, topic: str, dossier_override: Optional[Dict[str, Any]] = None) -> tuple[Dict[str, Any], AgentReport]:
@@ -105,10 +107,9 @@ class ResearchAgent(BaseAgent):
         self.log(f"Synthesizing and truth-verifying empirical dossier for '{topic_clean}'...")
 
         # 1. Anti-infringement / Copyright & Corporate IP safety guard
-        ip_violation = next((p.pattern for p in self.COPYRIGHT_PATTERNS if p.search(topic_clean)), None)
+        ip_violation = next((term for term, p in self.COPYRIGHT_PATTERNS if p.search(topic_clean)), None)
         if ip_violation:
-            clean_name = ip_violation.replace(r"\b", "").replace("\\", "")
-            summary = f"BLOCKED by IP Guard: '{topic_clean}' contains copyrighted fictional IP ('{clean_name}')"
+            summary = f"BLOCKED by IP Guard: '{topic_clean}' contains copyrighted fictional IP ('{ip_violation}')"
             self.log(summary)
             return {}, AgentReport(
                 agent_name=self.name,
@@ -120,10 +121,9 @@ class ResearchAgent(BaseAgent):
             )
 
         # 2. Debunked Pseudoscience & False Information Guard
-        false_claim = next((p.pattern for p in self.PSEUDOSCIENCE_PATTERNS if p.search(topic_clean)), None)
+        false_claim = next((term for term, p in self.PSEUDOSCIENCE_PATTERNS if p.search(topic_clean)), None)
         if false_claim:
-            clean_claim = false_claim.replace(r"\b", "").replace("\\", "")
-            summary = f"BLOCKED by Fact-Check Guard: '{topic_clean}' contains debunked pseudoscience or false claim ('{clean_claim}')"
+            summary = f"BLOCKED by Fact-Check Guard: '{topic_clean}' contains debunked pseudoscience or false claim ('{false_claim}')"
             self.log(summary)
             return {}, AgentReport(
                 agent_name=self.name,
@@ -131,7 +131,7 @@ class ResearchAgent(BaseAgent):
                 status="FAIL",
                 duration_s=round(time.time() - t0, 2),
                 summary=summary,
-                metrics={"truth_verified": False, "false_claim": clean_claim},
+                metrics={"truth_verified": False, "false_claim": false_claim},
             )
 
         # 3. Retrieve verified dossier (fails closed: never synthesize an unverified study)
@@ -157,10 +157,9 @@ class ResearchAgent(BaseAgent):
 
         # Post-synthesis copyright check across full dossier content
         combined_text = f"{topic_clean} {json.dumps(dossier, ensure_ascii=False)}"
-        content_ip_violation = next((p.pattern for p in self.COPYRIGHT_PATTERNS if p.search(combined_text)), None)
+        content_ip_violation = next((term for term, p in self.COPYRIGHT_PATTERNS if p.search(combined_text)), None)
         if content_ip_violation:
-            clean_name = content_ip_violation.replace(r"\b", "").replace("\\", "")
-            summary = f"BLOCKED by IP Guard: Dossier for '{topic_clean}' contains copyrighted fictional IP ('{clean_name}')"
+            summary = f"BLOCKED by IP Guard: Dossier for '{topic_clean}' contains copyrighted fictional IP ('{content_ip_violation}')"
             self.log(summary)
             return {}, AgentReport(
                 agent_name=self.name,
