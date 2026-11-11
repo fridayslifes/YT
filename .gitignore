@@ -1,11 +1,25 @@
-# Orchestrator run ledgers and reports
+# Core Run Ledgers, Logs & Session Histories
 .orchestrator/
+*.log
+*.jsonl
+events.jsonl
+.cache/
+scratch/
+*.tmp
+*.lock
 
-# OAuth credentials must never be committed
+# Historical Run Evidence & Receipts
+channel_assets/evidence/
+*.receipt.json
+
+# OAuth Credentials & Secrets (Never Commit)
 channel_assets/client_secrets.json
 *.token.json
+client_secrets.json
+.yt_oauth_token.json
+.yt_client_secrets.json
 
-# Python & Virtual Environments
+# Python & Virtual Environments (Strictly Single .venv at root)
 .venv/
 .venv-flux2/
 __pycache__/
@@ -14,34 +28,23 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 
-# macOS System Files
+# OS Metadata
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# Heavy Local AI Model Weights & Binaries (fetched/installed locally)
+# Local AI Models & Binary Weights
 models/
 tools/kokoro_models/*.onnx
 tools/kokoro_models/*.bin
 tools/ntsc-rs.app/
 
-# Rendered Video Outputs, Per-Scene Caches & Scratch Experiments
+# Generated Video Outputs & Per-Scene Render Caches
 output/
-shorts/*/output/*.mp4
-shorts/*/output/*.wav
-shorts/*/videos/*.mp4
+shorts/*/output/
+shorts/*/videos/
 shorts/*/cache/
-long_form/*/output/*.mp4
-long_form/*/output/*.wav
-long_form/*/videos/*.mp4
+long_form/*/output/
+long_form/*/videos/
 long_form/*/cache/
-demos/*.mp4
-scratch/
-*.tmp
-*.lock
-
-# Google OAuth secrets (never commit)
-client_secrets.json
-channel_assets/client_secrets.json
-.yt_oauth_token.json
-.yt_client_secrets.json
+demos/
