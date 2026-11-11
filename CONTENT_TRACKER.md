@@ -67,6 +67,7 @@ Tracks every long-form and short-form video created, updated and published for *
 | **SH-DEMO-01** | Short (9:16) | — | [Watch](https://youtu.be/D4mPUw2vyKI) (`D4mPUw2vyKI`) | 31 | — | **Uploaded** |
 | **SH-DEMO-02** | Short (9:16) | — | [Watch](https://youtu.be/iDWfBVlhkPs) (`iDWfBVlhkPs`) | 0 | — | **Uploaded** |
 | **SH-22B** | Short (9:16) | — | [Watch](https://youtu.be/DUDtKAATb_U) (`DUDtKAATb_U`) | 870 | — | **Uploaded** |
+| **SH-30** | Short (9:16) | *The Paradox of Choice - SH-30* | *Pending Upload* | — | `shorts/short_30_paradox_of_choice/output/short_30_paradox_of_choice.mp4` | **Rendered — Gate PASS** |
 
 Views are `videos.list(part=statistics)` read on 2026-11-03, after this session's metadata pass; the titles above
 are the live titles, four of which this pass changed (`SH-02`, `SH-03`, `SH-08`, `SH-11`). All 20 videos return
