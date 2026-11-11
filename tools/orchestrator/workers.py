@@ -315,6 +315,8 @@ class ProjectWorker(Worker):
             scenes = [
                 {
                     "id": f"s{sc['scene_index']:02d}",
+                    "image": f"images/s{sc['scene_index']:02d}.jpg",
+                    "video": f"videos/s{sc['scene_index']:02d}.mp4",
                     "text": sc["text"],
                     "prompt": sc["synthesized_prompt"],
                     "preset": sc["camera"]["trajectory_preset"],

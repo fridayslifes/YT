@@ -513,15 +513,45 @@ def _ensure_scene_plate(
     ])
     digest = hashlib.sha256(seed_str.encode("utf-8")).digest()
 
-    r0, g0, b0 = 24 + (digest[0] % 70), 28 + (digest[1] % 70), 36 + (digest[2] % 80)
-    r1, g1, b1 = 60 + (digest[3] % 110), 55 + (digest[4] % 110), 70 + (digest[5] % 110)
-    accent = (80 + (digest[6] % 160), 110 + (digest[7] % 130), 140 + (digest[8] % 110))
+    palette = proj_data.get("color_palette") or {}
+
+    def _parse_rgb(hex_s: Any, default: Tuple[int, int, int]) -> Tuple[int, int, int]:
+        if isinstance(hex_s, str) and hex_s.startswith("#") and len(hex_s) == 7:
+            s = hex_s[1:]
+            if all(c in "0123456789abcdefABCDEF" for c in s):
+                return (int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16))
+        return default
+
+    bg_rgb = _parse_rgb(palette.get("background"), (16, 20, 28))
+    primary_rgb = _parse_rgb(palette.get("primary"), (245, 195, 115))
+    accent = _parse_rgb(
+        palette.get("accent"),
+        (80 + (digest[6] % 160), 110 + (digest[7] % 130), 140 + (digest[8] % 110)),
+    )
+
+    pattern_8x8 = np.array(
+        [
+            [(digest[(r * 8 + c) % 32] > 110 + ((r * 7 + c * 11 + scene_idx * 17) % 55)) for c in range(8)]
+            for r in range(8)
+        ],
+        dtype=np.float32,
+    )
+    pat_img = Image.fromarray((pattern_8x8 * 255).astype(np.uint8)).resize((width, height), Image.Resampling.BILINEAR)
+    pat_arr = np.array(pat_img, dtype=np.float32) / 255.0
+
+    angle = (scene_idx * 67 + digest[0] * 23) % 360
+    rad_ang = math.radians(angle)
+    lx, ly = 0.5 + 0.38 * math.cos(rad_ang), 0.45 + 0.28 * math.sin(rad_ang)
 
     y_lin = np.linspace(0.0, 1.0, height, dtype=np.float32)[:, None]
     x_lin = np.linspace(0.0, 1.0, width, dtype=np.float32)[None, :]
-    bg_b = (b0 * (1.0 - y_lin) + b1 * y_lin + 18.0 * np.sin(x_lin * math.pi * (2 + (digest[9] % 3)))).clip(0, 255)
-    bg_g = (g0 * (1.0 - y_lin) + g1 * y_lin + 18.0 * np.cos(y_lin * math.pi * (2 + (digest[10] % 3))) + 0.0 * x_lin).clip(0, 255)
-    bg_r = (r0 * (1.0 - y_lin) + r1 * y_lin + 18.0 * np.sin((x_lin + y_lin) * math.pi * 2.0)).clip(0, 255)
+    dist_light = np.sqrt(((x_lin - lx) * 1.5) ** 2 + ((y_lin - ly) * 1.2) ** 2)
+    radial_key = np.clip(1.0 - dist_light * 0.85, 0.0, 1.0)
+
+    blend_weight = np.clip(pat_arr * 0.60 + radial_key * 0.40, 0.0, 1.0)
+    bg_b = (bg_rgb[2] * (1.0 - blend_weight) + primary_rgb[2] * blend_weight * 0.7).clip(0, 255)
+    bg_g = (bg_rgb[1] * (1.0 - blend_weight) + primary_rgb[1] * blend_weight * 0.7).clip(0, 255)
+    bg_r = (bg_rgb[0] * (1.0 - blend_weight) + primary_rgb[0] * blend_weight * 0.7).clip(0, 255)
     canvas = np.stack([bg_b, bg_g, bg_r], axis=-1).astype(np.uint8)
 
     pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
@@ -545,14 +575,33 @@ def _ensure_scene_plate(
 
     title_str = str(proj_data.get("title") or proj_data.get("topic") or "FrameForge").upper()[:42]
     prompt_str = str(scene.get("prompt") or scene.get("text") or f"Scene {scene_idx + 1}")[:90]
-    card_x0, card_y0 = int(width * 0.08), int(height * 0.14)
-    card_x1, card_y1 = int(width * 0.92), int(height * 0.36)
-    draw.rounded_rectangle([card_x0, card_y0, card_x1, card_y1], radius=max(8, int(20 * scale)), fill=(16, 20, 28), outline=accent, width=max(2, int(3 * scale)))
-    draw.text((width // 2, card_y0 + int(38 * scale)), f"{title_str} • S{scene_idx + 1:02d}", fill=accent, font=font_title, anchor="mm")
+    card_y0 = int(height * (0.12 + 0.06 * (digest[5] % 3)))
+    card_h = int(height * 0.20)
+    card_x0, card_x1 = int(width * 0.08), int(width * 0.92)
+    draw.rounded_rectangle(
+        [card_x0, card_y0, card_x1, card_y0 + card_h],
+        radius=max(8, int(20 * scale)),
+        fill=(16, 20, 28),
+        outline=accent,
+        width=max(2, int(3 * scale)),
+    )
+    draw.text(
+        (width // 2, card_y0 + int(38 * scale)),
+        f"{title_str} • S{scene_idx + 1:02d}",
+        fill=accent,
+        font=font_title,
+        anchor="mm",
+    )
 
     wrapped = textwrap.wrap(prompt_str, width=36)[:2]
     for l_idx, line in enumerate(wrapped):
-        draw.text((width // 2, card_y0 + int((88 + l_idx * 32) * scale)), line, fill=(235, 240, 248), font=font_sub, anchor="mm")
+        draw.text(
+            (width // 2, card_y0 + int((88 + l_idx * 32) * scale)),
+            line,
+            fill=(235, 240, 248),
+            font=font_sub,
+            anchor="mm",
+        )
 
     out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     cv2.imwrite(str(img_path), out_bgr)

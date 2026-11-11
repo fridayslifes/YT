@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "SH-27",
+  "variant": "cinematic_35mm",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "id": "s01",
+      "text": "You will risk 4,000 to avoid a certain 3,000 loss\u2014here is the 1979 rule your brain follows.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left, Foreground props: a steaming ceramic mug and a scatter of unopened mail, Setting: dimly lit apartment hallway with morning light cutting through tall vertical blinds, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "overlay": {
+        "text": "THE PAIN ASYMMETRY",
+        "until": 2.6
+      },
+      "caption": "You will risk 4,000 to avoid a certain 3,000 loss\u2014here is the 1979 rule your brain follows.",
+      "image": "images/s01.jpg",
+      "video": "videos/s01.mp4"
+    },
+    {
+      "id": "s02",
+      "text": "You think a gain and a loss of equal size should weigh the same\u2014but they never did.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium shot of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_orbit",
+      "motion": "depthflow_orbit",
+      "cap_y": 0.48,
+      "caption": "You think a gain and a loss of equal size should weigh the same\u2014but they never did.",
+      "image": "images/s02.jpg",
+      "video": "videos/s02.mp4"
+    },
+    {
+      "id": "s03",
+      "text": "In the published data, the value function is *steeper* for losses than for gains, across five studies of thirty decision makers.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, macro detail insert of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_dolly",
+      "motion": "depthflow_dolly",
+      "cap_y": 0.52,
+      "stat_card": {
+        "title": "30 Decision Makers, 5 Studies",
+        "subtitle": "Loss Curvature in Business Utility Functions (Kahneman & Tversky 1979)"
+      },
+      "caption": "In the published data, the value function is *steeper* for losses than for gains, across five studies of thirty decision makers.",
+      "image": "images/s03.jpg",
+      "video": "videos/s03.mp4"
+    },
+    {
+      "id": "s04",
+      "text": "Five independent studies of business utility functions found the same tilt: losses weighed more, with one exception.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium close-up of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.49,
+      "caption": "Five independent studies of business utility functions found the same tilt: losses weighed more, with one exception.",
+      "image": "images/s04.jpg",
+      "video": "videos/s04.mp4"
+    },
+    {
+      "id": "s05",
+      "text": "It is why you hold a losing position, and why a ten-dollar fee costs you an hour of arguing with yourself.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, profile close-up of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "It is why you hold a losing position, and why a ten-dollar fee costs you an hour of arguing with yourself.",
+      "image": "images/s05.jpg",
+      "video": "videos/s05.mp4"
+    },
+    {
+      "id": "s06",
+      "text": "White-knuckling the choice does not flatten the curve; the loss still weighs more.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, profile close-up of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "White-knuckling the choice does not flatten the curve; the loss still weighs more.",
+      "image": "images/s06.jpg",
+      "video": "videos/s06.mp4"
+    },
+    {
+      "id": "s07",
+      "text": "The *five-second* ownership test? Would you buy it for cash today? If no, *let it go*. Comment below which loss you still hold.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, intimate portrait of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "spatial_drift",
+      "motion": "spatial_drift",
+      "cap_y": 0.47,
+      "caption": "The *five-second* ownership test? Would you buy it for cash today? If no, *let it go*. Comment below which loss you still hold.",
+      "image": "images/s07.jpg",
+      "video": "videos/s07.mp4"
+    },
+    {
+      "id": "s08",
+      "text": "Because the moment you let sunken loss disguise itself as loyalty...",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium cinematic of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.5,
+      "caption": "Because the moment you let sunken loss disguise itself as loyalty...",
+      "image": "images/s08.jpg",
+      "video": "videos/s08.mp4"
+    }
+  ],
+  "title": "Loss Aversion - SH-27",
+  "concept": "Loss Aversion",
+  "science": "Daniel Kahneman & Amos Tversky (1979)",
+  "citation_stat": "30 Decision Makers, 5 Studies",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "cinematic_35mm",
+  "genre_name": "Cinematic 35mm Documentary (Humanized Portra 400)",
+  "color_palette": {
+    "primary": "#FFC83D",
+    "secondary": "#00E5FF",
+    "accent": "#FF453A",
+    "background": "#000000"
+  },
+  "bgm_mood": "warm_acoustic_ambient",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 2475,
+    "bpm": 70
+  },
+  "ambience": "cinematic_35mm_loss_aversion_ambience",
+  "metadata": {
+    "cluster": "Cluster 3 (Behavioral Economics & Decision Traps)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 1,
+    "chapter_title": "Chapter 1: The Sunken Hold",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-14",
+    "next_episode": "SH-16",
+    "dossier_source": "Econometrica (Prospect Theory)",
+    "hook_score": 77,
+    "hook_band": "STRONG",
+    "hook_weakest": "CURIOSITY",
+    "word_count": 147,
+    "estimated_duration_sec": 58.8
+  }
+}

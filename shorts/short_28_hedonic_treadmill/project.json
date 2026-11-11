@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "SH-28",
+  "variant": "storybook_picturebook",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "id": "s01",
+      "text": "You expect the next prize to fix your happiness\u2014but 22 lottery winners failed to be happier than controls. Why?",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left, Foreground props: a steaming ceramic mug and a scatter of unopened mail, Setting: dimly lit apartment hallway with morning light cutting through tall vertical blinds, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "overlay": {
+        "text": "THE BASELINE TRAP",
+        "until": 2.6
+      },
+      "caption": "You expect the next prize to fix your happiness\u2014but 22 lottery winners failed to be happier than controls. Why?",
+      "image": "images/s01.jpg",
+      "video": "videos/s01.mp4"
+    },
+    {
+      "id": "s02",
+      "text": "You believe that reaching the next milestone will permanently fix your happiness\u2014but lottery winners were no happier than controls.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, medium shot of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_orbit",
+      "motion": "depthflow_orbit",
+      "cap_y": 0.48,
+      "caption": "You believe that reaching the next milestone will permanently fix your happiness\u2014but lottery winners were no happier than controls.",
+      "image": "images/s02.jpg",
+      "video": "videos/s02.mp4"
+    },
+    {
+      "id": "s03",
+      "text": "In the published data, participants showed major lottery winners were *no* *happier* than controls and took less pleasure in mundane events.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, macro detail insert of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_dolly",
+      "motion": "depthflow_dolly",
+      "cap_y": 0.52,
+      "stat_card": {
+        "title": "22 Winners vs 22 Controls",
+        "subtitle": "Lottery Winners vs Controls (Brickman et al. 1978)"
+      },
+      "caption": "In the published data, participants showed major lottery winners were *no* *happier* than controls and took less pleasure in mundane events.",
+      "image": "images/s03.jpg",
+      "video": "videos/s03.mp4"
+    },
+    {
+      "id": "s04",
+      "text": "Adaptation level: the win *raises the baseline*, so ordinary events compare less favorably, and *habituation* dulls the win itself.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, medium close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.49,
+      "caption": "Adaptation level: the win *raises the baseline*, so ordinary events compare less favorably, and *habituation* dulls the win itself.",
+      "image": "images/s04.jpg",
+      "video": "videos/s04.mp4"
+    },
+    {
+      "id": "s05",
+      "text": "You buy the dream upgrade, celebrate for *forty-eight* *hours*, and instantly find a new micro-defect to stress over.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, profile close-up of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "You buy the dream upgrade, celebrate for *forty-eight* *hours*, and instantly find a new micro-defect to stress over.",
+      "image": "images/s05.jpg",
+      "video": "videos/s05.mp4"
+    },
+    {
+      "id": "s06",
+      "text": "Chasing the next external high only burns out your reward pathways while leaving the underlying void untouched.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, profile close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "Chasing the next external high only burns out your reward pathways while leaving the underlying void untouched.",
+      "image": "images/s06.jpg",
+      "video": "videos/s06.mp4"
+    },
+    {
+      "id": "s07",
+      "text": "The *five-second* contrast reset? Mentally subtract the thing you own right now and picture your morning without it. Comment below what milestone you are chasing.",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, intimate portrait of subject framed center-left at [0.42, 0.49], upright and direct, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, calm resolved demeanor making grounded eye contact, Action: closing a leather-bound notebook and placing a brass pen down with deliberate finality, Foreground props: open leather notebook with handwritten notes and a clean porcelain saucer, Setting: warmly illuminated study with floor-to-ceiling wooden bookshelves, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "spatial_drift",
+      "motion": "spatial_drift",
+      "cap_y": 0.47,
+      "caption": "The *five-second* contrast reset? Mentally subtract the thing you own right now and picture your morning without it. Comment below what milestone you are chasing.",
+      "image": "images/s07.jpg",
+      "video": "videos/s07.mp4"
+    },
+    {
+      "id": "s08",
+      "text": "Because the moment you assume the next milestone is the finish line...",
+      "prompt": "Tactile archival casebook plate, aged cream paper document, vintage physical evidence photograph, medium cinematic of subject standing stage-left at [0.35, 0.51], turning back toward the doorway, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, coat draped over one arm, caught in mid-motion, Action: stepping through the threshold as the door begins to swing closed from right to left, Foreground props: brass door handle and a coat hook on dark paneled wall, Setting: threshold between dimly lit study and brightly sunlit corridor, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, soft physical drop shadow onto aged parchment background, warm directional tungsten desk lamp illumination, tactile paper grain texture, authentic historical forensic detail, primary subject centered vertically between 30% and 58% height, 35mm documentary depth of field.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.5,
+      "caption": "Because the moment you assume the next milestone is the finish line...",
+      "image": "images/s08.jpg",
+      "video": "videos/s08.mp4"
+    }
+  ],
+  "title": "The Hedonic Treadmill - SH-28",
+  "concept": "The Hedonic Treadmill",
+  "science": "Philip Brickman, Dan Coates & Ronnie Janoff-Bulman (1978)",
+  "citation_stat": "22 Winners vs 22 Controls",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "storybook_casebook",
+  "genre_name": "Tactile Archival Detective Casebook (Johnny Harris & LEMMiNO)",
+  "color_palette": {
+    "primary": "#E6C280",
+    "secondary": "#C85A32",
+    "accent": "#D62828",
+    "background": "#1A120B"
+  },
+  "bgm_mood": "tactile_casebook_mystery",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 8096,
+    "bpm": 77
+  },
+  "ambience": "storybook_casebook_the_hedonic_treadmill_ambience",
+  "metadata": {
+    "cluster": "Cluster 2 (Dopamine & Energy Regulation)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 3,
+    "chapter_title": "Chapter 3: The Winner's Horizon",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-16",
+    "next_episode": "SH-18",
+    "dossier_source": "Journal of Personality and Social Psychology",
+    "hook_score": 77,
+    "hook_band": "STRONG",
+    "hook_weakest": "SPECIFICITY",
+    "word_count": 155,
+    "estimated_duration_sec": 62.0
+  }
+}

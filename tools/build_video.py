@@ -926,17 +926,18 @@ def text_box(text: str, font: ImageFont.FreeTypeFont, max_w: int, fg, bg, pad: i
     return img
 
 
-def _apply_3d_card_perspective(card_rgba: Image.Image, tilt_deg: float = 2.2) -> Image.Image:
+def _apply_3d_card_perspective(card_rgba: Image.Image, tilt_deg: float = 2.2, scale: float = 1.0) -> Image.Image:
     """Apply subtle 3D perspective keystone tilt and deep Z-plane drop shadow to diegetic stat cards."""
     arr = np.array(card_rgba)
     h, w = arr.shape[:2]
-    pad_x, pad_y = CARD_PERSPECTIVE_PAD, CARD_PERSPECTIVE_PAD
+    pad_y = int(CARD_PERSPECTIVE_PAD * scale) if scale != 1.0 else CARD_PERSPECTIVE_PAD
+    pad_x = pad_y
     canvas = np.zeros((h + 2 * pad_y, w + 2 * pad_x, 4), dtype=np.uint8)
     canvas[pad_y:pad_y + h, pad_x:pad_x + w] = arr
     ch, cw = canvas.shape[:2]
 
-    shift_y = max(2.0, h * 0.022 * (tilt_deg / 2.2))
-    shift_x = max(2.0, w * 0.012)
+    shift_y = max(1.0, h * 0.022 * (tilt_deg / 2.2))
+    shift_x = max(1.0, w * 0.012)
     src_pts = np.float32([[pad_x, pad_y], [pad_x + w, pad_y], [pad_x + w, pad_y + h], [pad_x, pad_y + h]])
     dst_pts = np.float32([
         [pad_x + shift_x, pad_y - shift_y],
@@ -947,9 +948,12 @@ def _apply_3d_card_perspective(card_rgba: Image.Image, tilt_deg: float = 2.2) ->
     mat = cv2.getPerspectiveTransform(src_pts, dst_pts)
     warped = cv2.warpPerspective(canvas, mat, (cw, ch), flags=cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_CONSTANT)
 
-    alpha_sh = cv2.GaussianBlur(warped[..., 3], (25, 25), 8.5)
+    ksize = max(5, int(25 * scale))
+    if ksize % 2 == 0:
+        ksize += 1
+    alpha_sh = cv2.GaussianBlur(warped[..., 3], (ksize, ksize), max(1.0, 8.5 * scale))
     sh_layer = np.zeros_like(warped)
-    sh_mat = np.float32([[1.0, 0.0, 10.0], [0.0, 1.0, 14.0]])
+    sh_mat = np.float32([[1.0, 0.0, max(2.0, 10.0 * scale)], [0.0, 1.0, max(2.0, 14.0 * scale)]])
     sh_layer[..., 3] = (cv2.warpAffine(alpha_sh, sh_mat, (cw, ch)) * 0.55).astype(np.uint8)
 
     sh_pil = Image.fromarray(sh_layer, "RGBA")
@@ -988,7 +992,7 @@ def stat_card_box(title: str, subtitle: str, font_title: ImageFont.FreeTypeFont,
         title_font = ImageFont.truetype(str(font_title.path), title_size)
         sub_font = ImageFont.truetype(str(font_sub.path), sub_size)
         sub_lines = _wrap_lines(subtitle, sub_font, text_w)
-        floor_t, floor_s = int(font_title.size * 0.6), int(font_sub.size * 0.6)
+        floor_t, floor_s = max(8, int(font_title.size * 0.4)), max(8, int(font_sub.size * 0.4))
         while True:
             title_lines = _wrap_lines(title, title_font, text_w)
             if not any(title_font.getlength(ln) > text_w for ln in title_lines) or title_size <= floor_t:
@@ -1371,17 +1375,22 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
             # caption leaves: the band height, this scene's measured caption height, 32 px between them,
             # and the CARD_PERSPECTIVE_PAD the transform adds to the top and the bottom. 16:9 keeps its
             # classic layout - its caption sits at 0.86, outside the band, so the two never contend.
+            scale = H / 1920.0 if proj.get("format", "short") == "short" else H / 1080.0
+            gap = int(32 * scale)
+            card_pad = max(8, int(26 * scale))
+            persp_pad = int(CARD_PERSPECTIVE_PAD * scale)
             if proj.get("format", "short") == "short":
                 card_max_h = (
                     int(H * (SHORT_TEXT_BAND[1] - SHORT_TEXT_BAND[0]))
-                    - caption_room.get(idx, int(fmt["font"] * 3)) - 32 - 2 * CARD_PERSPECTIVE_PAD
+                    - caption_room.get(idx, int(fmt["font"] * 3)) - gap - 2 * persp_pad
                 )
             else:
                 card_max_h = (
-                    int(H * (SHORT_TEXT_BAND[1] - SHORT_TEXT_BAND[0])) - int(fmt["font"] * 3) - 32
+                    int(H * (SHORT_TEXT_BAND[1] - SHORT_TEXT_BAND[0])) - int(fmt["font"] * 3) - gap
                 )
             box = _apply_3d_card_perspective(stat_card_box(title, subtitle, card_font_title, card_font_sub,
-                                                           int(W * 0.86), accent_rgba=accent_rgba, max_h=card_max_h))
+                                                           int(W * 0.86), pad=card_pad, accent_rgba=accent_rgba, max_h=card_max_h),
+                                             scale=scale)
             stat_cards.append((box, s0, until))
 
     bank = ImageBank(W, H)
@@ -1486,7 +1495,7 @@ def build(project_path: Path, out: Path | None, preview: bool = False, hw_accel:
                                     half = box.height // 2 if centred else 0
                                     occupied.append((mid - half, mid - half + box.height))
                         cap_top = int(H * active_cap_y) - layer.height // 2
-                        gap = 16
+                        gap = max(8, int(16 * scale))
                         band_top, band_bottom = int(H * SHORT_TEXT_BAND[0]), int(H * SHORT_TEXT_BAND[1])
 
                         def _clear(top: int) -> bool:

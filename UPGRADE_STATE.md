@@ -384,5 +384,10 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
   - Policy Gate and Uniqueness Gate verified.
   - Multi-stage Docker containers built and passing verification tests.
   - `./check.sh all` 100% green with 1024 passing tests, 0 dangling references, and all guard checks passed.
+  - **Production of SH-27 & SH-28 Completed:**
+    - `SH-27`: *The Midnight Coin Toss* (`short_27_loss_aversion`, Cinematic 35mm, Kahneman & Tversky 1979) rendered to `shorts/short_27_loss_aversion/output/short_27_loss_aversion.mp4` (47.5s, 8 scenes, Kokoro-82M audio, 100% word alignment).
+    - `SH-28`: *The Man Who Won Paradise* (`short_28_hedonic_treadmill`, Archival Casebook, Brickman et al. 1978) rendered to `shorts/short_28_hedonic_treadmill/output/short_28_hedonic_treadmill.mp4` (55.7s, 8 scenes, Kokoro-82M audio, 100% word alignment).
+    - Rule C Uniqueness Gate evaluated and passing with 0 collisions (`min cross distance = 14`, `within SH-27 = 20`, `within SH-28 = 12`).
+    - Pre-Upload Policy Gate evaluated and passing for both projects.
 - **In Progress:** None. All phases complete and verified.
-- **Exact Next Command:** Ready for creator video production via `python tools/master.py produce --channel cognitive_core --variant <variant> --topic "<topic>" --id <ID> --slug <slug> --direct`.
+- **Exact Next Command:** Ready for creator review and optional upload via `python tools/master.py release-existing --project shorts/short_27_loss_aversion/project.json`.
