@@ -13,7 +13,7 @@ Tracks every long-form and short-form video created, updated and published for *
 | :--- | :--- | :--- |
 | **Channel Handle** | `@CognitiveCoreOfficial` | Launched Oct 4, 2026 (Verified) |
 | **Current Subscribers** | **12** | `channels.list` on 2026-11-03; target Tier 1 (500 subs) / Tier 2 (1,000 subs) |
-| **Total Channel Views** | **3,782+** | `channels.statistics.viewCount` on 2026-11-03; Shorts views are counted separately from the public sum |
+| **Total Channel Views** | **5,214+** | `channels.statistics.viewCount` on 2026-11-03; Shorts views are counted separately from the public sum |
 | **Long-Form Videos Live** | **2** | `LV-01` (*Dopamine Exhaustion*) & `LV-02` (*The 3 Hidden Brain Traps Destroying Your Focus*) |
 | **Duplicate Removed** | **1** | Unlisted 8:13 copy `xNjdetA47s4` deleted on Oct 31; public 8:09 `1Tg-y7fqAn4` kept |
 | **Shorts Live** | **22** | Shorts #1 through #12 (including `SH-01B`), `SH-14`, `SH-15`, `SH-16`, `SH-13`, `SH-17`, `SH-18`, `SH-19`, `SH-20` and `SH-21` |
@@ -32,7 +32,7 @@ Tracks every long-form and short-form video created, updated and published for *
 | ID | Format | Live Title | Live Link & ID | Views | Local Project | Status |
 | :--- | :---: | :--- | :--- | :---: | :--- | :---: |
 | **LV-01** | Long (16:9) | *Dopamine Exhaustion: Why You Can’t Focus Anymore* | [Watch](https://www.youtube.com/watch?v=f2vsYJOyZ3U) (`f2vsYJOyZ3U`) | 27 | No local project (Studio) | **Live** |
-| **LV-02** | Long (16:9) | *The 3 Hidden Brain Traps Destroying Your Focus* | [Watch](https://youtu.be/1Tg-y7fqAn4) (`1Tg-y7fqAn4`) | 30 | Deleted locally Oct 31 | **Live** |
+| **LV-02** | Long (16:9) | *The 3 Hidden Brain Traps Destroying Your Focus* | [Watch](https://youtu.be/1Tg-y7fqAn4) (`1Tg-y7fqAn4`) | 38 | Deleted locally Oct 31 | **Live** |
 | **SH-01** | Short (9:16) | *Why You Forget What You Came For (Doorway Effect)* | [Watch](https://www.youtube.com/shorts/ljjAPauTnN4) (`ljjAPauTnN4`) | 175 | Deleted locally Oct 31 | **Live** |
 | **SH-01B** | Short (9:16) | *You Forgot It In The Hallway, 2006* | [Watch](https://www.youtube.com/shorts/9Q-FT8oE-EQ) (`9Q-FT8oE-EQ`) | 13 | Deleted locally Oct 31 | **Live** |
 | **SH-02** | Short (9:16) | *Your Last Task Is Still Open, 2009* | [Watch](https://www.youtube.com/shorts/CV6Xl-yzNUc) (`CV6Xl-yzNUc`) | 27 | Deleted locally Oct 31 | **Live** |
@@ -42,29 +42,29 @@ Tracks every long-form and short-form video created, updated and published for *
 | **SH-06** | Short (9:16) | *Why A 4 PM Appointment Ruins Your Entire Day (Waiting Mode)* | [Watch](https://www.youtube.com/shorts/FK59XNAeKVA) (`FK59XNAeKVA`) | 130 | Deleted locally Oct 31 | **Live** |
 | **SH-07** | Short (9:16) | *Your Brain Keeps The Open Loop, 1927* | [Watch](https://www.youtube.com/shorts/r6CXqdeT1Tw) (`r6CXqdeT1Tw`) | 87 | Deleted locally Oct 31 | **Live** |
 | **SH-08** | Short (9:16) | *How To Quiet Social Anxiety In 5 Seconds (The "Last Tuesday" Test)* | [Watch](https://www.youtube.com/shorts/LbNaAb4xm7w) (`LbNaAb4xm7w`) | 56 | Deleted locally Oct 31 | **Live** |
-| **SH-09** | Short (9:16) | *45 Minutes Of Scrolling, 0 Watched* | [Watch](https://www.youtube.com/shorts/X2wZIWeOqAQ) (`X2wZIWeOqAQ`) | 31 | Deleted locally Oct 31 | **Live** |
+| **SH-09** | Short (9:16) | *45 Minutes Of Scrolling, 0 Watched* | [Watch](https://www.youtube.com/shorts/X2wZIWeOqAQ) (`X2wZIWeOqAQ`) | 33 | Deleted locally Oct 31 | **Live** |
 | **SH-10** | Short (9:16) | *A Buzz That Never Happened, 2012* | [Watch](https://www.youtube.com/shorts/EaV0AeCH6hw) (`EaV0AeCH6hw`) | 27 | Deleted locally Oct 31 | **Live** |
 | **SH-11** | Short (9:16) | *85% Helped Alone. 31% Didn't.* | [Watch](https://youtu.be/sHJ2ubBWxEI) (`sHJ2ubBWxEI`) | 12 | Deleted locally Oct 31 | **Live** |
 | **SH-12** | Short (9:16) | *The 2-Hour Task That Ate Your Week* | [Watch](https://youtu.be/R1xMCnlsM6o) (`R1xMCnlsM6o`) | 29 | Deleted locally Oct 31 | **Live** |
 | **SH-13** | Short (9:16) | *Dunning-Kruger: Why 12th Felt Like 62nd* | [Watch](https://youtu.be/L2KEsuz8oQs) (`L2KEsuz8oQs`) | 225 | Deleted locally Nov 2 | **Live** |
 | **SH-14** | Short (9:16) | *24 Jams Drew The Crowd. 6 Won The Sale.* | [Watch](https://youtu.be/tyw9-qzJxwI) (`tyw9-qzJxwI`) | 14 | Deleted locally Oct 31 | **Live** |
-| **SH-15** | Short (9:16) | *Loss Aversion: The 1979 Study On Why You Freeze* | [Watch](https://youtu.be/QbqtRznFtQE) (`QbqtRznFtQE`) | 514 | Deleted locally Oct 31 | **Live** |
+| **SH-15** | Short (9:16) | *Loss Aversion: The 1979 Study On Why You Freeze* | [Watch](https://youtu.be/QbqtRznFtQE) (`QbqtRznFtQE`) | 515 | Deleted locally Oct 31 | **Live** |
 | **SH-16** | Short (9:16) | *3 Premises, And You Might Be Code* | [Watch](https://youtu.be/qMpS90Fupbs) (`qMpS90Fupbs`) | 22 | Deleted locally Nov 2 | **Live** |
 | **SH-17** | Short (9:16) | *The Hedonic Treadmill, 1978* | [Watch](https://youtu.be/ocijEvhSCv0) (`ocijEvhSCv0`) | 91 | local working directory removed 2026-11-03 (video is live) | **Live** |
 | **SH-18** | Short (9:16) | *23 Labs Say Willpower: 0.04* | [Watch](https://youtu.be/mS-lYYZBlGE) (`mS-lYYZBlGE`) | 33 | `shorts/short_18_ego_depletion/output/short_18_ego_depletion.mp4` · evidence `channel_assets/evidence/SH-18-ego-depletion.json` | **Live** |
-| **SH-19** | Short (9:16) | *66,062 Goals Clustered on Mondays* | [Watch](https://youtu.be/hyOr2V9t3vk) (`hyOr2V9t3vk`) | 31 | `shorts/short_19_fresh_start/output/short_19_fresh_start.mp4` · evidence `channel_assets/evidence/SH-19-fresh-start.json` | **Live** |
+| **SH-19** | Short (9:16) | *66,062 Goals Clustered on Mondays* | [Watch](https://youtu.be/hyOr2V9t3vk) (`hyOr2V9t3vk`) | 32 | `shorts/short_19_fresh_start/output/short_19_fresh_start.mp4` · evidence `channel_assets/evidence/SH-19-fresh-start.json` | **Live** |
 | **SH-20** | Short (9:16) | *71% Finished on Time. 32% Didn't.* | [Watch](https://youtu.be/Yv2wa2WbQCg) (`Yv2wa2WbQCg`) | 24 | `shorts/short_20_implementation_intentions/output/short_20_implementation_intentions.mp4` · evidence `channel_assets/evidence/SH-20-implementation-intentions.json` | **Live** |
-| **LV-01-FORENSIC** | Long (16:9) | *The Skyjacker Who Vanished at 10,000 Feet* (`long_01_db_cooper_1971`) | [Watch](https://youtu.be/ClCw8s93vcw) (`ClCw8s93vcw`) | 1 | `output/long_01_db_cooper_1971_living_picture_book_16x9.mp4` · kit `projects/long_01_db_cooper_1971/UPLOAD_KIT_LV01.md` | **Uploaded** |
-| **SH-21** | Short (9:16) | *The 1920 Wall Street Mystery* | [Watch](https://youtu.be/IdnZf3IT2IM) (`IdnZf3IT2IM`) | 1,368 | `shorts/short_21_wall_street_mystery/output/short_21_wall_street_mystery.mp4` · kit `shorts/short_21_wall_street_mystery/UPLOAD_KIT_SH21.md` | **Uploaded** |
+| **LV-01-FORENSIC** | Long (16:9) | *The Skyjacker Who Vanished at 10,000 Feet* (`long_01_db_cooper_1971`) | [Watch](https://youtu.be/ClCw8s93vcw) (`ClCw8s93vcw`) | 3 | `output/long_01_db_cooper_1971_living_picture_book_16x9.mp4` · kit `projects/long_01_db_cooper_1971/UPLOAD_KIT_LV01.md` | **Uploaded** |
+| **SH-21** | Short (9:16) | *The 1920 Wall Street Mystery* | [Watch](https://youtu.be/IdnZf3IT2IM) (`IdnZf3IT2IM`) | 1,360 | `shorts/short_21_wall_street_mystery/output/short_21_wall_street_mystery.mp4` · kit `shorts/short_21_wall_street_mystery/UPLOAD_KIT_SH21.md` | **Uploaded** |
 | **SH-22** | Short (9:16) | *Why 500-Ton Clouds Don't Crash?* | [Watch](https://youtu.be/Hhrull2A988) (`Hhrull2A988`) | — | `shorts/short_18_why_clouds_dont_fall/output/short_18_why_clouds_dont_fall_4k60.mp4` · kit `shorts/short_18_why_clouds_dont_fall/UPLOAD_KIT_SH22.md` | **Live** |
-| **SH-23** | Short (9:16) | *The Entire Internet Weighs 50 Grams* | [Watch](https://youtu.be/KSw5d8We7oo) (`KSw5d8We7oo`) | 4 | `shorts/short_23_v2_emotional_audio_reactive/output/short_23_v2_emotional_audio_reactive_4k60.mp4` · kit `shorts/short_23_internet_weight/UPLOAD_KIT_SH23.md` | **Uploaded** |
-| **SH-24** | Short (9:16) | *600 Experiments Caught Rain's Smell* | [Watch](https://youtu.be/z2KkIxBSltY) (`z2KkIxBSltY`) | — | `shorts/short_24_petrichor/output/short_24_petrichor_4k60.mp4` · evidence `channel_assets/evidence/SH-24-petrichor.json` · kit `shorts/short_24_petrichor/UPLOAD_KIT_SH24.md` | **Uploaded** |
+| **SH-23** | Short (9:16) | *The Entire Internet Weighs 50 Grams* | [Watch](https://youtu.be/KSw5d8We7oo) (`KSw5d8We7oo`) | 77 | `shorts/short_23_v2_emotional_audio_reactive/output/short_23_v2_emotional_audio_reactive_4k60.mp4` · kit `shorts/short_23_internet_weight/UPLOAD_KIT_SH23.md` | **Uploaded** |
+| **SH-24** | Short (9:16) | *600 Experiments Caught Rain's Smell* | [Watch](https://youtu.be/z2KkIxBSltY) (`z2KkIxBSltY`) | 1,262 | `shorts/short_24_petrichor/output/short_24_petrichor_4k60.mp4` · evidence `channel_assets/evidence/SH-24-petrichor.json` · kit `shorts/short_24_petrichor/UPLOAD_KIT_SH24.md` | **Uploaded** |
 | **SH-25** | Short (9:16) | *The Speckled Band (Sherlock Holmes, 1892)* | — | — | `shorts/short_25_speckled_band/project.json` · kit `shorts/short_25_speckled_band/UPLOAD_KIT_SH25.md` | **Blueprint (Classic Storybook)** |
 | **SH-26** | Short (9:16) | *The Picture of Dorian Gray (Oscar Wilde, 1890)* | — | — | `shorts/short_26_dorian_gray/project.json` · kit `shorts/short_26_dorian_gray/UPLOAD_KIT_SH26.md` | **Blueprint (Gothic Scrapbook)** |
 | **LV-03** | Long (16:9) | *lv_03_wall_street_investigation (Forensic Archival Investigation of the 1920 Wall Street Detonation)* | *Pending Upload* | — | `long_form/lv_03_wall_street_investigation/output/lv_03_wall_street_investigation.mp4` | **Rendered — Gate PASS** |
 | **SH-DEMO-01** | Short (9:16) | — | [Watch](https://youtu.be/D4mPUw2vyKI) (`D4mPUw2vyKI`) | 31 | — | **Uploaded** |
 | **SH-DEMO-02** | Short (9:16) | — | [Watch](https://youtu.be/iDWfBVlhkPs) (`iDWfBVlhkPs`) | 0 | — | **Uploaded** |
-| **SH-22B** | Short (9:16) | — | [Watch](https://youtu.be/DUDtKAATb_U) (`DUDtKAATb_U`) | 802 | — | **Uploaded** |
+| **SH-22B** | Short (9:16) | — | [Watch](https://youtu.be/DUDtKAATb_U) (`DUDtKAATb_U`) | 870 | — | **Uploaded** |
 
 Views are `videos.list(part=statistics)` read on 2026-11-03, after this session's metadata pass; the titles above
 are the live titles, four of which this pass changed (`SH-02`, `SH-03`, `SH-08`, `SH-11`). All 20 videos return
