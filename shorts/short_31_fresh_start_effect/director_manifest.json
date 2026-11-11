@@ -1,0 +1,311 @@
+{
+  "video_id": "SH-31",
+  "topic": "The Fresh Start Effect",
+  "genre": "kinetic_explainer",
+  "channel": "cognitive_core",
+  "logline": "The Fresh Start Effect: You tell yourself you will start when you feel ready\u2014the calendar is what moved 43,012 people to start. Backed by Hengchen Dai, Katherine L. Milkman & Jason Riis (3 Studies, 66,062 Goals).",
+  "director_vision": "An intimate psychological thriller aesthetic in Humanized Editorial Explainer (Vox & Johnny Harris Style). Grounding abstract decision theory in tangible physical textures, dramatic directional chiaroscuro, and purposeful camera choreography that mirrors the cognitive trap of The Fresh Start Effect.",
+  "color_palette": {
+    "primary": "#FFBE0B",
+    "secondary": "#FB5607",
+    "accent": "#3A86FF",
+    "background": "#141724"
+  },
+  "soundtrack_theme": "Analog suspense score anchored at 45Hz sub-bass, Mid/Side vocal pocket ducking, and tactile physical Foley reflecting The Fresh Start Effect.",
+  "scenes": [
+    {
+      "scene_index": 1,
+      "narrative_beat": "Visceral Hook",
+      "text": "You waste the week waiting to feel ready\u20143 field studies logged 66,062 goals, and here is what actually moved them.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact",
+        "movement_vector": "holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left",
+        "focal_props": "a steaming ceramic mug and a scatter of unopened mail",
+        "background_staging": "dimly lit apartment hallway with morning light cutting through tall vertical blinds"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "3:1 high-contrast documentary chiaroscuro",
+        "rim_light": "soft cyan edge light tracing the left shoulder and jawline",
+        "ambient_fill": "10% subtle ambient bounce from the floor"
+      },
+      "camera": {
+        "shot_scale": "medium close-up",
+        "trajectory_preset": "depthflow_vertigo",
+        "motion_rationale": "Hitchcock dolly-zoom to physically induce disorientation on the hook",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.5
+      },
+      "sound": {
+        "score_movement": "isolated 45Hz sub-bass felt drone; silence on the first three words",
+        "foley_cue": "heavy felt sub-thud on hook punchline + subtle tape hiss",
+        "stereo_pan": 0.0,
+        "narrator_tone": "hushed, urgent inquiry drawing the listener in"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left, Foreground props: a steaming ceramic mug and a scatter of unopened mail, Setting: dimly lit apartment hallway with morning light cutting through tall vertical blinds, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": {
+        "text": "THE 66,062 GOALS",
+        "until": 2.6
+      },
+      "stat_card": null
+    },
+    {
+      "scene_index": 2,
+      "narrative_beat": "Empirical Context",
+      "text": "You tell yourself you will start when you feel ready\u2014the calendar is what moved 43,012 people to start.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject standing stage-right at [0.62, 0.51], facing stage-left",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought",
+        "movement_vector": "pacing two paces forward, pausing as realization dawns",
+        "focal_props": "a vintage magnifying loupe and sorted statistical survey sheets",
+        "background_staging": "quiet archive reading room flanked by towering filing drawers"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "3:1 balanced natural portrait lighting",
+        "rim_light": "subtle warm kicker light along the right collar",
+        "ambient_fill": "20% soft diffused daylight bounce"
+      },
+      "camera": {
+        "shot_scale": "medium shot",
+        "trajectory_preset": "depthflow_orbit",
+        "motion_rationale": "360-degree rotational inspection of the archival experimental setting",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.48
+      },
+      "sound": {
+        "score_movement": "low analog synthesizer bed entering softly with warm tape warmth",
+        "foley_cue": "mechanical film camera shutter transient on study citation",
+        "stereo_pan": 0.25,
+        "narrator_tone": "measured, authoritative historical documentation"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium shot of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    },
+    {
+      "scene_index": 3,
+      "narrative_beat": "Experimental Setup",
+      "text": "In the published data, the 66,062 goal contracts clustered after landmarks, while placebo searches for laundry and news did not.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject seated stage-left at [0.38, 0.50], facing forward",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought",
+        "movement_vector": "tracing a finger across handwritten experimental trial results",
+        "focal_props": "a vintage magnifying loupe and sorted statistical survey sheets",
+        "background_staging": "quiet archive reading room flanked by towering filing drawers"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "4:1 dramatic shadow ratio emphasizing cognitive tension",
+        "rim_light": "warm amber rim light separating silhouette from dark oak backdrop",
+        "ambient_fill": "15% warm desk bounce"
+      },
+      "camera": {
+        "shot_scale": "macro detail insert",
+        "trajectory_preset": "depthflow_dolly",
+        "motion_rationale": "slow, deliberate push-in toward the tactile experimental apparatus",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.52
+      },
+      "sound": {
+        "score_movement": "staccato piano ostinato beginning in minor third intervals",
+        "foley_cue": "tactile wooden desk tap and sliding brass weight",
+        "stereo_pan": -0.3,
+        "narrator_tone": "precise, analytical presentation of the trial setup"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, macro detail insert of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": {
+        "title": "3 Studies, 66,062 Goals",
+        "subtitle": "Archival field data (Dai, Milkman & Riis 2014, p. 11)"
+      }
+    },
+    {
+      "scene_index": 4,
+      "narrative_beat": "Complication & Stakes",
+      "text": "Landmarks open a new mental accounting period, filing past slips in the old one\u2014the authors call that evidence imperfect.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject standing stage-right at [0.62, 0.51], facing stage-left",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought",
+        "movement_vector": "pacing two paces forward, pausing as realization dawns",
+        "focal_props": "a vintage magnifying loupe and sorted statistical survey sheets",
+        "background_staging": "quiet archive reading room flanked by towering filing drawers"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "4:1 dramatic shadow ratio emphasizing cognitive tension",
+        "rim_light": "warm amber rim light separating silhouette from dark oak backdrop",
+        "ambient_fill": "15% warm desk bounce"
+      },
+      "camera": {
+        "shot_scale": "medium close-up",
+        "trajectory_preset": "depthflow_spiral",
+        "motion_rationale": "helical camera spiral rising upward as psychological pressure builds",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.49
+      },
+      "sound": {
+        "score_movement": "pulsing heartbeat sub-bass rhythm under steady synthetic strings",
+        "foley_cue": "low-pass whoosh transition on visual scene cut",
+        "stereo_pan": -0.15,
+        "narrator_tone": "compelling narrative momentum"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    },
+    {
+      "scene_index": 5,
+      "narrative_beat": "Psychological Mechanism",
+      "text": "It is why resolutions crowd Mondays and new years: the start line, not your discipline, picks when you try.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject seated stage-left at [0.38, 0.50], facing forward",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought",
+        "movement_vector": "tracing a finger across handwritten experimental trial results",
+        "focal_props": "a vintage magnifying loupe and sorted statistical survey sheets",
+        "background_staging": "quiet archive reading room flanked by towering filing drawers"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "3:1 balanced natural portrait lighting",
+        "rim_light": "subtle warm kicker light along the right collar",
+        "ambient_fill": "20% soft diffused daylight bounce"
+      },
+      "camera": {
+        "shot_scale": "profile close-up",
+        "trajectory_preset": "depthflow_vertigo",
+        "motion_rationale": "dolly-zoom at moment of realization when mechanism is revealed",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.5
+      },
+      "sound": {
+        "score_movement": "rising resonant low-pass filter opening as tension peaks",
+        "foley_cue": "metallic resonance chime on neural revelation",
+        "stereo_pan": 0.15,
+        "narrator_tone": "intense clarity revealing the biological trigger"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, profile close-up of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    },
+    {
+      "scene_index": 6,
+      "narrative_beat": "Psychological Mechanism",
+      "text": "Waiting for a fresh start keeps trying scheduled; the paper documents the spike, not a better outcome.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface",
+        "movement_vector": "sliding a single brass token across the polished wood grain from right to left",
+        "focal_props": "two antique betting ledgers and a balanced mechanical brass scale",
+        "background_staging": "vintage 1970s laboratory carrel with green shaded banker's lamp"
+      },
+      "lighting": {
+        "key_light_source": "high directional lantern on stage-right at a 40-degree angle",
+        "dominant_side": "stage-right illuminated at 80% brightness; stage-left side of face in shadow",
+        "shadow_ratio": "3:1 balanced natural portrait lighting",
+        "rim_light": "subtle warm kicker light along the right collar",
+        "ambient_fill": "20% soft diffused daylight bounce"
+      },
+      "camera": {
+        "shot_scale": "profile close-up",
+        "trajectory_preset": "depthflow_vertigo",
+        "motion_rationale": "dolly-zoom at moment of realization when mechanism is revealed",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.5
+      },
+      "sound": {
+        "score_movement": "rising resonant low-pass filter opening as tension peaks",
+        "foley_cue": "metallic resonance chime on neural revelation",
+        "stereo_pan": 0.15,
+        "narrator_tone": "intense clarity revealing the biological trigger"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, profile close-up of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    },
+    {
+      "scene_index": 7,
+      "narrative_beat": "Action Ask & Reset",
+      "text": "The *five-second* reframe? Name the date you are actually using\u2014tomorrow, not someday. Comment below which landmark you start on.",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject framed center-left at [0.42, 0.49], upright and direct",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, calm resolved demeanor making grounded eye contact",
+        "movement_vector": "closing a leather-bound notebook and placing a brass pen down with deliberate finality",
+        "focal_props": "open leather notebook with handwritten notes and a clean porcelain saucer",
+        "background_staging": "warmly illuminated study with floor-to-ceiling wooden bookshelves"
+      },
+      "lighting": {
+        "key_light_source": "high directional lantern on stage-right at a 40-degree angle",
+        "dominant_side": "stage-right illuminated at 80% brightness; stage-left side of face in shadow",
+        "shadow_ratio": "3:1 balanced natural portrait lighting",
+        "rim_light": "subtle warm kicker light along the right collar",
+        "ambient_fill": "20% soft diffused daylight bounce"
+      },
+      "camera": {
+        "shot_scale": "intimate portrait",
+        "trajectory_preset": "spatial_drift",
+        "motion_rationale": "calm, grounded spatial drift as viewer receives direct instruction",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.47
+      },
+      "sound": {
+        "score_movement": "resolving warm harmonic pad; music ducks 40% for direct address",
+        "foley_cue": "paper turn and soft ceramic cup placement",
+        "stereo_pan": 0.0,
+        "narrator_tone": "grounded, pragmatic second-person behavioral reset"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, intimate portrait of subject framed center-left at [0.42, 0.49], upright and direct, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, calm resolved demeanor making grounded eye contact, Action: closing a leather-bound notebook and placing a brass pen down with deliberate finality, Foreground props: open leather notebook with handwritten notes and a clean porcelain saucer, Setting: warmly illuminated study with floor-to-ceiling wooden bookshelves, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    },
+    {
+      "scene_index": 8,
+      "narrative_beat": "Infinite Loop Bridge",
+      "text": "Because the moment a new week gets sold as a new you...",
+      "duration_s": 3.6,
+      "spatial": {
+        "character_position": "subject standing stage-left at [0.35, 0.51], turning back toward the doorway",
+        "posture_and_wardrobe": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, coat draped over one arm, caught in mid-motion",
+        "movement_vector": "stepping through the threshold as the door begins to swing closed from right to left",
+        "focal_props": "brass door handle and a coat hook on dark paneled wall",
+        "background_staging": "threshold between dimly lit study and brightly sunlit corridor"
+      },
+      "lighting": {
+        "key_light_source": "tall window stage-left at a 45-degree angle",
+        "dominant_side": "stage-left illuminated at 85% brightness; stage-right side of face in shadow",
+        "shadow_ratio": "3:1 balanced natural portrait lighting",
+        "rim_light": "subtle warm kicker light along the right collar",
+        "ambient_fill": "20% soft diffused daylight bounce"
+      },
+      "camera": {
+        "shot_scale": "medium cinematic",
+        "trajectory_preset": "depthflow_spiral",
+        "motion_rationale": "dynamic parallax perspective shifting across visual depth planes",
+        "lens_optics": "35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture",
+        "safe_zone_anchor": 0.5
+      },
+      "sound": {
+        "score_movement": "score filters down to fundamental sub-frequency, leading directly into scene 1",
+        "foley_cue": "gentle door latch click fading into silence",
+        "stereo_pan": -0.2,
+        "narrator_tone": "intriguing unfinished thought bridging the infinite loop"
+      },
+      "synthesized_prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium cinematic of subject standing stage-left at [0.35, 0.51], turning back toward the doorway, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, coat draped over one arm, caught in mid-motion, Action: stepping through the threshold as the door begins to swing closed from right to left, Foreground props: brass door handle and a coat hook on dark paneled wall, Setting: threshold between dimly lit study and brightly sunlit corridor, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "overlay": null,
+      "stat_card": null
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "SH-29",
+  "variant": "cinematic_35mm",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "id": "s01",
+      "image": "images/s01.jpg",
+      "video": "videos/s01.mp4",
+      "text": "You cannot prove you are not living inside a simulation. In 2003 Oxford's Nick Bostrom showed exactly why that is a problem.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left, Foreground props: a steaming ceramic mug and a scatter of unopened mail, Setting: dimly lit apartment hallway with morning light cutting through tall vertical blinds, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "overlay": {
+        "text": "THE SIMULATION TRILEMMA",
+        "until": 2.6
+      },
+      "caption": "You cannot prove you are not living inside a simulation. In 2003 Oxford's Nick Bostrom showed exactly why that is a problem."
+    },
+    {
+      "id": "s02",
+      "image": "images/s02.jpg",
+      "video": "videos/s02.mp4",
+      "text": "You assume your senses show raw reality. Bostrom's argument does not prove you live in a simulation - it proves you cannot rule it out.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, medium shot of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_orbit",
+      "motion": "depthflow_orbit",
+      "cap_y": 0.48,
+      "caption": "You assume your senses show raw reality. Bostrom's argument does not prove you live in a simulation - it proves you cannot rule it out."
+    },
+    {
+      "id": "s03",
+      "image": "images/s03.jpg",
+      "video": "videos/s03.mp4",
+      "text": "In mathematical modeling, if even *one* *percent* of advanced civilizations run ancestor simulations, simulated minds outnumber biological ones *billions* *to* *one*.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, macro detail insert of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_dolly",
+      "motion": "depthflow_dolly",
+      "cap_y": 0.52,
+      "stat_card": {
+        "title": "3 Horns, 1 Choice",
+        "subtitle": "The Bostrom Trilemma (Phil. Quarterly, 2003)"
+      },
+      "caption": "In mathematical modeling, if even *one* *percent* of advanced civilizations run ancestor simulations, simulated minds outnumber biological ones *billions* *to* *one*."
+    },
+    {
+      "id": "s04",
+      "image": "images/s04.jpg",
+      "video": "videos/s04.mp4",
+      "text": "Bostrom's trilemma is about civilizations, not about perception or how the brain renders the world.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, medium close-up of subject framed in profile stage-left at [0.34, 0.52], a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, head tilted slightly upward in contemplation, Action: silhouette motionless; in background right, floating 3D blueprint projections slowly rotate, Foreground props: luminescent architectural neural blueprints glowing in warm amber, Setting: dark academic amphitheater with towering chalkboard diagrams receding into gloom, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.49,
+      "caption": "Bostrom's trilemma is about civilizations, not about perception or how the brain renders the world."
+    },
+    {
+      "id": "s05",
+      "image": "images/s05.jpg",
+      "video": "videos/s05.mp4",
+      "text": "That same shortcut makes you mistake your brain's *internal* forecast of failure for an objective fact.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, profile close-up of subject framed in profile stage-left at [0.34, 0.52], a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, head tilted slightly upward in contemplation, Action: silhouette motionless; in background right, floating 3D blueprint projections slowly rotate, Foreground props: luminescent architectural neural blueprints glowing in warm amber, Setting: dark academic amphitheater with towering chalkboard diagrams receding into gloom, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 5:1 moody cinematic contrast with internal volumetric glow, luminescent golden backlight outlining the cranial silhouette, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "That same shortcut makes you mistake your brain's *internal* forecast of failure for an objective fact."
+    },
+    {
+      "id": "s06",
+      "image": "images/s06.jpg",
+      "video": "videos/s06.mp4",
+      "text": "Arguing with anxious projections inside your head only feeds the simulation more compute.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, profile close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "Arguing with anxious projections inside your head only feeds the simulation more compute."
+    },
+    {
+      "id": "s07",
+      "image": "images/s07.jpg",
+      "video": "videos/s07.mp4",
+      "text": "The *five-second* epistemic override? Ask for one *external* *physical* *datapoint* before you believe your brain's forecast. Comment below which fear feels real today.",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, intimate portrait of subject framed in profile stage-left at [0.34, 0.52], a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, head tilted slightly upward in contemplation, Action: silhouette motionless; in background right, floating 3D blueprint projections slowly rotate, Foreground props: luminescent architectural neural blueprints glowing in warm amber, Setting: dark academic amphitheater with towering chalkboard diagrams receding into gloom, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 5:1 moody cinematic contrast with internal volumetric glow, luminescent golden backlight outlining the cranial silhouette, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "spatial_drift",
+      "motion": "spatial_drift",
+      "cap_y": 0.47,
+      "caption": "The *five-second* epistemic override? Ask for one *external* *physical* *datapoint* before you believe your brain's forecast. Comment below which fear feels real today."
+    },
+    {
+      "id": "s08",
+      "image": "images/s08.jpg",
+      "video": "videos/s08.mp4",
+      "text": "Because the second you mistake your brain's render for base reality...",
+      "prompt": "Humanized 3D spatial documentary frame, tactile physical materials, natural subsurface skin warmth, medium cinematic of subject framed in profile stage-left at [0.34, 0.52], a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, head tilted slightly upward in contemplation, Action: silhouette motionless; in background right, floating 3D blueprint projections slowly rotate, Foreground props: luminescent architectural neural blueprints glowing in warm amber, Setting: dark academic amphitheater with towering chalkboard diagrams receding into gloom, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 5:1 moody cinematic contrast with internal volumetric glow, luminescent golden backlight outlining the cranial silhouette, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, expressive human micro-expressions, warm tungsten and soft cyan rim lighting, natural depth of field, lived-in architectural textures, soft atmospheric dust motes, primary human subject centered vertically between 30% and 58% height, unobstructed face, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.5,
+      "caption": "Because the second you mistake your brain's render for base reality..."
+    }
+  ],
+  "title": "The Simulation Argument - SH-29",
+  "concept": "The Simulation Argument",
+  "science": "Nick Bostrom (2003)",
+  "citation_stat": "3 Horns, 1 Choice",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "3d_cgi",
+  "genre_name": "3D Tactile Spatial Documentary (Humanized PBR)",
+  "color_palette": {
+    "primary": "#00E5FF",
+    "secondary": "#7C4DFF",
+    "accent": "#FFB300",
+    "background": "#0B0E14"
+  },
+  "bgm_mood": "deep_ambient_synth",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 2220,
+    "bpm": 73
+  },
+  "ambience": "3d_cgi_the_simulation_argument_ambience",
+  "metadata": {
+    "cluster": "Cluster 4 (Cognitive Architecture & Epistemic Traps)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 4,
+    "chapter_title": "Chapter 4: The Glass Render",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-15",
+    "next_episode": "SH-17",
+    "dossier_source": "Philosophical Quarterly",
+    "hook_score": 73,
+    "hook_band": "STRONG",
+    "hook_weakest": "STAKES",
+    "word_count": 152,
+    "estimated_duration_sec": 60.8
+  }
+}

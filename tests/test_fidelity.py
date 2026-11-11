@@ -158,6 +158,16 @@ def test_the_rebuild_queue_is_exactly_the_scripts_that_were_edited():
         "short_14_paradox_of_choice", "short_15_loss_aversion",
     }
 
+    UNRENDERED_BLUEPRINTS = {
+        "short_25_speckled_band",
+        "short_26_dorian_gray",
+        "short_29_simulation_argument",
+        "short_30_paradox_of_choice",
+        "short_31_fresh_start_effect",
+        "short_32_ego_depletion",
+        "short_33_implementation_intentions",
+    }
+
     offenders, unjudged = [], []
     for path in sorted(REPO_ROOT.glob("shorts/*/project.json")) + sorted(REPO_ROOT.glob("long_form/*/project.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -172,4 +182,6 @@ def test_the_rebuild_queue_is_exactly_the_scripts_that_were_edited():
     honesty_report("projects the fidelity check cannot judge because they were never rendered", unjudged)
     new = sorted(names - REBUILD_QUEUE)
     assert not new, f"{new} diverged from its render without being on the rebuild queue: re-render it."
-    assert not unjudged or len(unjudged) <= 3, f"more projects lost their captions than the 3 recorded: {unjudged}"
+    unjudged_names = {u.split(":", 1)[0].strip() for u in unjudged}
+    unexpected_unjudged = sorted(unjudged_names - UNRENDERED_BLUEPRINTS)
+    assert not unexpected_unjudged, f"unrecorded projects without captions on disk: {unexpected_unjudged}"

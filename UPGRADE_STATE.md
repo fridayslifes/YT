@@ -389,5 +389,14 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
     - `SH-28`: *The Man Who Won Paradise* (`short_28_hedonic_treadmill`, Archival Casebook, Brickman et al. 1978) rendered to `shorts/short_28_hedonic_treadmill/output/short_28_hedonic_treadmill.mp4` (55.7s, 8 scenes, Kokoro-82M audio, 100% word alignment).
     - Rule C Uniqueness Gate evaluated and passing with 0 collisions (`min cross distance = 14`, `within SH-27 = 20`, `within SH-28 = 12`).
     - Pre-Upload Policy Gate evaluated and passing for both projects.
-- **In Progress:** None. All phases complete and verified.
-- **Exact Next Command:** Ready for creator review and optional upload via `python tools/master.py release-existing --project shorts/short_27_loss_aversion/project.json`.
+  - **5 Distinct Style Blueprints Created & Verified with Showrunner Director:**
+    - `SH-29`: `3d_cgi` (*The Simulation Argument*, Nick Bostrom 2003) -> Chapter 4: The Glass Render (`shorts/short_29_simulation_argument/project.json`, 152 words, Hook 73/100 STRONG, 8 scenes, `director_manifest.json`, `DIRECTOR_PITCH.md`).
+    - `SH-30`: `3d_minimalist` (*The Paradox of Choice*, Sheena Iyengar & Mark Lepper 2000) -> Chapter 2: The Twenty-Four Doors (`shorts/short_30_paradox_of_choice/project.json`, 153 words, Hook 81/100 STRONG, 8 scenes, `director_manifest.json`, `DIRECTOR_PITCH.md`).
+    - `SH-31`: `kinetic_explainer` (*The Fresh Start Effect*, Dai, Milkman & Riis 2014) -> Chapter 6: The Monday Ledger (`shorts/short_31_fresh_start_effect/project.json`, 152 words, Hook 75/100 STRONG, 8 scenes, `director_manifest.json`, `DIRECTOR_PITCH.md`).
+    - `SH-32`: `cyberpunk_neon` (*Ego Depletion*, Hagger & Chatzisarantis 2016) -> Chapter 5: The Empty Tank Myth (`shorts/short_32_ego_depletion/project.json`, 155 words, Hook 74/100 STRONG, 8 scenes, `director_manifest.json`, `DIRECTOR_PITCH.md`).
+    - `SH-33`: `cinematic_35mm` (*Implementation Intentions*, Peter M. Gollwitzer 1999) -> Chapter 7: The Monday Trap (`shorts/short_33_implementation_intentions/project.json`, 149 words, Hook 80/100 STRONG, 8 scenes, `director_manifest.json`, `DIRECTOR_PITCH.md`).
+    - All 5 projects evaluated against Rule C Uniqueness Gate: 0 collisions, 100% PASS.
+    - All 5 projects evaluated against Policy Gate: 0 violations, 100% PASS.
+    - `./check.sh all` verified: ruff OK, compileall OK, 1024 pytests OK, impact 0 dangling references, guard passed.
+- **In Progress:** None. Blueprints ready for creator review.
+- **Exact Next Command:** Review blueprint pitches (e.g., `cat shorts/short_29_simulation_argument/DIRECTOR_PITCH.md`) or render with `python tools/master.py produce --id SH-29 --topic "The Simulation Argument" --slug short_29_simulation_argument --genre 3d_cgi --channel cognitive_core --direct`.

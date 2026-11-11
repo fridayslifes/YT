@@ -41,7 +41,16 @@ def produce(
         raise ValueError(
             "produce cannot publish directly; finish production, then use release-existing with reviewed evidence"
         )
-    effective_genre = variant or genre
+    from tools.schemas import SUPPORTED_VARIANTS
+
+    effective_genre = genre or "3d_cgi"
+    if variant and variant in SUPPORTED_VARIANTS:
+        effective_variant = variant
+    elif effective_genre in {"storybook_casebook", "storybook_classic"}:
+        effective_variant = "storybook_picturebook"
+    else:
+        effective_variant = "cinematic_35mm"
+
     tasks = [
         TaskSpec(
             id="research",
@@ -55,7 +64,7 @@ def produce(
             id="script",
             kind="script",
             title="Write script and repair hook from dossier facts",
-            params={"genre": effective_genre, "variant": effective_genre, "hook_min": hook_min},
+            params={"genre": effective_genre, "variant": effective_variant, "hook_min": hook_min},
             depends_on=["research"],
             verifiers=["script"],
             max_attempts=1,
@@ -73,7 +82,7 @@ def produce(
                     "video_id": video_id,
                     "slug": slug,
                     "genre": effective_genre,
-                    "variant": effective_genre,
+                    "variant": effective_variant,
                     "channel": channel,
                 },
                 depends_on=["script"],
@@ -92,7 +101,7 @@ def produce(
                 "video_id": video_id,
                 "slug": slug,
                 "genre": effective_genre,
-                "variant": effective_genre,
+                "variant": effective_variant,
                 "channel": channel,
             },
             depends_on=["director"] if direct else ["script"],

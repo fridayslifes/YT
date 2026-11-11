@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "SH-33",
+  "variant": "cinematic_35mm",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "id": "s01",
+      "image": "images/s01.jpg",
+      "video": "videos/s01.mp4",
+      "text": "You waste your Monday freezing at your desk\u2014a 1999 study proved 71% finish on time, and here is why.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: pinning a handwritten index card reading 'IF 8:00 AM, THEN BEGIN' onto a corkboard above the desk, Foreground props: a yellow index card with clear conditional rules, pushpins, and a ticking mechanical stopwatch, Setting: focused minimalist workspace with clean white walls and a single warm directional task lamp, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "overlay": {
+        "text": "THE 71% TRIGGER",
+        "until": 2.6
+      },
+      "caption": "You waste your Monday freezing at your desk\u2014a 1999 study proved 71% finish on time, and here is why."
+    },
+    {
+      "id": "s02",
+      "image": "images/s02.jpg",
+      "video": "videos/s02.mp4",
+      "text": "You set your Monday goal and still freeze at your desk\u2014because deciding *what* you want never tells your mind *when* to start.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium shot of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_orbit",
+      "motion": "depthflow_orbit",
+      "cap_y": 0.48,
+      "caption": "You set your Monday goal and still freeze at your desk\u2014because deciding *what* you want never tells your mind *when* to start."
+    },
+    {
+      "id": "s03",
+      "image": "images/s03.jpg",
+      "video": "videos/s03.mp4",
+      "text": "In the published data, the If-Then planners finished on time *71%* of the time, versus *32%* with only a goal.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, macro detail insert of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_dolly",
+      "motion": "depthflow_dolly",
+      "cap_y": 0.52,
+      "stat_card": {
+        "title": "71% vs 32% Completion",
+        "subtitle": "If-Then Plan vs Bare Goal (Gollwitzer 1999, p. 496)"
+      },
+      "caption": "In the published data, the If-Then planners finished on time *71%* of the time, versus *32%* with only a goal."
+    },
+    {
+      "id": "s04",
+      "image": "images/s04.jpg",
+      "video": "videos/s04.mp4",
+      "text": "Linking a situational cue to a concrete action hands initiation over to the environment instead of deliberation.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.49,
+      "caption": "Linking a situational cue to a concrete action hands initiation over to the environment instead of deliberation."
+    },
+    {
+      "id": "s05",
+      "image": "images/s05.jpg",
+      "video": "videos/s05.mp4",
+      "text": "You write 'finish the blueprint' on Monday, yet spend *48* minutes rearranging tabs before drawing a line.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, profile close-up of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "You write 'finish the blueprint' on Monday, yet spend *48* minutes rearranging tabs before drawing a line."
+    },
+    {
+      "id": "s06",
+      "image": "images/s06.jpg",
+      "video": "videos/s06.mp4",
+      "text": "Repeating a vague wish at midnight only deepens hesitation when morning friction hits.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, profile close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "Repeating a vague wish at midnight only deepens hesitation when morning friction hits."
+    },
+    {
+      "id": "s07",
+      "image": "images/s07.jpg",
+      "video": "videos/s07.mp4",
+      "text": "The *five-second* If-Then lock? Write: *If* it is 8 a.m. at my desk, *then* I draw the *first* line. Comment below your trigger.",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, intimate portrait of subject framed center-left at [0.42, 0.49], upright and direct, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, calm resolved demeanor making grounded eye contact, Action: closing a leather-bound notebook and placing a brass pen down with deliberate finality, Foreground props: open leather notebook with handwritten notes and a clean porcelain saucer, Setting: warmly illuminated study with floor-to-ceiling wooden bookshelves, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "spatial_drift",
+      "motion": "spatial_drift",
+      "cap_y": 0.47,
+      "caption": "The *five-second* If-Then lock? Write: *If* it is 8 a.m. at my desk, *then* I draw the *first* line. Comment below your trigger."
+    },
+    {
+      "id": "s08",
+      "image": "images/s08.jpg",
+      "video": "videos/s08.mp4",
+      "text": "Because the moment you mistake a bare Monday wish for a plan...",
+      "prompt": "Candid 35mm documentary photograph, shot on Leica 35mm cinema lens, f/2.0 aperture, medium cinematic of subject standing stage-left at [0.35, 0.51], turning back toward the doorway, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, coat draped over one arm, caught in mid-motion, Action: stepping through the threshold as the door begins to swing closed from right to left, Foreground props: brass door handle and a coat hook on dark paneled wall, Setting: threshold between dimly lit study and brightly sunlit corridor, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, shallow depth of field, natural optical falloff, authentic warm human skin pores, candid micro-expression, organic 35mm film grain, Kodak Portra 400 and Vision3 500T color profile, warm practical tungsten and soft window light, primary human subject strictly centered vertically between 30% and 58% frame height, unobstructed face, clean headroom, natural posture, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.5,
+      "caption": "Because the moment you mistake a bare Monday wish for a plan..."
+    }
+  ],
+  "title": "Implementation Intentions - SH-33",
+  "concept": "Implementation Intentions",
+  "science": "Peter M. Gollwitzer (1999)",
+  "citation_stat": "71% vs 32% Completion",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "cinematic_35mm",
+  "genre_name": "Cinematic 35mm Documentary (Humanized Portra 400)",
+  "color_palette": {
+    "primary": "#FFC83D",
+    "secondary": "#00E5FF",
+    "accent": "#FF453A",
+    "background": "#000000"
+  },
+  "bgm_mood": "warm_acoustic_ambient",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 8798,
+    "bpm": 71
+  },
+  "ambience": "cinematic_35mm_implementation_intentions_ambience",
+  "metadata": {
+    "cluster": "Cluster 2 (Habits & Goal Pursuit)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 7,
+    "chapter_title": "Chapter 7: The Monday Trap",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-19",
+    "next_episode": "LV-02",
+    "dossier_source": "American Psychologist",
+    "hook_score": 80,
+    "hook_band": "STRONG",
+    "hook_weakest": "STAKES",
+    "word_count": 149,
+    "estimated_duration_sec": 59.6
+  }
+}

@@ -162,7 +162,7 @@ class ScriptWorker(Worker):
         from tools import creative_engine, youtube_skills
 
         dossier = ctx.dep_data("research").get("dossier") or {}
-        genre = str(spec.params.get("variant") or spec.params.get("genre") or "3d_cgi")
+        genre = str(spec.params.get("genre") or spec.params.get("variant") or "3d_cgi")
         min_hook = int(spec.params.get("hook_min", 70))
         scenes = creative_engine.choreograph_scenes(dossier, genre=genre)
         if not scenes:
@@ -333,7 +333,7 @@ class ProjectWorker(Worker):
         topic = str(spec.params.get("topic", dossier.get("topic", "")))
         video_id = str(spec.params.get("video_id", ""))
         slug = str(spec.params.get("slug", ""))
-        genre = str(spec.params.get("variant") or spec.params.get("genre") or "3d_cgi")
+        genre = str(spec.params.get("genre") or spec.params.get("variant") or "3d_cgi")
         variant = spec.params.get("variant")
         channel_id = str(spec.params.get("channel") or spec.params.get("channel_id") or "cognitive_core")
         if not (topic and video_id and slug):

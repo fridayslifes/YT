@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "SH-31",
+  "variant": "cinematic_35mm",
+  "format": "short",
+  "voice": "kokoro",
+  "channel_id": "cognitive_core",
+  "scenes": [
+    {
+      "id": "s01",
+      "image": "images/s01.jpg",
+      "video": "videos/s01.mp4",
+      "text": "You waste the week waiting to feel *ready*\u20143 field studies logged *66,062* goals, and here is what actually moved them.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium close-up of standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, frozen in place with intense questioning eye contact, Action: holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left, Foreground props: a steaming ceramic mug and a scatter of unopened mail, Setting: dimly lit apartment hallway with morning light cutting through tall vertical blinds, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 high-contrast documentary chiaroscuro, soft cyan edge light tracing the left shoulder and jawline, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "overlay": {
+        "text": "THE 66,062 GOALS",
+        "until": 2.6
+      },
+      "caption": "You waste the week waiting to feel *ready*\u20143 field studies logged *66,062* goals, and here is what actually moved them."
+    },
+    {
+      "id": "s02",
+      "image": "images/s02.jpg",
+      "video": "videos/s02.mp4",
+      "text": "You tell yourself you will start when you feel ready\u2014the *calendar* is what moved 43,012 people to start.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium shot of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.48 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_orbit",
+      "motion": "depthflow_orbit",
+      "cap_y": 0.48,
+      "caption": "You tell yourself you will start when you feel ready\u2014the *calendar* is what moved 43,012 people to start."
+    },
+    {
+      "id": "s03",
+      "image": "images/s03.jpg",
+      "video": "videos/s03.mp4",
+      "text": "In the published data, the 66,062 goal contracts clustered after *temporal* *landmarks*, while placebo searches for laundry and news did not.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, macro detail insert of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.52 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_dolly",
+      "motion": "depthflow_dolly",
+      "cap_y": 0.52,
+      "stat_card": {
+        "title": "3 Studies, 66,062 Goals",
+        "subtitle": "Archival field data (Dai, Milkman & Riis 2014, p. 11)"
+      },
+      "caption": "In the published data, the 66,062 goal contracts clustered after *temporal* *landmarks*, while placebo searches for laundry and news did not."
+    },
+    {
+      "id": "s04",
+      "image": "images/s04.jpg",
+      "video": "videos/s04.mp4",
+      "text": "Landmarks open a new mental accounting period, filing past slips in the old one\u2014the authors call that evidence imperfect.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium close-up of subject standing stage-right at [0.62, 0.51], facing stage-left, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: pacing two paces forward, pausing as realization dawns, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 4:1 dramatic shadow ratio emphasizing cognitive tension, warm amber rim light separating silhouette from dark oak backdrop, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.49 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.49,
+      "caption": "Landmarks open a new mental accounting period, filing past slips in the old one\u2014the authors call that evidence imperfect."
+    },
+    {
+      "id": "s05",
+      "image": "images/s05.jpg",
+      "video": "videos/s05.mp4",
+      "text": "It is why resolutions crowd Mondays and new years: the *start* *line*, not your discipline, picks when you try.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, profile close-up of subject seated stage-left at [0.38, 0.50], facing forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, deep in analytical thought, Action: tracing a finger across handwritten experimental trial results, Foreground props: a vintage magnifying loupe and sorted statistical survey sheets, Setting: quiet archive reading room flanked by towering filing drawers, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "It is why resolutions crowd Mondays and new years: the *start* *line*, not your discipline, picks when you try."
+    },
+    {
+      "id": "s06",
+      "image": "images/s06.jpg",
+      "video": "videos/s06.mp4",
+      "text": "Waiting for a fresh start keeps trying scheduled; the paper documents the spike, not a better outcome.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, profile close-up of subject seated at dark oak desk stage-right at [0.65, 0.48], leaning forward, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, sleeves rolled to the forearms with fingers hovering over the surface, Action: sliding a single brass token across the polished wood grain from right to left, Foreground props: two antique betting ledgers and a balanced mechanical brass scale, Setting: vintage 1970s laboratory carrel with green shaded banker's lamp, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_vertigo",
+      "motion": "depthflow_vertigo",
+      "cap_y": 0.5,
+      "caption": "Waiting for a fresh start keeps trying scheduled; the paper documents the spike, not a better outcome."
+    },
+    {
+      "id": "s07",
+      "image": "images/s07.jpg",
+      "video": "videos/s07.mp4",
+      "text": "The *five-second* reframe? Name the date you are actually using\u2014tomorrow, not someday. Comment below which landmark you start on.",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, intimate portrait of subject framed center-left at [0.42, 0.49], upright and direct, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, calm resolved demeanor making grounded eye contact, Action: closing a leather-bound notebook and placing a brass pen down with deliberate finality, Foreground props: open leather notebook with handwritten notes and a clean porcelain saucer, Setting: warmly illuminated study with floor-to-ceiling wooden bookshelves, Lighting: Key light from high directional lantern on stage-right at a 40-degree angle, stage-right illuminated at 80% brightness; stage-left side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.47 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "spatial_drift",
+      "motion": "spatial_drift",
+      "cap_y": 0.47,
+      "caption": "The *five-second* reframe? Name the date you are actually using\u2014tomorrow, not someday. Comment below which landmark you start on."
+    },
+    {
+      "id": "s08",
+      "image": "images/s08.jpg",
+      "video": "videos/s08.mp4",
+      "text": "Because the moment a new week gets sold as a new you...",
+      "prompt": "Tactile investigative documentary explainer, warm archival desk setting, authentic human hands and posture, medium cinematic of subject standing stage-left at [0.35, 0.51], turning back toward the doorway, a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves, coat draped over one arm, caught in mid-motion, Action: stepping through the threshold as the door begins to swing closed from right to left, Foreground props: brass door handle and a coat hook on dark paneled wall, Setting: threshold between dimly lit study and brightly sunlit corridor, Lighting: Key light from tall window stage-left at a 45-degree angle, stage-left illuminated at 85% brightness; stage-right side of face in shadow, 3:1 balanced natural portrait lighting, subtle warm kicker light along the right collar, Camera optics: 35mm anamorphic prime lens, shallow depth-of-field, f/2.0 aperture, focal center at 0.50 vertical height, textured archival paper ledgers, warm brass desk lamp, natural directional shadows, clear visual storytelling metaphor, primary focal point centered vertically between 30% and 58% height, 9:16 vertical composition.",
+      "preset": "depthflow_spiral",
+      "motion": "depthflow_spiral",
+      "cap_y": 0.5,
+      "caption": "Because the moment a new week gets sold as a new you..."
+    }
+  ],
+  "title": "The Fresh Start Effect - SH-31",
+  "concept": "The Fresh Start Effect",
+  "science": "Hengchen Dai, Katherine L. Milkman & Jason Riis (2014)",
+  "citation_stat": "3 Studies, 66,062 Goals",
+  "citation_verified": true,
+  "contains_synthetic_media": true,
+  "genre": "kinetic_explainer",
+  "genre_name": "Humanized Editorial Explainer (Vox & Johnny Harris Style)",
+  "color_palette": {
+    "primary": "#FFBE0B",
+    "secondary": "#FB5607",
+    "accent": "#3A86FF",
+    "background": "#141724"
+  },
+  "bgm_mood": "energetic_plucked_synth",
+  "rate": "+1%",
+  "pitch": "-2Hz",
+  "gap": 0.08,
+  "tail": 0.2,
+  "progress_bar": true,
+  "music": {
+    "volume": 0.18,
+    "sfx_volume": 0.12,
+    "seed": 9806,
+    "bpm": 101
+  },
+  "ambience": "kinetic_explainer_the_fresh_start_effect_ambience",
+  "metadata": {
+    "cluster": "Cluster 2 (Habits & Goal Pursuit)",
+    "story_arc": "The Midnight Desk Chronicles",
+    "chapter_number": 6,
+    "chapter_title": "Chapter 6: The Monday Ledger",
+    "protagonist": "a 34-year-old architect named Julian in a charcoal button-down shirt with rolled sleeves",
+    "prev_episode": "SH-18",
+    "next_episode": "SH-20",
+    "dossier_source": "Management Science (Articles in Advance; print 60(10), 2563-2582)",
+    "hook_score": 75,
+    "hook_band": "STRONG",
+    "hook_weakest": "STAKES",
+    "word_count": 152,
+    "estimated_duration_sec": 60.8
+  }
+}

@@ -293,11 +293,43 @@ class ShowrunnerDirector:
 
         # Movement and action blocking
         if idx == 1:
+            topic_clean = str(dossier.get("topic", "")).lower()
+            chapter_clean = str(dossier.get("chapter_title", "")).lower()
             pos = "standing mid-ground stage-left at [0.36, 0.50], angled 30 degrees toward frame-center"
             wardrobe = f"{protagonist}, frozen in place with intense questioning eye contact"
-            action = "holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left"
-            props = "a steaming ceramic mug and a scatter of unopened mail"
-            bg = "dimly lit apartment hallway with morning light cutting through tall vertical blinds"
+
+            if "simulation" in topic_clean or "glass render" in chapter_clean:
+                action = "staring through an architectural glass window pane, observing a subtle refractive glitch in the morning light"
+                props = "a digital stylus and a glass pane catching angled morning sunbeams"
+                bg = "modernist high-rise studio with floor-to-ceiling glass looking out over a foggy skyline"
+            elif "choice" in topic_clean or "twenty-four" in chapter_clean or "jam" in topic_clean:
+                action = "standing before a vast display of twenty-four identical glass jars, hand hovering in complete hesitation"
+                props = "twenty-four neatly arranged artisanal glass jars on floating minimalist oak shelves"
+                bg = "sunlit gourmet market aisle with clean architectural wood shelving receding into soft focus"
+            elif "fresh start" in topic_clean or "monday ledger" in chapter_clean or "calendar" in topic_clean:
+                action = "turning the crisp first page of a fresh black-linen desk ledger, pen poised above the empty line"
+                props = "an unblemished Monday calendar page, a brass mechanical pen, and an analog desk clock"
+                bg = "airy corner office with warm morning sun illuminating a clean oak desk surface"
+            elif "depletion" in topic_clean or "empty tank" in chapter_clean or "willpower" in topic_clean:
+                action = "resting forehead against one hand beside an empty ceramic mug, watching neon city rain streak down the window"
+                props = "an empty dark ceramic espresso mug and a stack of sorted case files illuminated by cool screen glow"
+                bg = "late-night urban desk overlooking rain-slicked streets bathed in amber and cyan neon reflection"
+            elif "implementation" in topic_clean or "monday trap" in chapter_clean or "intentions" in topic_clean:
+                action = "pinning a handwritten index card reading 'IF 8:00 AM, THEN BEGIN' onto a corkboard above the desk"
+                props = "a yellow index card with clear conditional rules, pushpins, and a ticking mechanical stopwatch"
+                bg = "focused minimalist workspace with clean white walls and a single warm directional task lamp"
+            elif "loss" in topic_clean or "coin" in topic_clean:
+                action = "holding a single vintage silver coin at eye level, hesitating as fingers refuse to let it go"
+                props = "a silver fifty-cent coin and a leather wager notebook"
+                bg = "quiet wood-paneled archive illuminated by low-angled tungsten library lamps"
+            elif "hedonic" in topic_clean or "paradise" in chapter_clean:
+                action = "standing in the center of an opulent high-ceilinged room, looking around with a numb neutral expression"
+                props = "an unread congratulatory telegram and a heavy brass desk paperweight"
+                bg = "grand sunlit conservatory with marble floors and lush palm silhouettes"
+            else:
+                action = "holding an everyday object, glancing up suddenly; in the deep background, blurred figures cross right to left"
+                props = "a steaming ceramic mug and a scatter of unopened mail"
+                bg = "dimly lit apartment hallway with morning light cutting through tall vertical blinds"
 
         elif "dog" in t_low or "animal" in t_low:
             pos = "subject seated at table edge stage-left at [0.32, 0.52]"

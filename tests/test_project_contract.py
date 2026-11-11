@@ -232,6 +232,11 @@ LOCAL_PROJECTS: tuple[str, ...] = (
     "short_26_dorian_gray",
     "short_27_loss_aversion",
     "short_28_hedonic_treadmill",
+    "short_29_simulation_argument",
+    "short_30_paradox_of_choice",
+    "short_31_fresh_start_effect",
+    "short_32_ego_depletion",
+    "short_33_implementation_intentions",
 )
 
 
