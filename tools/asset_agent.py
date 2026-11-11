@@ -26,6 +26,8 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from PIL import Image, ImageDraw
 
+from tools.errors import MissingInputError
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LIBRARY_DIR = REPO_ROOT / "assets" / "library"
 CATALOG_PATH = LIBRARY_DIR / "catalog.json"
@@ -281,7 +283,11 @@ class SmartAssetAgent:
         if category == "nature" and "grass" in query.lower():
             self._create_grass_texture(out_path, attributes=attributes)
         else:
-            self._create_procedural_plate(out_path, name=name, category=category, attributes=attributes)
+            raise MissingInputError(
+                stage="asset_catalog",
+                artifact=str(out_path),
+                cause=f"Asset '{name}' (query: '{query}') not in catalog and cannot be synthesized. Procedural placeholder plates are prohibited per Rule B.",
+            )
 
         tags = list(set([safe_name, category] + query.lower().split() + list(attributes.keys())))
         self.catalog.register(
@@ -343,20 +349,6 @@ class SmartAssetAgent:
                     fill=(255, 255, 255, 250),
                 )
 
-        img.save(out_path, format="PNG")
-
-    def _create_procedural_plate(
-        self, out_path: Path, name: str, category: str, attributes: Dict[str, Any]
-    ) -> None:
-        """Create a clean procedural transparent asset placeholder."""
-        w, h = 512, 512
-        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-
-        # Draw clean glowing geometric plate
-        cx, cy, r = w // 2, h // 2, 180
-        draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=(30, 41, 59, 230), outline=(0, 229, 255, 255), width=4)
-        draw.text((cx - 80, cy - 10), name[:18], fill=(255, 255, 255, 255))
         img.save(out_path, format="PNG")
 
     def seed_defaults(self) -> int:

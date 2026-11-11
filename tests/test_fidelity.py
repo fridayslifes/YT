@@ -161,6 +161,8 @@ def test_the_rebuild_queue_is_exactly_the_scripts_that_were_edited():
     UNRENDERED_BLUEPRINTS = {
         "short_25_speckled_band",
         "short_26_dorian_gray",
+        "short_27_loss_aversion",
+        "short_28_hedonic_treadmill",
         "short_29_simulation_argument",
         "short_30_paradox_of_choice",
         "short_31_fresh_start_effect",

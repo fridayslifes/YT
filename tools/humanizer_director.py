@@ -224,7 +224,8 @@ def render_humanized_plate_16x9(scene: HumanScene, width: int = 1920, height: in
     left_max_w = single_page_w - 130
 
     # Header & Chapter Title
-    header_str = f"THE NORJAK DOSSIER  •  {scene.act.upper()}"
+    case_name = getattr(scene, "case_title", "") or "CASE DOSSIER"
+    header_str = f"{case_name.upper()}  •  {scene.act.upper()}"
     draw.text((left_content_x, left_content_y), header_str, font=font_header, fill=(95, 105, 120))
     draw.line([(left_content_x, left_content_y + 32), (px + single_page_w - 65, left_content_y + 32)], fill=(180, 190, 205), width=1)
 
@@ -272,8 +273,8 @@ def render_humanized_plate_16x9(scene: HumanScene, width: int = 1920, height: in
     small_card_h = int(total_pages_h * 0.26)
     small_card = np.full((small_card_h, small_card_w, 3), (242, 246, 250), dtype=np.uint8)
     cv2.rectangle(small_card, (2, 2), (small_card_w - 2, small_card_h - 2), (170, 180, 195), 1)
-    cv2.putText(small_card, "NORTHWEST ORIENT ARCHIVE", (14, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (45, 55, 70), 1, cv2.LINE_AA)
-    cv2.putText(small_card, f"REF: {scene.scene_id.upper()} • NORJAK-71", (14, 56), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (25, 35, 50), 2, cv2.LINE_AA)
+    cv2.putText(small_card, "PRIMARY INVESTIGATION ARCHIVE", (14, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (45, 55, 70), 1, cv2.LINE_AA)
+    cv2.putText(small_card, f"REF: {scene.scene_id.upper()} • ARCHIVAL", (14, 56), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (25, 35, 50), 2, cv2.LINE_AA)
     cv2.putText(small_card, scene.left_plate_text[:28], (14, 84), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (120, 40, 40), 1, cv2.LINE_AA)
 
     card_cx = px + int(single_page_w * 0.38)

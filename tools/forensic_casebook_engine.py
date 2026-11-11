@@ -360,9 +360,14 @@ def draw_top_bottom_telemetry_hud(
     canvas[h - 46 : h, :] = cv2.addWeighted(canvas[h - 46 : h, :], 0.30, bot_bar, 0.70, 0)
     cv2.line(canvas, (0, h - 46), (w, h - 46), (65, 75, 88), 1)
 
+    dossier_label = (
+        f"FORENSIC ARCHIVAL DOSSIER  •  {scene.title.upper()[:36]}  •  DOCUMENTED"
+        if scene.title
+        else "FORENSIC ARCHIVAL DOSSIER  •  PRIMARY EVIDENCE  •  DOCUMENTED"
+    )
     cv2.putText(
         canvas,
-        "FBI NORJAK INVESTIGATIVE DOSSIER  •  CASE FILE #44-1298  •  CLASSIFIED",
+        dossier_label,
         (38, 34),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.52,

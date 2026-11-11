@@ -31,7 +31,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import textwrap
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import wave
@@ -483,7 +482,7 @@ def _load_project_input(project: Union[Dict[str, Any], Path, str]) -> Tuple[Dict
     return data, p, p.parent
 
 
-def _ensure_scene_plate(
+def _generate_scene_plate(
     project_dir: Path,
     proj_data: Dict[str, Any],
     scene: Dict[str, Any],
@@ -491,121 +490,53 @@ def _ensure_scene_plate(
     width: int,
     height: int,
 ) -> Path:
-    """Ensures a topic- and scene-specific visual plate exists on disk for the scene."""
+    """Generates the verified visual plate for a scene via the local FLUX engine.
+
+    Zero geometric card placeholders or synthetic fallbacks permitted per Global Rules A & B.
+    """
     img_rel = str(scene.get("image") or f"images/s{scene_idx + 1:02d}.jpg")
     if Path(img_rel).suffix.lower() not in {".jpg", ".jpeg", ".png"}:
         img_rel = f"images/s{scene_idx + 1:02d}.jpg"
         scene["image"] = img_rel
 
     img_path = project_dir / img_rel
-    if img_path.exists() and img_path.stat().st_size > 256:
+    if img_path.exists() and img_path.stat().st_size > 1000:
         return img_path
 
     img_path.parent.mkdir(parents=True, exist_ok=True)
-    seed_str = "|".join([
-        str(proj_data.get("id", "")),
-        str(proj_data.get("title", "")),
-        str(proj_data.get("topic", "")),
-        str(proj_data.get("variant", "")),
-        str(scene.get("id", f"s{scene_idx + 1:02d}")),
-        str(scene.get("text", "")),
-        str(scene.get("prompt", "")),
-    ])
-    digest = hashlib.sha256(seed_str.encode("utf-8")).digest()
-
-    palette = proj_data.get("color_palette") or {}
-
-    def _parse_rgb(hex_s: Any, default: Tuple[int, int, int]) -> Tuple[int, int, int]:
-        if isinstance(hex_s, str) and hex_s.startswith("#") and len(hex_s) == 7:
-            s = hex_s[1:]
-            if all(c in "0123456789abcdefABCDEF" for c in s):
-                return (int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16))
-        return default
-
-    bg_rgb = _parse_rgb(palette.get("background"), (16, 20, 28))
-    primary_rgb = _parse_rgb(palette.get("primary"), (245, 195, 115))
-    accent = _parse_rgb(
-        palette.get("accent"),
-        (80 + (digest[6] % 160), 110 + (digest[7] % 130), 140 + (digest[8] % 110)),
-    )
-
-    pattern_8x8 = np.array(
-        [
-            [(digest[(r * 8 + c) % 32] > 110 + ((r * 7 + c * 11 + scene_idx * 17) % 55)) for c in range(8)]
-            for r in range(8)
-        ],
-        dtype=np.float32,
-    )
-    pat_img = Image.fromarray((pattern_8x8 * 255).astype(np.uint8)).resize((width, height), Image.Resampling.BILINEAR)
-    pat_arr = np.array(pat_img, dtype=np.float32) / 255.0
-
-    angle = (scene_idx * 67 + digest[0] * 23) % 360
-    rad_ang = math.radians(angle)
-    lx, ly = 0.5 + 0.38 * math.cos(rad_ang), 0.45 + 0.28 * math.sin(rad_ang)
-
-    y_lin = np.linspace(0.0, 1.0, height, dtype=np.float32)[:, None]
-    x_lin = np.linspace(0.0, 1.0, width, dtype=np.float32)[None, :]
-    dist_light = np.sqrt(((x_lin - lx) * 1.5) ** 2 + ((y_lin - ly) * 1.2) ** 2)
-    radial_key = np.clip(1.0 - dist_light * 0.85, 0.0, 1.0)
-
-    blend_weight = np.clip(pat_arr * 0.60 + radial_key * 0.40, 0.0, 1.0)
-    bg_b = (bg_rgb[2] * (1.0 - blend_weight) + primary_rgb[2] * blend_weight * 0.7).clip(0, 255)
-    bg_g = (bg_rgb[1] * (1.0 - blend_weight) + primary_rgb[1] * blend_weight * 0.7).clip(0, 255)
-    bg_r = (bg_rgb[0] * (1.0 - blend_weight) + primary_rgb[0] * blend_weight * 0.7).clip(0, 255)
-    canvas = np.stack([bg_b, bg_g, bg_r], axis=-1).astype(np.uint8)
-
-    pil_img = Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
-    draw = ImageDraw.Draw(pil_img)
-    scale = min(width, height) / 1080.0
-
-    for k in range(5):
-        off = k * 3
-        cx = int((0.18 + (digest[(11 + off) % 32] / 255.0) * 0.64) * width)
-        cy = int((0.18 + (digest[(12 + off) % 32] / 255.0) * 0.54) * height)
-        rad = int((45 + (digest[(13 + off) % 32] % 130)) * scale)
-        col = (
-            (accent[0] + k * 23) % 255,
-            (accent[1] + k * 37) % 255,
-            (accent[2] + k * 51) % 255,
-        )
-        draw.ellipse([cx - rad, cy - rad, cx + rad, cy + rad], outline=col, width=max(2, int(4 * scale)))
-
-    font_title = get_font(BE_VIETNAM_BOLD, max(16, int(34 * scale)))
-    font_sub = get_font(BE_VIETNAM_MED, max(12, int(22 * scale)))
-
-    title_str = str(proj_data.get("title") or proj_data.get("topic") or "FrameForge").upper()[:42]
-    prompt_str = str(scene.get("prompt") or scene.get("text") or f"Scene {scene_idx + 1}")[:90]
-    card_y0 = int(height * (0.12 + 0.06 * (digest[5] % 3)))
-    card_h = int(height * 0.20)
-    card_x0, card_x1 = int(width * 0.08), int(width * 0.92)
-    draw.rounded_rectangle(
-        [card_x0, card_y0, card_x1, card_y0 + card_h],
-        radius=max(8, int(20 * scale)),
-        fill=(16, 20, 28),
-        outline=accent,
-        width=max(2, int(3 * scale)),
-    )
-    draw.text(
-        (width // 2, card_y0 + int(38 * scale)),
-        f"{title_str} • S{scene_idx + 1:02d}",
-        fill=accent,
-        font=font_title,
-        anchor="mm",
-    )
-
-    wrapped = textwrap.wrap(prompt_str, width=36)[:2]
-    for l_idx, line in enumerate(wrapped):
-        draw.text(
-            (width // 2, card_y0 + int((88 + l_idx * 32) * scale)),
-            line,
-            fill=(235, 240, 248),
-            font=font_sub,
-            anchor="mm",
+    prompt = str(scene.get("prompt") or "").strip()
+    if not prompt:
+        raise MissingInputError(
+            stage="visual_generation",
+            artifact=str(img_path),
+            cause=f"Scene {scene_idx + 1} is missing a visual prompt. No placeholder or fallback allowed per Rule B.",
         )
 
-    out_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
-    cv2.imwrite(str(img_path), out_bgr)
+    from tools import visual_engine
+    from tools.pipeline import scene_seed
+
+    variant = str(proj_data.get("variant") or proj_data.get("genre") or "cinematic_35mm")
+    seed = scene_seed(str(proj_data.get("id") or project_dir.name), scene_idx)
+    print(f"  [FLUX MLX] Generating scene {scene_idx + 1} visual plate: {img_path.name}...")
+    ok = visual_engine.generate_scene_image(
+        prompt=prompt,
+        output_path=img_path,
+        width=width,
+        height=height,
+        steps=scene.get("steps"),
+        seed=seed,
+        genre=variant,
+    )
+    if not ok or not img_path.exists() or img_path.stat().st_size < 1000:
+        raise RuntimeError(
+            f"Scene {scene_idx + 1} neural image generation failed for {img_path}. "
+            "No geometric placeholder card or silent fallback permitted."
+        )
     return img_path
+
+
+# Backward compatibility alias
+_ensure_scene_plate = _generate_scene_plate
 
 
 def _ensure_cutout_sprites(sprites_dir: Path, proj_data: Dict[str, Any]) -> Path:
@@ -806,7 +737,7 @@ class VariantEngine:
             dur = max(2.2, round((b_trim - a_trim) + float(sc.get("pause", default_gap)), 2))
 
             stem = Path(str(sc.get("video") or sc.get("image") or f"s{idx + 1:02d}")).stem
-            src_img = _ensure_scene_plate(project_dir, proj_data, sc, idx, vid_w, vid_h)
+            src_img = _generate_scene_plate(project_dir, proj_data, sc, idx, vid_w, vid_h)
             sc["image"] = str(src_img.relative_to(project_dir))
 
             target_vid = project_dir / "videos" / f"{stem}.mp4"

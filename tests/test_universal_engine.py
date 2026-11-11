@@ -227,8 +227,21 @@ def test_all_seven_engines_validate_and_render_distinct_topics(
         out_mp4.write_bytes(payload)
         return out_mp4
 
+    def _fake_generate_image(prompt: str, output_path: Path, width: int = 768, height: int = 1360, **kwargs):
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        h = int(hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(h)
+        base = np.array([h % 256, (h >> 8) % 256, (h >> 16) % 256], dtype=np.uint8)
+        arr = np.full((height, width, 3), base, dtype=np.uint8)
+        noise = rng.integers(0, 50, (height, width, 3), dtype=np.uint8)
+        arr = np.clip(arr.astype(int) + noise, 0, 255).astype(np.uint8)
+        cv2.imwrite(str(output_path), arr)
+        return True
+
     monkeypatch.setattr("tools.build_video.tts_cached", _fake_tts_cached)
     monkeypatch.setattr("tools.build_video.build", _fast_master_build)
+    monkeypatch.setattr("tools.visual_engine.generate_scene_image", _fake_generate_image)
 
     engine = universal_engine.get_engine(variant)
 
@@ -319,8 +332,21 @@ def test_build_project_reuses_and_invalidates_render_manifest(tmp_path: Path, mo
         out_mp4.write_bytes(Path(proj_path).read_bytes())
         return out_mp4
 
+    def _fake_generate_image(prompt: str, output_path: Path, width: int = 768, height: int = 1360, **kwargs):
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        h = int(hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(h)
+        base = np.array([h % 256, (h >> 8) % 256, (h >> 16) % 256], dtype=np.uint8)
+        arr = np.full((height, width, 3), base, dtype=np.uint8)
+        noise = rng.integers(0, 50, (height, width, 3), dtype=np.uint8)
+        arr = np.clip(arr.astype(int) + noise, 0, 255).astype(np.uint8)
+        cv2.imwrite(str(output_path), arr)
+        return True
+
     monkeypatch.setattr("tools.build_video.tts_cached", _fake_tts_cached)
     monkeypatch.setattr("tools.build_video.build", _fast_master_build)
+    monkeypatch.setattr("tools.visual_engine.generate_scene_image", _fake_generate_image)
     monkeypatch.setattr(universal_engine.RiddleVariantEngine, "render_scene_clip", _fast_render_scene_clip)
 
     proj_dir = tmp_path / "riddle_manifest_test"
