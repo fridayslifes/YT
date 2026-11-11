@@ -33,8 +33,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from tools.errors import MissingInputError
-
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent
 PERSONAS_DIR = YT_ROOT / ".agents" / "personas"
@@ -43,6 +41,8 @@ if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 if str(YT_ROOT) not in sys.path:
     sys.path.insert(0, str(YT_ROOT))
+
+from tools.errors import MissingInputError  # noqa: E402
 
 from tools.runtime import ensure_venv_cli  # noqa: E402
 
@@ -702,6 +702,7 @@ class KeyframePromptAgent(BaseAgent):
         character_ref: Optional[Dict[str, Any]] = None,
         genre: str = "3d_cgi",
         aspect: str = "9:16",
+        scene_idx: Optional[int] = None,
     ) -> tuple[str, AgentReport]:
         t0 = time.time()
         director = visual_director.S4VisualDirector(
@@ -721,7 +722,8 @@ class KeyframePromptAgent(BaseAgent):
             else:
                 prompt = f"{prompt} [{anchor}]"
 
-        summary = f"Generated keyframe prompt ({len(prompt.split())} words) for Scene {scene.get('scene_idx', 1)}"
+        cur_idx = scene_idx or scene.get("scene_idx") or scene.get("scene_num") or 1
+        summary = f"Generated keyframe prompt ({len(prompt.split())} words) for Scene {cur_idx}"
         self.log(summary)
         return prompt, AgentReport(
             agent_name=self.name,
@@ -1443,7 +1445,7 @@ class OrchestratorAgent:
         # 5. KeyframePromptAgent, 6. NegativePromptAgent & 7. MotionPromptAgent
         enriched_scenes = []
         for idx, sc in enumerate(scenes, 1):
-            keyframe_prompt, k_rep = self.keyframe_agent.run(sc, character_ref=char_profile, genre=genre)
+            keyframe_prompt, k_rep = self.keyframe_agent.run(sc, character_ref=char_profile, genre=genre, scene_idx=idx)
             neg_res, n_rep = self.negative_prompt_agent.run(prompt=keyframe_prompt, genre=genre, target_model="flux3")
             motion_cfg, m_rep = self.motion_agent.run(scene_idx=idx, scene_action=sc.get("action", ""))
 

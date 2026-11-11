@@ -354,6 +354,7 @@ class ProjectWorker(Worker):
                 channel_id=channel_id,
                 dossier=dossier,
                 scenes=scenes,
+                overwrite=bool(spec.params.get("overwrite", False)),
             )
         except FileExistsError as exc:
             return WorkerResult(ok=False, summary="project collision", error=str(exc), retryable=False)

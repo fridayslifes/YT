@@ -146,11 +146,12 @@ class RunContext:
     approve: bool = False
     config: dict[str, Any] | None = None
 
-    def dep(self, task_id: str) -> TaskRecord:
-        return self.state.tasks[task_id]
+    def dep(self, task_id: str) -> TaskRecord | None:
+        return self.state.tasks.get(task_id)
 
     def dep_data(self, task_id: str) -> dict:
-        return self.state.tasks[task_id].data
+        record = self.state.tasks.get(task_id)
+        return record.data if record else {}
 
     def artifact(self, task_id: str, name: str, default: str | None = None) -> str | None:
         record = self.state.tasks.get(task_id)
