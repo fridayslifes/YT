@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Tuple
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent
 DOSSIERS_PATH = YT_ROOT / "channel_assets" / "scientific_dossiers.json"
+BIBLE_PATH = YT_ROOT / "channel_assets" / "series_bible.json"
 VENV_PYTHON = YT_ROOT / ".venv" / "bin" / "python"
 
 if str(YT_ROOT) not in sys.path:
@@ -129,24 +130,27 @@ def synthesize_dossier(topic: str) -> Dict[str, Any]:
     return find_dossier_entry(topic)[1]
 
 
-# The long-form anchors a Short's "Related Video" points at, keyed by the id an operator types into
-# the Studio selector. The titles here must match what is actually published: this table used to be
-# two copies of the LV-02 string, and every kit in the repo inherited whatever the copy said.
-LONGFORM_ANCHORS = {
-    "LV-01": "Dopamine Exhaustion: Why You Can’t Focus Anymore",
-    "LV-02": "The 3 Hidden Brain Traps Destroying Your Focus",
-}
+# Optional long-form anchors a Short's "Related Video" can point at, keyed by ID.
+# Left empty on a clean reset so no stale external video URLs or old titles leak into
+# newly generated Upload Kits until the operator registers new published anchors.
+LONGFORM_ANCHORS: Dict[str, str] = {}
+LONGFORM_URLS: Dict[str, str] = {}
+DEFAULT_CHANNEL_URL = "https://www.youtube.com/@FrameForgeStudio"
 
-# Watch URLs for the same two anchors, verified live on the channel on 2026-11-03. A kit description
-# has to name a destination the viewer can actually reach: the versions of this template that shipped
-# told viewers to "tap the Related Video button above" (a Studio-only field the API can neither read
-# nor set, so an empty one makes the call-to-action dead) and to "check the bio link" for a "Focus
-# Architecture OS" — the channel has no channel links at all. Every Short inherited both.
-LONGFORM_URLS = {
-    "LV-01": "https://youtu.be/f2vsYJOyZ3U",
-    "LV-02": "https://youtu.be/1Tg-y7fqAn4",
-}
-CHANNEL_URL = "https://www.youtube.com/@CognitiveCoreOfficial"
+
+def _channel_identity(channel: str = "default") -> tuple[str, str, str]:
+    """Return (channel_name, handle, channel_url) from configs/channels/<channel>.yaml."""
+    from tools.channel_config import load_channel_config
+
+    try:
+        cfg = load_channel_config(channel)
+        name = cfg.channel_name or "FrameForge Studio"
+        handle = cfg.handle or "@FrameForgeStudio"
+    except Exception:
+        name = "FrameForge Studio"
+        handle = "@FrameForgeStudio"
+    clean_handle = handle if handle.startswith("@") else f"@{handle}"
+    return name, clean_handle, f"https://www.youtube.com/{clean_handle}"
 
 
 def _search_tag(text: str) -> str:
@@ -177,11 +181,17 @@ def _search_tag(text: str) -> str:
 
 def resolve_related_target(topic: str) -> tuple[str, str]:
     """Smart related video selection matching topic cluster to long-form anchor."""
+    if not LONGFORM_ANCHORS:
+        return "", ""
     t_low = topic.lower()
-    anchor = "LV-01" if any(
+    if "LV-01" in LONGFORM_ANCHORS and any(
         k in t_low for k in ["dopamine", "exhaustion", "screen", "scrolling", "phone", "burnout", "sleep", "baseline"]
-    ) else "LV-02"
-    return anchor, LONGFORM_ANCHORS[anchor]
+    ):
+        return "LV-01", LONGFORM_ANCHORS["LV-01"]
+    if "LV-02" in LONGFORM_ANCHORS:
+        return "LV-02", LONGFORM_ANCHORS["LV-02"]
+    first_key = next(iter(LONGFORM_ANCHORS))
+    return first_key, LONGFORM_ANCHORS[first_key]
 
 
 def _percent_stat(stat: str) -> str:
@@ -277,7 +287,7 @@ def generate_upload_kit_content(
     related_target: str | None = None,
     related_target_title: str | None = None,
     is_synthetic: bool = True,
-    playlist_name: str = "Cognitive Biases & Mental Glitches",
+    playlist_name: str = "Series Episodes",
     slug: str | None = None,
     year: str = "",
     stat: str = "",
@@ -291,6 +301,7 @@ def generate_upload_kit_content(
         else "Stylized motion graphic animation"
     )
     clean_title = re.sub(r"\s*#Shorts\b", "", title, flags=re.IGNORECASE).strip()
+    channel_name, channel_handle, channel_url = _channel_identity()
 
     # Smart related target resolution if not explicitly overridden
     if not related_target:
@@ -300,7 +311,19 @@ def generate_upload_kit_content(
     else:
         rel_target = related_target
         rel_title = related_target_title or LONGFORM_ANCHORS.get(related_target, related_target)
-    rel_url = LONGFORM_URLS.get(rel_target, CHANNEL_URL)
+    specific_rel_url = LONGFORM_URLS.get(rel_target, "") if rel_target else ""
+    related_notice = (
+        f"Link to **`{rel_target}` (*{rel_title}*)**. *Search \"{rel_target}\" in the YouTube Studio Related Video selector.*"
+        if rel_target
+        else "Optional — select a published anchor video in YouTube Studio once one is live."
+    )
+    related_table_value = f"Select **`{rel_target}`**" if rel_target else "Optional *(none configured)*"
+    related_line = f"Full breakdown: {specific_rel_url}\n\n" if specific_rel_url else ""
+    funnel_target = (
+        f"reply with the long-form link itself ({specific_rel_url})"
+        if specific_rel_url
+        else f"point them to the channel hub ({channel_url})"
+    )
 
     # Pick an opening deterministically, and only from templates whose evidence
     # slots are actually filled — an empty year or stat must not silently print
@@ -336,20 +359,19 @@ def generate_upload_kit_content(
     tags_list = [
         topic,
         citation,
-        "cognitive biases",
+        channel_name.lower(),
         "psychology facts",
-        "neuroscience of focus",
+        "behavioral research",
         "human behavior",
         "behavioral psychology",
-        "cognitive core",
-        "brain glitches",
+        "decision science",
         "habit science",
     ]
     # Deduplicate and clean
     tags_clean = ", ".join(dict.fromkeys(t for t in (_search_tag(x) for x in tags_list) if t))
 
     return f"""# YouTube Upload Kit — {video_id}: {clean_title}
-**Channel**: Cognitive Core ([@CognitiveCoreOfficial](https://www.youtube.com/@CognitiveCoreOfficial))  
+**Channel**: {channel_name} ([{channel_handle}]({channel_url}))  
 **Target Video File**: `shorts/{slug_hint}/output/{slug_hint}.mp4`  
 
 ---
@@ -365,7 +387,7 @@ def generate_upload_kit_content(
 >   * `Shorts Remixing`: **"Allow video and audio remixing"** (Maximizes organic viral reach).
 >   * `Distribution`: **"Publish to subscriptions feed and notify subscribers"** (Checked).
 > * **Values You Must Verify / Swap for this Specific Upload:**
->   * `Related Video Target`: Link to **`{rel_target}` (*{rel_title}*)**. *Search "{rel_target}" in the YouTube Studio Related Video selector.*
+>   * `Related Video Target`: {related_notice}
 >   * `Altered / Synthetic Media Disclosure`: Select **"{synthetic_label}"** ({synthetic_reason}).
 >   * `Target Playlist`: Add to **"{playlist_name}"** (or create if missing).
 >   * `Visibility State`: Upload as **Unlisted** first $\\to$ wait 10–15 min for 1080p VP09 processing $\\to$ switch to **Public**.
@@ -396,11 +418,9 @@ python tools/pipeline.py --verify-all
 
 Here is the simple 5-second behavioral reset to snap out of the trance before it derails your focus.
 
-Full focus breakdown: {rel_url}
+{related_line}More stories & breakdowns from {channel_name}: {channel_url}
 
-More on focus, habits and cognitive science: {CHANNEL_URL}
-
-#{topic.lower().replace(' ', '')} #psychology #brainhacks #shorts
+#{topic.lower().replace(' ', '')} #psychology #research #shorts
 ```
 
 ---
@@ -413,8 +433,7 @@ More on focus, habits and cognitive science: {CHANNEL_URL}
 ### Golden-Hour Engagement Protocol (First 60 Minutes)
 1. **Pin Immediately**: Pin the prompt comment above the second the Short is switched to Public.
 2. **First 10 Replies**: Heart and reply to the first 5–10 viewer comments within the first 45 minutes to trigger YouTube's initial velocity algorithm.
-3. **Funnel Inquiries**: If a viewer asks a question about focus or memory, reply with the long-form link
-   itself ({rel_url}) — the Related Video button is set by hand in Studio and is empty until someone sets it,
+3. **Funnel Inquiries**: If a viewer asks a question about the study or topic, {funnel_target} — the Related Video button is set by hand in Studio and is empty until someone sets it,
    so never point a viewer at "the link above the title".
 
 ---
@@ -425,7 +444,7 @@ More on focus, habits and cognitive science: {CHANNEL_URL}
 | :-: | :--- | :--- | :--- |
 | **1** | **Title** | `[Selected title from Section 1]` | Under 60 chars recommended for mobile feeds. |
 | **2** | **Description** | `[Copy from Section 2]` | Contextual grounding for NLP; includes Related Video CTA. |
-| **3** | **Related Video** | Select **`{rel_target}`** | **CRITICAL**: The ONLY interactive 1-tap link on Shorts. |
+| **3** | **Related Video** | {related_table_value} | **CRITICAL**: The ONLY interactive 1-tap link on Shorts. |
 | **4** | **Playlist** | **"{playlist_name}"** | Maximizes consecutive autoplay watch time. |
 | **5** | **Audience** | **"No, it's not made for kids"** | Mandatory COPPA rule; preserves comments & bell. |
 | **6** | **Altered Content**| **"{synthetic_label}"** | {synthetic_reason}. |
@@ -573,7 +592,7 @@ def generate_creative_project(
     overwrite: bool = False,
     voice: str = "kokoro",
     variant: str = "cinematic_35mm",
-    channel_id: str = "UC6hwVBnsfvfUGxfZi2sFT3A",
+    channel_id: str = "default",
 ) -> Path:
     """End-to-end dialectic blueprint synthesis: Research Dossier -> Hook Verification -> 8-Scene 3D Choreography -> Upload Kit.
 
@@ -668,7 +687,7 @@ def generate_creative_project(
         "ambience": f"{prof.id}_{dossier['topic'].lower().replace(' ', '_')}_ambience",
         "metadata": {
             "cluster": dossier.get("cluster"),
-            "story_arc": dossier.get("story_arc", "The Midnight Desk Chronicles"),
+            "story_arc": dossier.get("story_arc", ""),
             "chapter_number": dossier.get("chapter_number", 1),
             "chapter_title": dossier.get("chapter_title", f"Chapter: {dossier['topic']}"),
             "protagonist": dossier.get("protagonist", ""),

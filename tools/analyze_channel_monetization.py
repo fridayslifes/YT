@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """tools/analyze_channel_monetization.py
 
-Channel & video analytics report for Cognitive Core (UC6hwVBnsfvfUGxfZi2sFT3A):
+Channel & video analytics report for the configured FrameForge YouTube channel:
 - Queries YouTube Data API v3 for public video inventory and view/like/comment counts.
 - Queries YouTube Analytics API v2 (`yt-analytics.readonly` scope) when an authorized
   analytics token is available and the API is enabled on the Google Cloud project.
@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.upload_api import EXPECTED_COGNITIVE_CORE_CHANNEL_ID, get_authenticated_service  # noqa: E402
+from tools.upload_api import get_authenticated_service, resolve_expected_channel_id  # noqa: E402
 
 ANALYTICS_TOKEN_CANDIDATES = (
     Path(os.environ.get("YT_ANALYTICS_TOKEN_PATH", "")) if os.environ.get("YT_ANALYTICS_TOKEN_PATH") else None,
@@ -44,7 +44,7 @@ def parse_iso8601_duration(dur: str) -> float:
 
 
 def fetch_real_analytics_by_video(
-    channel_id: str = EXPECTED_COGNITIVE_CORE_CHANNEL_ID,
+    channel_id: str | None = None,
     start_date: str = "2026-10-01",
     end_date: str = "2026-11-10",
 ) -> tuple[dict[str, dict[str, Any]], str | None]:
@@ -62,10 +62,13 @@ def fetch_real_analytics_by_video(
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         yta = build("youtubeAnalytics", "v2", credentials=creds)
+        resolved_channel_id = channel_id or resolve_expected_channel_id()
+        if not resolved_channel_id:
+            return {}, "No YouTube channel_id configured; analytics query skipped."
         resp = (
             yta.reports()
             .query(
-                ids=f"channel=={channel_id}",
+                ids=f"channel=={resolved_channel_id}",
                 startDate=start_date,
                 endDate=end_date,
                 metrics="views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,subscribersGained",
@@ -112,7 +115,7 @@ def build_monetization_report(
     short_hours = [r["measured_watch_hours"] for r in shorts if r.get("measured_watch_hours") is not None]
 
     return {
-        "channel_id": EXPECTED_COGNITIVE_CORE_CHANNEL_ID,
+        "channel_id": channel_stats.get("id") or resolve_expected_channel_id() or "",
         "subscribers": int(channel_stats.get("subscriberCount", 0)) if channel_stats.get("subscriberCount") is not None else None,
         "channel_total_views": int(channel_stats.get("viewCount", 0)) if channel_stats.get("viewCount") is not None else None,
         "total_videos": len(records),

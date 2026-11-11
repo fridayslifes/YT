@@ -126,8 +126,11 @@ class EnvironmentSecrets:
 class PersistentJobQueue:
     """File-backed durable FIFO queue persisting across crashes and container restarts."""
 
-    def __init__(self, queue_dir: Optional[Path] = None):
+    def __init__(self, queue_dir: Optional[Path] = None, receipts_dir: Optional[Path] = None):
         self.queue_dir = queue_dir or DEFAULT_QUEUE_DIR
+        self.receipts_dir = receipts_dir or (
+            self.queue_dir.parent / "receipts" if queue_dir is not None else DEFAULT_RECEIPTS_DIR
+        )
         self.pending_dir = self.queue_dir / "pending"
         self.running_dir = self.queue_dir / "running"
         self.completed_dir = self.queue_dir / "completed"
@@ -188,7 +191,7 @@ class PersistentJobQueue:
         completed_file.write_text(json.dumps(job.to_dict(), indent=2), encoding="utf-8")
         running_file.unlink(missing_ok=True)
 
-        receipt_file = DEFAULT_RECEIPTS_DIR / f"{job.video_id}_receipt.json"
+        receipt_file = self.receipts_dir / f"{job.video_id}_receipt.json"
         receipt_file.parent.mkdir(parents=True, exist_ok=True)
         receipt_file.write_text(json.dumps(receipt.to_dict(), indent=2), encoding="utf-8")
 

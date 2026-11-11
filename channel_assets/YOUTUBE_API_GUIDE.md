@@ -1,6 +1,6 @@
-# Cognitive Core — Official YouTube Data API v3 Architecture & Daily Guide
+# FrameForge — Official YouTube Data API v3 Architecture & Daily Guide
 
-This document records the official Google Cloud YouTube Data API v3 integration for **Cognitive Core** ([@CognitiveCoreOfficial](https://www.youtube.com/@CognitiveCoreOfficial) / Channel ID: `UC6hwVBnsfvfUGxfZi2sFT3A`).
+This document records the official Google Cloud YouTube Data API v3 integration for the active channel configured in `configs/channels/default.yaml` (or overridden via `FRAMEFORGE_CHANNEL_ID`).
 
 ---
 
@@ -70,13 +70,14 @@ Fetches live view counts, like counts, and subscriber counts across all channel 
 - [x] **Category**: Set to Education (`27`).
 - [x] **COPPA**: Set to Not Made for Kids (`selfDeclaredMadeForKids: false`).
 - [x] **Preview frame**: chosen by YouTube from the video's own frames; the uploader sends no image.
-- [x] **Synthetic disclosure**: The master sends the project setting as `status.containsSyntheticMedia`; Short 13 requires true. A missing response field is recorded as unknown and needs Studio confirmation.
+- [x] **Synthetic disclosure**: The master sends the project setting as `status.containsSyntheticMedia`; generated photorealistic scenes require `true`. A missing response field is recorded as unknown and needs Studio confirmation.
 - [x] **Production Tracker**: Updates `CONTENT_TRACKER.md` status from `Ready` to `Uploaded` with live YouTube URL.
 
 ### Remote verification and later Studio checks
 
-The uploader preflights `channels.list(part="id,snippet", mine=True)` and requires exactly
-`UC6hwVBnsfvfUGxfZi2sFT3A` before insertion. It saves the returned remote ID before tracker work,
+The uploader preflights `channels.list(part="id,snippet", mine=True)` and requires an exact match
+against the configured target `channel_id` (from `configs/channels/default.yaml` or `FRAMEFORGE_CHANNEL_ID`)
+before insertion; an unconfigured empty channel ID fails closed. It saves the returned remote ID before tracker work,
 then independently queries the video and validates channel, title and privacy. The receipt keeps
 processing details and returned synthetic/COPPA status. A known mismatch blocks verification;
 an omitted disclosure value is unknown, never false.

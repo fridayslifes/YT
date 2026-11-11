@@ -69,7 +69,14 @@ def test_the_inventory_header_names_columns_this_module_understands():
 @pytest.fixture()
 def copy(tmp_path):
     dest = tmp_path / "CONTENT_TRACKER.md"
-    dest.write_text(TRACKER.read_text(encoding="utf-8"), encoding="utf-8")
+    base = TRACKER.read_text(encoding="utf-8").rstrip("\n")
+    sample_rows = (
+        "\n| **SH-13** | Short (9:16) | *Sample Row 13* | *Pending Upload* | 0 | `shorts/sample_13/output/s.mp4` | **Ready** |"
+        "\n| **SH-15** | Short (9:16) | *Sample Row 15* | [Watch](https://youtu.be/test1234567) (`test1234567`) | 42 | `shorts/sample_15/output/s.mp4` | **Live** |\n"
+    )
+    marker = "| ID | Format | Live Title | Live Link & ID | Views | Local Project | Status |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
+    assert marker in base
+    dest.write_text(base.replace(marker, marker + sample_rows, 1) + "\n", encoding="utf-8")
     return dest
 
 
@@ -103,7 +110,7 @@ def test_an_unrequested_status_leaves_a_live_row_saying_live(copy):
     before = row_of(copy, "SH-15")
     tracker.update_tracker_row("SH-15", {"rel_mp4": "`shorts/short_15/output.mp4`"}, tracker_path=copy)
     assert tracker.split_row(row_of(copy, "SH-15"))[6] == "**Live**"
-    assert "[Watch](https://youtu.be/QbqtRznFtQE)" in row_of(copy, "SH-15")
+    assert "[Watch](https://youtu.be/test1234567)" in row_of(copy, "SH-15")
     assert before != row_of(copy, "SH-15"), "the mp4 cell should still have been written"
 
 

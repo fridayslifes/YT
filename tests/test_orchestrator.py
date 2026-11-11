@@ -115,9 +115,9 @@ def test_cli_produce_requires_channel_argument():
     assert exc.value.code == 2
 
     args = parser.parse_args([
-        "produce", "--topic", "Loss Aversion", "--id", "SH-99", "--slug", "short_99", "--channel", "cognitive_core"
+        "produce", "--topic", "Loss Aversion", "--id", "SH-99", "--slug", "short_99", "--channel", "default"
     ])
-    assert args.channel == "cognitive_core"
+    assert args.channel == "default"
 
 
 def test_failed_task_blocks_dependents(tmp_path):

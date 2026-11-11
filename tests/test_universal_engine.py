@@ -59,7 +59,7 @@ def _make_schema_v2_project(
         "slug": f"short_{variant}",
         "title": f"{topic} — Studio Study",
         "topic": topic,
-        "channel_id": "cognitive_core",
+        "channel_id": "default",
         "variant": variant,
         "format": video_format,
         "voice": "kokoro",
@@ -120,7 +120,7 @@ def test_create_project_emits_valid_schema_v2_for_all_variants(tmp_path):
             format_type=fmt,
             topic=f"Topic {variant}",
             title=f"Title {variant}",
-            channel_id="cognitive_core",
+            channel_id="default",
             script=script,
             base_dir=tmp_path,
         )

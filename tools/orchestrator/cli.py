@@ -85,7 +85,7 @@ def run_production_workflow(
     slug: str,
     genre: str = "3d_cgi",
     variant: str | None = None,
-    channel: str = "cognitive_core",
+    channel: str = "default",
     hook_min: int = 70,
     build: bool = True,
     force_motion: bool = False,

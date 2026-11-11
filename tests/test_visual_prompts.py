@@ -11,19 +11,12 @@ Only prompt text is built here - no image model, no render, no network.
 
 from __future__ import annotations
 
-import json
-
-from conftest import REPO_ROOT
 from tools import creative_engine as ce
-
-DOSSIERS = json.loads(
-    (REPO_ROOT / "channel_assets" / "scientific_dossiers.json").read_text(encoding="utf-8")
-)
 
 
 def _prompts_by_topic() -> dict[str, list[str]]:
     out = {}
-    for key, dossier in DOSSIERS.items():
+    for key, dossier in ce.load_dossiers().items():
         scenes = ce.choreograph_scenes(dossier)
         out[key] = [sc["prompt"] for sc in scenes]
     return out
@@ -54,7 +47,7 @@ def test_hook_and_loop_scenes_differ_within_one_video():
 def test_hook_scene_names_a_distinct_figure_per_topic():
     """Two Shorts whose hook frame holds the same person read as a series of one video."""
     figures = {}
-    for key, dossier in DOSSIERS.items():
+    for key, dossier in ce.load_dossiers().items():
         prompt = ce.choreograph_scenes(dossier)[0]["prompt"]
         figures[key] = prompt.split("Subject (Midground Z-Plane): ")[-1][:60]
     duplicated = {f for f in figures.values() if list(figures.values()).count(f) > 1}

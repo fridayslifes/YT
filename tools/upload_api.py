@@ -40,7 +40,27 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.upload",
     "https://www.googleapis.com/auth/youtube.force-ssl",
 ]
-EXPECTED_COGNITIVE_CORE_CHANNEL_ID = "UC6hwVBnsfvfUGxfZi2sFT3A"
+
+DEFAULT_CHANNEL_PRESET = "default"
+
+
+def resolve_expected_channel_id(
+    channel: str | None = None,
+    explicit_id: str | None = None,
+) -> str:
+    """Resolve the expected YouTube channel ID from explicit arg, env, or channel YAML."""
+    if explicit_id and str(explicit_id).strip():
+        return str(explicit_id).strip()
+    env_id = os.environ.get("FRAMEFORGE_CHANNEL_ID", "").strip()
+    if env_id:
+        return env_id
+    from tools.channel_config import load_channel_config
+
+    try:
+        cfg = load_channel_config(channel or DEFAULT_CHANNEL_PRESET)
+        return str(cfg.channel_id or "").strip()
+    except Exception:
+        return ""
 TITLE_HARD_LIMIT = 100
 # HTTP statuses worth retrying: rate limit + transient gateway/server failures.
 RETRYABLE_HTTP_STATUS = {408, 429, 500, 502, 503, 504}
@@ -378,12 +398,24 @@ def upload_via_api(
     project_dir: Path,
     public: bool = False,
     *,
-    expected_channel_id: str = EXPECTED_COGNITIVE_CORE_CHANNEL_ID,
+    expected_channel_id: str = "",
     contains_synthetic_media: bool = False,
     receipt_path: Path | None = None,
 ) -> str:
     """Upload once per durable operation; uncertain outcomes require reconciliation."""
     project_dir = Path(project_dir).resolve()
+    project_json = project_dir / "project.json"
+    project = json.loads(project_json.read_text(encoding="utf-8")) if project_json.exists() else {}
+    resolved_channel_id = resolve_expected_channel_id(
+        channel=project.get("channel") or project.get("channel_id"),
+        explicit_id=expected_channel_id,
+    )
+    if not resolved_channel_id:
+        raise RuntimeError(
+            "No target YouTube channel ID configured. Pass expected_channel_id, set "
+            "FRAMEFORGE_CHANNEL_ID, or configure channel_id in configs/channels/default.yaml."
+        )
+    expected_channel_id = resolved_channel_id
     kits = sorted(project_dir.glob("UPLOAD_KIT*.md"))
     if len(kits) != 1:
         raise ValueError(f"expected exactly one UPLOAD_KIT_*.md in {project_dir}")
@@ -394,8 +426,6 @@ def upload_via_api(
     title = (meta.get("title") or "").strip()
     if not title or len(title) > TITLE_HARD_LIMIT:
         raise ValueError(f"snippet.title requires 1-{TITLE_HARD_LIMIT} characters")
-    project_json = project_dir / "project.json"
-    project = json.loads(project_json.read_text(encoding="utf-8")) if project_json.exists() else {}
     video_id = project.get("id")
     if not video_id:
         match = re.search(r"SH(?:ORT)?[_-]?(\d+[A-Z]?)", project_dir.name.upper())
@@ -571,9 +601,9 @@ def sync_channel_stats():
     uploads_id = item["contentDetails"]["relatedPlaylists"]["uploads"]
 
     print("\n" + "=" * 65)
-    print("📊 COGNITIVE CORE — LIVE CHANNEL ANALYTICS")
+    print(f"📊 {item['snippet']['title'].upper()} — LIVE CHANNEL ANALYTICS")
     print("=" * 65)
-    print(f"Channel: {item['snippet']['title']} ({item['snippet'].get('customUrl', '@CognitiveCoreOfficial')})")
+    print(f"Channel: {item['snippet']['title']} ({item['snippet'].get('customUrl', '@unconfigured')})")
     print(f"👥 Subscribers: {sub_count}")
     print(f"👀 Total Channel Views: {int(total_views):,}")
     print(f"🎬 Total Videos: {total_vids}")

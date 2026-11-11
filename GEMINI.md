@@ -1,4 +1,4 @@
-# FrameForge Production, Visual & Monetization Standards (Cognitive Core preset — v4.0 SOTA Engine)
+# FrameForge Production, Visual & Monetization Standards (Default Studio preset — v4.0 SOTA Engine)
 
 Always adhere strictly to these rules before producing, modifying, or uploading any YouTube video (Short or Long-Form) in this workspace.
 
@@ -81,8 +81,8 @@ Legacy production flags in `tools/agents.py` and `tools/pipeline.py` are compati
   - On-screen telemetry cards and description stats render **only** from `science` / `citation_stat`. No citation means **no card** — never a placeholder institution. Headline copy must not contain a number that `citation_stat` does not support.
   - `quantitative_stat` must be the study's own figure. A trilemma, ratio or effect size must not be dressed up as a percentage of people.
 - **Strict Zero-Placeholder ("No Hidden Holders") Rule**:
-  - **NEVER leave silent dummy links** (such as `https://amzn.to/example`) or wrong handles (`@CognitiveCoreHQ`) inside copy-paste descriptions or Upload Kits.
-  - Always use the verified channel handle **`@CognitiveCoreOfficial`** (`https://www.youtube.com/@CognitiveCoreOfficial`).
+  - **NEVER leave silent dummy links** (such as `https://amzn.to/example`) or unverified placeholder handles inside copy-paste descriptions or Upload Kits.
+  - Always use the channel handle configured in `configs/channels/default.yaml` (default template `@FrameForgeStudio`).
   - If an Upload Kit includes an optional slot for an external affiliate link or Notion template URL that the creator must supply, **do not put a fake URL in the copy-paste block**. Instead, keep the copy-paste block 100% ready to publish as-is, and place a clearly labeled **`⚠️ CREATOR PLACEHOLDER NOTICE`** box above or below telling the creator exactly what optional link they can swap in.
 
 ---
@@ -141,14 +141,14 @@ Legacy production flags in `tools/agents.py` and `tools/pipeline.py` are compati
 2. **Strict YouTube Studio Metadata Rules**:
    - **The Strict Lowercase `#shorts` & Tags Rule**:
      - Always use **`#shorts`** (strictly lowercase, NEVER `#Shorts` or `#SHORTS`) across all Shorts titles, descriptions, and hashtags. Never include `#shorts` in a `16:9` Long-Form video title.
-     - **All Search Tags Must Be Strictly Lowercase**: All keywords and tags must be 100% lowercase without capital letters (e.g. `bystander effect, darley and latane 1968, cognitive core, deep work`).
+     - **All Search Tags Must Be Strictly Lowercase**: All keywords and tags must be 100% lowercase without capital letters (e.g. `bystander effect, darley and latane 1968, behavioral science, deep work`).
    - **AI & Synthetic Media Disclosure**:
      - If YouTube auto-flags a video as **`Yes [Set by YouTube]`**, **leave it as Yes**.
-     - During manual upload: select **`Yes`** for photorealistic 35mm human scenes (`SH-01`–`SH-13`, `LV-01`, `LV-02`), and **`No`** for non-photorealistic stylized animations.
+     - During manual upload: select **`Yes`** for photorealistic 35mm human scenes, and **`No`** for non-photorealistic stylized animations.
    - **YPP State Awareness (Pre-Monetization)**:
      - Do not instruct placing manual mid-roll ads while the channel is below YPP thresholds (`1,000 subs + 4,000 watch hours`).
    - **Live-Inventory Rule for Cards & End Screens**:
-     - Only recommend Info Cards, End Screens, or Related Video links to videos already marked **`Uploaded`** in `CONTENT_TRACKER.md` (such as `LV-01`, `LV-02`, and `SH-01`–`SH-10`). Never tell the creator to link a card to a video still marked `Pending Upload`.
+     - Only recommend Info Cards, End Screens, or Related Video links to videos already marked **`Uploaded`** in `CONTENT_TRACKER.md`. Never tell the creator to link a card to a video still marked `Pending Upload`.
    - **Exact Timestamp Fidelity**:
      - Long-Form chapter timestamps and End Screen windows in `UPLOAD_KIT_*.md` must match the actual rendered `.srt` / `.mp4` duration.
 3. **Humanized Upload Kit & Top Notice Standard (SOTA 2026)**:

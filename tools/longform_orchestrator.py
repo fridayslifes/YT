@@ -419,7 +419,7 @@ def export_longform_project(
 {generate_youtube_chapters_text(spec)}
 
 ## 🏷️ Search Tags (Strict Lowercase)
-{spec.topic.lower()}, {spec.topic.lower()} documentary, {spec.topic.lower()} explained, cognitive core, video essay, psychology deep dive
+{spec.topic.lower()}, {spec.topic.lower()} documentary, {spec.topic.lower()} explained, video essay, empirical research
 
 ## 🎬 Production Specifications
 - Target Duration: ~{spec.target_minutes:.1f} minutes

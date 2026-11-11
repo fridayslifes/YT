@@ -34,8 +34,8 @@ def _sample_script_scenes() -> list[dict]:
 
 
 def test_showrunner_director_initialization() -> None:
-    director = ShowrunnerDirector(channel="cognitive_core", genre="3d_cgi")
-    assert director.channel_name == "cognitive_core"
+    director = ShowrunnerDirector(channel="default", genre="3d_cgi")
+    assert director.channel_name == "default"
     assert director.genre_key == "3d_cgi"
     assert director.genre_profile.id == "3d_cgi"
 
@@ -48,7 +48,7 @@ def test_showrunner_director_fails_on_empty_scenes() -> None:
 
 
 def test_showrunner_director_directs_full_video() -> None:
-    director = ShowrunnerDirector(channel="cognitive_core", genre="3d_cgi")
+    director = ShowrunnerDirector(channel="default", genre="3d_cgi")
     manifest = director.direct_video(
         script_scenes=_sample_script_scenes(),
         dossier=_sample_dossier(),

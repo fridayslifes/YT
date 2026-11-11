@@ -239,7 +239,7 @@ def evaluate_policy_gate(
     """
     if isinstance(project_data, (str, Path)):
         project_data = json.loads(Path(project_data).read_text(encoding="utf-8"))
-    channel_name = channel or project_data.get("channel") or project_data.get("channel_id", "cognitive_core")
+    channel_name = channel or project_data.get("channel") or project_data.get("channel_id", "default")
     try:
         channel_cfg = load_channel_config(channel_name)
     except Exception:

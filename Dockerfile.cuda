@@ -1,0 +1,49 @@
+# GPU/CUDA accelerated production container for FrameForge FLUX & 3D Render Engine
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04 AS cuda-base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH" \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+
+# Install Python 3.11, ffmpeg, and system utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    ffmpeg \
+    fontconfig \
+    fonts-dejavu-core \
+    fonts-liberation \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Create strictly single .venv at root
+RUN python3.11 -m venv /app/.venv
+
+# Copy dependencies
+COPY requirements.txt requirements-optional.txt ./
+
+# Install dependencies into strictly single .venv
+RUN /app/.venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /app/.venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    /app/.venv/bin/pip install --no-cache-dir fastapi uvicorn pydantic
+
+# Copy application code
+COPY . .
+
+# Compile & verify
+RUN /app/.venv/bin/python -m ruff check tools/ tests/ && \
+    /app/.venv/bin/python -m compileall tools/ tests/
+
+ENTRYPOINT ["/app/.venv/bin/python", "tools/master.py"]
+CMD ["--help"]

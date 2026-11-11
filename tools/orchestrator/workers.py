@@ -258,10 +258,10 @@ class DirectorWorker(Worker):
             or {}
         )
 
-        channel = str(spec.params.get("channel", "cognitive_core"))
+        channel = str(spec.params.get("channel", "default"))
         genre = str(spec.params.get("genre") or spec.params.get("variant") or "3d_cgi")
         video_id = str(spec.params.get("video_id", "SH-01"))
-        topic = str(spec.params.get("topic", dossier.get("topic", "Cognitive Science")))
+        topic = str(spec.params.get("topic") or dossier.get("topic") or "")
 
         director = ShowrunnerDirector(channel=channel, genre=genre)
         manifest = director.direct_video(
@@ -335,7 +335,7 @@ class ProjectWorker(Worker):
         slug = str(spec.params.get("slug", ""))
         genre = str(spec.params.get("genre") or spec.params.get("variant") or "3d_cgi")
         variant = spec.params.get("variant")
-        channel_id = str(spec.params.get("channel") or spec.params.get("channel_id") or "cognitive_core")
+        channel_id = str(spec.params.get("channel") or spec.params.get("channel_id") or "default")
         if not (topic and video_id and slug):
             return WorkerResult(
                 ok=False,
@@ -510,7 +510,7 @@ class PublishWorker(Worker):
     description = "Upload only after the release gate passes."
 
     def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
-        from tools.upload_api import EXPECTED_COGNITIVE_CORE_CHANNEL_ID, upload_via_api
+        from tools.upload_api import resolve_expected_channel_id, upload_via_api
         from .workflows import STRICT_RELEASE_VERIFIERS
 
         if not ctx.approve:
@@ -573,11 +573,13 @@ class PublishWorker(Worker):
                         retryable=False,
                     )
 
+        channel = project.get("channel") or project.get("channel_id", "default")
         from tools.policy_gate import evaluate_policy_gate
+
         policy_report = evaluate_policy_gate(
             project,
             evidence=evidence_data,
-            channel=project.get("channel") or project.get("channel_id", "cognitive_core"),
+            channel=channel,
         )
         if not policy_report.passed:
             return WorkerResult(
@@ -587,11 +589,15 @@ class PublishWorker(Worker):
                 retryable=False,
             )
         receipt = ctx.root / "channel_assets" / "upload_receipts" / f"{project['id']}.json"
+        expected_channel_id = resolve_expected_channel_id(
+            channel=channel,
+            explicit_id=spec.params.get("expected_channel_id"),
+        )
         try:
             live_id = upload_via_api(
                 project_dir,
                 public=bool(spec.params.get("public", False)),
-                expected_channel_id=EXPECTED_COGNITIVE_CORE_CHANNEL_ID,
+                expected_channel_id=expected_channel_id,
                 contains_synthetic_media=project.get("contains_synthetic_media") is True,
                 receipt_path=receipt,
             )

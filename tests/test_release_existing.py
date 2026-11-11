@@ -163,7 +163,7 @@ def test_produce_publish_cannot_bypass_reviewed_release(monkeypatch):
     with pytest.raises(ValueError, match="release-existing"):
         workflows.produce(topic="Test", video_id="SH-99", slug="short_test", publish=True)
     args = cli.build_parser().parse_args(
-        ["produce", "--topic", "Test", "--id", "SH-99", "--slug", "short_test", "--channel", "cognitive_core", "--publish", "--yes"]
+        ["produce", "--topic", "Test", "--id", "SH-99", "--slug", "short_test", "--channel", "default", "--publish", "--yes"]
     )
     monkeypatch.setattr(MasterAgent, "new_run", lambda *a, **kw: pytest.fail("produce must not start"))
     assert args.func(args) == 2
@@ -264,7 +264,7 @@ def test_strict_release_rejects_a_generated_draft(imported):
 def test_checked_sh13_evidence_has_explicit_reviewed_schema():
     from tools.schemas import validate_evidence
 
-    evidence = json.loads((Path(__file__).resolve().parents[1] / "channel_assets/evidence/SH-13-dunning-kruger.json").read_text())
+    evidence = json.loads((Path(__file__).resolve().parents[1] / "tests/fixtures/evidence_sh13_sample.json").read_text())
     assert evidence["status"] == "reviewed"
     assert validate_evidence(evidence) == []
 
@@ -365,11 +365,19 @@ def test_publish_passes_channel_disclosure_and_external_receipt(imported, monkey
     calls = []
     monkeypatch.setattr(upload_api, "upload_via_api", lambda *a, **kw: calls.append((a, kw)) or "abcdefghijk")
     result = PublishWorker().run(
-        TaskSpec("publish", "publish", "publish", depends_on=["release"], requires_approval=True), ctx,
+        TaskSpec(
+            "publish",
+            "publish",
+            "publish",
+            depends_on=["release"],
+            requires_approval=True,
+            params={"expected_channel_id": "test_channel"},
+        ),
+        ctx,
     )
     assert result.ok
     kwargs = calls[0][1]
-    assert kwargs["expected_channel_id"] == "UC6hwVBnsfvfUGxfZi2sFT3A"
+    assert kwargs["expected_channel_id"] == "test_channel"
     assert kwargs["contains_synthetic_media"] is True
     assert kwargs["receipt_path"] == ctx.root / "channel_assets" / "upload_receipts" / "SH-13.json"
     assert result.artifacts["receipt"] == str(kwargs["receipt_path"])

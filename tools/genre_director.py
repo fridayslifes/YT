@@ -110,7 +110,7 @@ GENRE_REGISTRY: Dict[str, GenreProfile] = {
         bgm_mood="cyberpunk_dark_synthwave",
     ),
     # ------------------------------------------------------------------------- #
-    # 5. Cinematic 35mm Documentary (Cognitive Core Baseline)
+    # 5. Cinematic 35mm Documentary (Default Studio Baseline)
     # ------------------------------------------------------------------------- #
     "cinematic_35mm": GenreProfile(
         id="cinematic_35mm",

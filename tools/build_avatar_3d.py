@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_avatar_3d.py - Generates 3D Raytraced / Embossed Channel Icon (Avatar) for Cognitive Core.
+"""build_avatar_3d.py - Generates 3D Raytraced / Embossed Channel Icon (Avatar) for FrameForge Studio.
 
 Features:
 - 3D Metallic Beveled Gold Labyrinth Arcs with directional specular highlights & ambient occlusion

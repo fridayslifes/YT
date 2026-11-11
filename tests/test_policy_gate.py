@@ -15,7 +15,7 @@ def _valid_project_data() -> dict:
         "slug": "short_99_policy_test",
         "topic": "Loss Aversion",
         "format": "short",
-        "channel": "cognitive_core",
+        "channel": "default",
         "voice": "kokoro",
         "science": "Daniel Kahneman & Amos Tversky (1979)",
         "citation_stat": "losses loom 2x larger than equivalent gains",
@@ -35,13 +35,13 @@ def _valid_project_data() -> dict:
     }
 
 
-def test_channel_config_loads_cognitive_core() -> None:
-    cfg = load_channel_config("cognitive_core")
-    assert cfg.channel_name == "Cognitive Core"
-    assert cfg.handle == "@CognitiveCoreOfficial"
+def test_channel_config_loads_default() -> None:
+    cfg = load_channel_config("default")
+    assert cfg.channel_name == "FrameForge Studio"
+    assert cfg.handle == "@FrameForgeStudio"
     assert "cinematic_35mm" in cfg.supported_variants
     assert cfg.voice == "kokoro"
-    assert "cognitive_core" in list_channels()
+    assert "default" in list_channels()
 
 
 def test_channel_config_raises_on_unknown_channel() -> None:

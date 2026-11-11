@@ -1,8 +1,8 @@
-# Channel Configuration: Cognitive Core (@CognitiveCoreOfficial)
-channel_id: "UC6hwVBnsfvfUGxfZi2sFT3A"
-channel_name: "Cognitive Core"
-handle: "@CognitiveCoreOfficial"
-niche: "Empirical behavioral psychology, cognitive biases, and decision science"
+# Channel Configuration: FrameForge Studio Default Preset
+channel_id: ""
+channel_name: "FrameForge Studio"
+handle: "@FrameForgeStudio"
+niche: "Empirical storytelling, science, history, and visual essays"
 default_variant: "cinematic_35mm"
 supported_variants:
   - "cinematic_35mm"

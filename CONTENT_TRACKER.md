@@ -1,30 +1,28 @@
-# Cognitive Core — Master Content & Production Tracker
+# Master Content Production & YouTube Upload Tracker
 
-Tracks every long-form and short-form video created, updated and published for **Cognitive Core** ([@CognitiveCoreOfficial](https://www.youtube.com/@CognitiveCoreOfficial) / Channel ID: `UC6hwVBnsfvfUGxfZi2sFT3A`).
+This document tracks every video produced in FrameForge, its citation status, local file path, and YouTube upload URL.
 
 ---
 
-## 1. Production & Channel Performance Overview
+## 1. Channel Overview
 
-| Metric | Count / Status | Details |
+| Metric | Value | Notes |
 | :--- | :--- | :--- |
-| **Channel Handle** | `@CognitiveCoreOfficial` | YouTube channel |
-| **Current Subscribers** | — | Run `python tools/pipeline.py --sync-stats` to refresh |
-| **Total Channel Views** | — | Run `python tools/pipeline.py --sync-stats` to refresh |
-| **Long-Form Videos Live** | **0** | — |
-| **Shorts Live** | **0** | — |
+| **Channel Profile** | `default` | Configure target channel ID in `configs/channels/default.yaml` |
+| **Current Subscribers** | **0** | Sync via `.venv/bin/python tools/pipeline.py --sync-stats` |
+| **Total Channel Views** | **0** | Sync via `.venv/bin/python tools/pipeline.py --sync-stats` |
+| **Audio Engine** | **Local Kokoro-82M** | Strictly offline ONNX (`tools/kokoro_models/`) |
 
 ---
 
 ## 2. Master Video Inventory & Metadata
 
-| ID | Format | Title & Topic | Live YouTube Link & ID | Views | Output File | Status |
+| ID | Format | Live Title | Live Link & ID | Views | Local Project | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-
-*(No videos produced yet. Use `python tools/pipeline.py --topic "..." --id SH-XX --slug ...` to start.)*
 
 ---
 
-## 3. Production Notes
+## 3. Citation Verification Queue
 
-*(Fresh start — no production history.)*
+| ID | Topic | Verification Status | Notes |
+| :--- | :--- | :--- | :--- |

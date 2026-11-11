@@ -21,7 +21,7 @@ def test_job_queue_enqueue_and_dequeue(tmp_path: Path) -> None:
     job = JobSpec(
         job_id="JOB-01",
         workflow="produce",
-        channel="cognitive_core",
+        channel="default",
         variant="3d_cgi",
         topic="Loss Aversion",
         video_id="SH-01",
@@ -48,7 +48,7 @@ def test_job_queue_complete_job_creates_receipt(tmp_path: Path) -> None:
     job = JobSpec(
         job_id="JOB-02",
         workflow="produce",
-        channel="cognitive_core",
+        channel="default",
         variant="3d_cgi",
         topic="The Bystander Effect",
         video_id="SH-02",
@@ -78,7 +78,7 @@ def test_job_queue_fail_job(tmp_path: Path) -> None:
     job = JobSpec(
         job_id="JOB-03",
         workflow="produce",
-        channel="cognitive_core",
+        channel="default",
         variant="3d_cgi",
         topic="Broken Topic",
         video_id="SH-03",
@@ -108,7 +108,7 @@ def test_job_queue_human_approval_gate(tmp_path: Path) -> None:
     job = JobSpec(
         job_id="JOB-04-PUBLISH",
         workflow="publish",
-        channel="cognitive_core",
+        channel="default",
         variant="3d_cgi",
         topic="Live Upload Topic",
         video_id="SH-04",
@@ -156,7 +156,7 @@ def test_cadence_scheduler(tmp_path: Path) -> None:
     ]
 
     jobs = scheduler.schedule_topics_for_channel(
-        channel="cognitive_core",
+        channel="default",
         topics=topics,
         start_id=10,
         variant="3d_cgi",

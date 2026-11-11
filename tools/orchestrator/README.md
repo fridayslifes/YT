@@ -134,7 +134,7 @@ A verifier receives `(spec, result, ctx)` and returns `CheckResult`s. Critical f
 - Code search and file reads are root-scoped; shell commands are allowlisted.
 - Publish/upload requires `--yes`; the master never publishes on its own.
 - The research worker does not fall back to synthetic evidence. An unknown topic fails with instructions to add a dossier.
-- Uploads preflight the exact Cognitive Core channel ID and default to unlisted, with made-for-kids false. The publisher passes the project's synthetic-media setting.
+- Uploads preflight the configured target channel ID (`configs/channels/default.yaml` or `FRAMEFORGE_CHANNEL_ID`, failing closed if unset) and default to unlisted, with made-for-kids false. The publisher passes the project's synthetic-media setting.
 - Atomic receipts live under `channel_assets/upload_receipts/<internal-video-id>.json`, outside project directories. Operation identity binds the internal ID, media hash and normalized request metadata hash. A receipt lock serializes concurrent callers.
 - Receipt states are `prepared`, `uploading`, `ambiguous`, `uploaded`, `verified`. An uploading/ambiguous receipt requires manual reconciliation and blocks all later inserts. Changed operation metadata also blocks reuse until reconciled.
 - Uploaded/verified receipts query their existing remote ID and validate ownership, title and privacy without inserting again. Returned synthetic disclosure is recorded; omission means unknown. A known disclosure mismatch blocks verification.

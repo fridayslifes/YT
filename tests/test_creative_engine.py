@@ -398,17 +398,14 @@ def test_upload_kit_tag_block_stays_inside_youtubes_own_limits():
         assert citation_tag in tags, tags
 
 
-def test_upload_kit_description_links_a_reachable_video():
-    # The description block is pasted into Studio verbatim. Two lines used to ship in it that
-    # pointed at nothing: "tap the Related Video button right above the title" (a Studio-only
-    # field the API can neither read nor set, so it is empty until someone sets it by hand) and
-    # "check the bio link … for our complete Focus Architecture OS" (the channel has no channel
-    # links at all — channels.list returns channelLinks: []). Both reach every Short.
-    kit = _kit()
+def test_upload_kit_description_links_a_reachable_video(monkeypatch):
+    monkeypatch.setattr(ce, "LONGFORM_URLS", {"LV-01": "https://youtu.be/sample123"})
+    monkeypatch.setattr(ce, "LONGFORM_ANCHORS", {"LV-01": "Sample Anchor"})
+    kit = _kit(related_target="LV-01")
     block = kit.split("## 2. Humanized Description", 1)[1].split("## 3.")[0]
     for dead in ("Related Video", "bio link", "Focus Architecture OS"):
         assert dead not in block, f"{dead!r} in a description the viewer cannot act on"
-    assert "https://youtu.be/" in block and "https://www.youtube.com/@CognitiveCoreOfficial" in block
+    assert "https://youtu.be/" in block and "https://www.youtube.com/@FrameForgeStudio" in block
 
 
 def test_upload_kit_related_video_never_invents_a_title():
@@ -429,7 +426,8 @@ def test_upload_kit_related_video_never_invents_a_title():
         ("The Paradox of Choice", "LV-02"),
     ],
 )
-def test_related_target_resolution_follows_the_documented_clusters(topic, expected_target):
+def test_related_target_resolution_follows_the_documented_clusters(monkeypatch, topic, expected_target):
+    monkeypatch.setattr(ce, "LONGFORM_ANCHORS", {"LV-01": "Anchor 1", "LV-02": "Anchor 2"})
     assert ce.resolve_related_target(topic)[0] == expected_target
 
 
@@ -454,7 +452,7 @@ def test_generate_creative_project_writes_a_blueprint_built_only_from_the_dossie
     assert project["schema_version"] == PROJECT_SCHEMA_VERSION == 2
     assert project["id"] == "SH-99" and project["format"] == "short"
     assert project["variant"] == "cinematic_35mm"
-    assert project["channel_id"] == "UC6hwVBnsfvfUGxfZi2sFT3A"
+    assert project["channel_id"] == "default"
     assert project["voice"] == "kokoro"
     assert project["title"] == "Loss Aversion - SH-99"
     assert project["science"] == "Daniel Kahneman & Amos Tversky (1979)"

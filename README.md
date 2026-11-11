@@ -1,6 +1,6 @@
 # FrameForge
 
-FrameForge is the local video-production workspace and Python toolset. Its current built-in production workflow creates research-grounded YouTube Shorts using the **Cognitive Core** channel preset. **Cognitive Core** (`@CognitiveCoreOfficial`) remains the channel name and published identity.
+FrameForge is the local and cloud video-production workspace and Python toolset. Its built-in production workflow creates research-grounded YouTube Shorts and long-form videos using the channel preset in `configs/channels/default.yaml` (`FrameForge Studio` / `@FrameForgeStudio` until configured for a live YouTube channel).
 
 The `shorts/` and `long_form/` directories are prepared format destinations and currently contain only documentation, with no active local project. Broader format and channel-neutral production workflows remain proposed.
 
@@ -15,15 +15,16 @@ Use the master orchestrator for production workflows. From the project directory
 ./check.sh
 ```
 
-[AGENTS.md](AGENTS.md) defines delegation, approval, and release gates. [The orchestrator guide](tools/orchestrator/README.md) describes the supported workflows. [GEMINI.md](GEMINI.md) records the Cognitive Core production standards.
+[AGENTS.md](AGENTS.md) defines delegation, approval, and release gates. [The orchestrator guide](tools/orchestrator/README.md) describes the supported workflows. [GEMINI.md](GEMINI.md) records the workspace production standards.
 
 ## Workspace contents
 
 - `tools/` contains the production pipeline, rendering tools, and orchestrator.
 - `shorts/` and `long_form/` currently contain format documentation; no local video projects are retained.
-- `channel_assets/` holds the Cognitive Core channel preset and research dossiers; `channel_assets/voice.md` defines its voice guidance.
+- `channel_assets/` holds the channel voice profile (`channel_assets/voice.md`), research dossiers (`channel_assets/scientific_dossiers.json`), and policy ledger.
+- `configs/channels/default.yaml` holds the configurable channel identity and narration defaults.
 - `CONTENT_TRACKER.md` tracks the channel's videos.
-- `.venv/` and `.venv-flux2/` contain the existing local Python environments.
+- `.venv/` contains the single project Python virtual environment.
 
 ## Compatibility path
 

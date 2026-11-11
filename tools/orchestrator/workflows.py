@@ -28,7 +28,7 @@ def produce(
     slug: str,
     genre: str = "3d_cgi",
     variant: str | None = None,
-    channel: str = "cognitive_core",
+    channel: str = "default",
     hook_min: int = 70,
     build: bool = True,
     publish: bool = False,

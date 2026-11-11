@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_avatar.py - Generate high-contrast, scalable Channel Icon (Avatar) for Cognitive Core.
+"""build_avatar.py - Generate high-contrast, scalable Channel Icon (Avatar) for FrameForge Studio.
 
 Generates:
 1. channel_assets/avatar_labyrinth_800x800.svg (Vector Master)
@@ -100,7 +100,7 @@ def generate_svg():
     <circle cx="{cx}" cy="{cy}" r="92" fill="none" stroke="#00E5FF" stroke-width="12" stroke-opacity="0.9" />
     <circle cx="{cx}" cy="{cy}" r="92" fill="none" stroke="#FFB300" stroke-width="6" stroke-dasharray="35 25" />
 
-    <!-- Center Cognitive Core Glow -->
+    <!-- Center Studio Core Glow -->
     <circle cx="{cx}" cy="{cy}" r="56" fill="url(#cyanCore)" filter="url(#glow)" />
     <circle cx="{cx}" cy="{cy}" r="22" fill="#FFFFFF" />
   </g>

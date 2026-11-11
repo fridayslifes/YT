@@ -1,7 +1,7 @@
 # FrameForge YouTube Monetization, Copyright & Synthetic Media Policy Ledger
 
 **Last Verified**: 2026-11-10 UTC  
-**Channel**: Cognitive Core (`UC6hwVBnsfvfUGxfZi2sFT3A`, `@CognitiveCoreOfficial`)
+**Channel**: Configured via `configs/channels/default.yaml` (default template: `@FrameForgeStudio`, `channel_id` unset until bound)
 
 ---
 
@@ -25,7 +25,7 @@
 
 * **Source**: [YouTube channel monetization policies — Inauthentic content](https://support.google.com/youtube/answer/1311392) (Retrieved 2026-11-10)
 * **Enforcement Rules**:
-  1. Every project must be driven by a verified empirical dossier (`channel_assets/scientific_dossiers.json`) and reviewed release evidence (`channel_assets/evidence/*.json`) with printed-page locators.
+  1. Every project must be driven by a verified empirical dossier (`channel_assets/scientific_dossiers.json`) and reviewed release evidence JSON (`--evidence path/to/reviewed-evidence.json`) with printed-page locators.
   2. Template-recycled demos, mass-produced identical scripts, or static single-image slideshows are blocked by `tools/guard.py` and `tools/orchestrator/verifiers.py`.
   3. Every scene requires distinct topic-bound visual prompts (`Safe-Zone & Visual Uniqueness Gate`), and spoken numbers/mechanisms must match the verified dossier.
 

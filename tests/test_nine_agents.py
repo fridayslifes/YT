@@ -271,7 +271,7 @@ def test_concept_agent_brainstorm_novel_premises():
         assert "primary_researchers" in cand
         assert "hook_candidate" in cand
         assert cand["novelty_score"] == 100
-        assert cand["series_arc"] == "The Midnight Desk Chronicles"
+        assert cand["series_arc"] in ("Empirical Behavior Series", "Series Arc")
 
 
 def test_character_ref_agent_loads_persisted_card():

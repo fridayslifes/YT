@@ -1,6 +1,6 @@
-# voice.md — Cognitive Core (@CognitiveCoreOfficial)
+# voice.md — FrameForge Studio Default Voice Profile (`@FrameForgeStudio`)
 
-This voice profile defines the exact spoken narration, tone, vocabulary, and structural constraints for the Cognitive Core channel. All scriptwriting and hook-generation skills read this profile.
+This voice profile defines the exact spoken narration, tone, vocabulary, and structural constraints for the configured channel in `configs/channels/default.yaml`. All scriptwriting and hook-generation skills read this profile.
 
 ---
 

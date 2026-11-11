@@ -153,7 +153,7 @@ class ShowrunnerDirector:
 
     def __init__(
         self,
-        channel: str = "cognitive_core",
+        channel: str = "default",
         genre: str = "3d_cgi",
     ):
         self.channel_name = channel
@@ -170,7 +170,7 @@ class ShowrunnerDirector:
         script_scenes: List[Dict[str, Any]],
         dossier: Dict[str, Any],
         video_id: str = "SH-01",
-        topic: str = "Cognitive Science",
+        topic: str = "",
     ) -> DirectorManifest:
         """Directs the complete visual and acoustic performance for the video."""
         if not script_scenes:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""branding_engine.py - SOTA Intro Stinger & Outro End-Screen Suite for Cognitive Core.
+"""branding_engine.py - SOTA Intro Stinger & Outro End-Screen Suite for FrameForge Studio.
 
 Generates broadcast-grade branding assets:
 1. channel_assets/intro_16x9.mp4 (2.5s Long-Form Intro Stinger @ 1080p, 14 Mbps)
@@ -35,6 +35,20 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 from tools.processes import run_process  # noqa: E402
+
+
+def _channel_labels() -> tuple[str, str]:
+    """Return (UPPER_NAME, handle) from configs/channels/default.yaml."""
+    from tools.channel_config import load_channel_config
+
+    try:
+        cfg = load_channel_config("default")
+        name = (cfg.channel_name or "FrameForge Studio").upper()
+        handle = cfg.handle or "@FrameForgeStudio"
+    except Exception:
+        name = "FRAMEFORGE STUDIO"
+        handle = "@FrameForgeStudio"
+    return name, handle
 
 ASSETS_DIR = os.path.join(ROOT_DIR, "channel_assets")
 FONTS_DIR = os.path.join(ROOT_DIR, "tools", "fonts")
@@ -293,7 +307,7 @@ def render_intro_video(width: int, height: int, output_mp4: str, duration: float
         if f >= 12:
             text_p = min(1.0, (f - 12) / 12.0)
             text_alpha = int(255 * alpha * text_p)
-            title_text = "COGNITIVE  CORE"
+            title_text, _ = _channel_labels()
             bbox = draw.textbbox((0, 0), title_text, font=font_title)
             tw = bbox[2] - bbox[0]
             tx = cx - tw // 2
@@ -425,7 +439,7 @@ def render_outro_endscreen(width: int, height: int, output_mp4: str, duration: f
             sub_av = avatar.resize((sub_radius * 2, sub_radius * 2), Image.Resampling.LANCZOS)
             img.paste(sub_av, (scx - sub_radius, scy - sub_radius), mask=sub_av)
 
-        s_name = "@CognitiveCoreOfficial"
+        _, s_name = _channel_labels()
         sn_bbox = draw.textbbox((0, 0), s_name, font=font_body)
         draw.text((scx - (sn_bbox[2] - sn_bbox[0]) // 2, scy + sub_radius + 28),
                   s_name, fill=(245, 245, 250, int(230 * alpha)), font=font_body)
@@ -514,12 +528,11 @@ def render_shorts_outro_loop(width: int, height: int, output_mp4: str, duration:
                      outline=(0, 229, 255, 140), width=2)
 
         # Tagline in safe zone
-        t_text = "COGNITIVE CORE"
+        t_text, s_text = _channel_labels()
         tb = draw.textbbox((0, 0), t_text, font=font_title)
         draw.text((cx - (tb[2] - tb[0]) // 2, cy + cur_size // 2 + 35),
                   t_text, fill=(245, 245, 250, 240), font=font_title)
 
-        s_text = "@CognitiveCoreOfficial"
         sb = draw.textbbox((0, 0), s_text, font=font_sub)
         draw.text((cx - (sb[2] - sb[0]) // 2, cy + cur_size // 2 + 88),
                   s_text, fill=(255, 185, 35, 210), font=font_sub)
@@ -604,7 +617,8 @@ def render_longform_thumbnail(
     font_title = get_font(68, bold=True)
     font_sub = get_font(32, bold=False)
 
-    badge_txt = "COGNITIVE CORE // DEEP DIVE"
+    ch_upper, _ = _channel_labels()
+    badge_txt = f"{ch_upper} // DEEP DIVE"
     draw.rounded_rectangle(
         (safe_margin_x, safe_margin_y, safe_margin_x + 420, safe_margin_y + 48),
         radius=12,

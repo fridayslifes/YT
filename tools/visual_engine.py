@@ -1761,7 +1761,7 @@ def generate_procedural_3d_obj(
             faces.append((b0, b1, b1 + 1))
             faces.append((b0, b1 + 1, b0 + 1))
 
-    lines = ["# Cognitive Core SOTA Procedural 3D Mesh (.obj)", f"# Archetype: {archetype}"]
+    lines = ["# FrameForge SOTA Procedural 3D Mesh (.obj)", f"# Archetype: {archetype}"]
     for vx, vy, vz in verts:
         lines.append(f"v {vx:.5f} {vy:.5f} {vz:.5f}")
     for f0, f1, f2 in faces:

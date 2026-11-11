@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_banner.py - Generates SOTA official 2560x1440 YouTube Channel Banner for Cognitive Core.
+"""build_banner.py - Generates SOTA official 2560x1440 YouTube Channel Banner for FrameForge Studio.
 
 Features:
 - Canvas: 2560x1440 px (Official YouTube TV display resolution)
@@ -10,8 +10,8 @@ Features:
   * Atmospheric deep obsidian noir background with dual chiaroscuro lighting (Warm amber key + Electric cyan rim)
   * Subtle faint geometric lattice / neural network grid at 7% opacity
   * Hero 3D Labyrinth Aperture emblem with illuminated glass core and compass reticle rings
-  * Crisp, bold cinematic typography ("COGNITIVE CORE") with subtle drop shadow
-  * Three sleek glassmorphic topic badges: [ 🧠 COGNITIVE SCIENCE ], [ 🔍 BEHAVIORAL PROTOCOLS ], [ 📁 UNSOLVED CASES ]
+  * Crisp, bold cinematic typography loaded from configs/channels/default.yaml with subtle drop shadow
+  * Three sleek glassmorphic topic badges: [ 🧠 EMPIRICAL RESEARCH ], [ 🔍 BEHAVIORAL INSIGHTS ], [ 📁 STORYTELLING ]
   * Vibrant upload cadence badge: [ ⚡ NEW RELEASES WEEKLY ]
 """
 import math
@@ -140,9 +140,14 @@ def create_banner():
     # 3. Typography & Badges strictly inside Safe Zone
     text_x = emblem_x + emblem_size + 65
 
-    # Main Channel Title: COGNITIVE CORE
+    # Main Channel Title loaded from default channel preset
+    from tools.channel_config import load_channel_config
+
+    try:
+        title_text = (load_channel_config("default").channel_name or "FrameForge Studio").upper()
+    except Exception:
+        title_text = "FRAMEFORGE STUDIO"
     font_title = get_font(78, bold=True)
-    title_text = "COGNITIVE CORE"
 
     # Soft drop shadow behind main title
     draw.text((text_x + 3, CY - 118), title_text, fill=(0, 0, 0), font=font_title)
@@ -163,7 +168,7 @@ def create_banner():
     cur_x = text_x + 2
     pill_y = CY + 52
     cur_x = draw_pill(
-        draw, cur_x, pill_y, "🧠  COGNITIVE SCIENCE", font_pills,
+        draw, cur_x, pill_y, "🧠  EMPIRICAL RESEARCH", font_pills,
         text_color=(240, 245, 255), border_color=(70, 95, 130), bg_color=(15, 22, 35),
     ) + 14
     cur_x = draw_pill(

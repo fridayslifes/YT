@@ -18,3 +18,13 @@ def test_guard_cli_exits_zero(capsys):
     out = capsys.readouterr().out
     assert "OVERALL GUARD VERDICT: PASSED" in out
     assert "BEFORE vs. AFTER EFFECT COMPARISON:" in out
+
+
+def test_guard_passes_on_sample_dossiers():
+    from pathlib import Path
+
+    sample = Path(__file__).resolve().parent / "fixtures" / "sample_dossiers.json"
+    report = guard.run_guard(dossiers_path=sample)
+    assert report["passed"] is True, report["gates"]
+    for gate in report["gates"]:
+        assert gate["passed"] is True, f"{gate['gate']} failed: {gate['failures']}"

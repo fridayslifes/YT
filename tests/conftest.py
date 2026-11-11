@@ -180,3 +180,29 @@ def write_transcript(tmp_path):
         return str(path)
 
     return _write
+
+
+@pytest.fixture(autouse=True)
+def _provide_test_dossiers_and_bible(monkeypatch):
+    """When workspace dossiers/bible are empty, point test suite to verified sample fixtures."""
+    import json
+    import tools.creative_engine as ce
+    import tools.policy_gate as pg
+
+    sample_dos = REPO_ROOT / "tests" / "fixtures" / "sample_dossiers.json"
+    sample_bible = REPO_ROOT / "tests" / "fixtures" / "sample_series_bible.json"
+    if sample_dos.exists():
+        try:
+            live_data = json.loads(ce.DOSSIERS_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            live_data = {}
+        if not live_data:
+            monkeypatch.setattr(ce, "DOSSIERS_PATH", sample_dos)
+            monkeypatch.setattr(pg, "DOSSIERS_PATH", sample_dos)
+    if sample_bible.exists():
+        try:
+            live_bible = json.loads(ce.BIBLE_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            live_bible = {}
+        if not live_bible:
+            monkeypatch.setattr(ce, "BIBLE_PATH", sample_bible)

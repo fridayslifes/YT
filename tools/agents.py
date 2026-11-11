@@ -250,7 +250,7 @@ class ConceptAgent(ResearchAgent):
     emoji = "💡"
 
     def load_series_bible(self) -> Dict[str, Any]:
-        bible_path = YT_ROOT / "channel_assets" / "series_bible.json"
+        bible_path = getattr(creative_engine, "BIBLE_PATH", YT_ROOT / "channel_assets" / "series_bible.json")
         if not bible_path.exists():
             return {}
         try:
@@ -269,7 +269,7 @@ class ConceptAgent(ResearchAgent):
     ) -> List[Dict[str, Any]]:
         """Autonomously scan unexploited scientific dossiers, check against past uploads, and propose novel premises."""
         bible = self.load_series_bible()
-        dossiers_path = YT_ROOT / "channel_assets" / "scientific_dossiers.json"
+        dossiers_path = getattr(creative_engine, "DOSSIERS_PATH", YT_ROOT / "channel_assets" / "scientific_dossiers.json")
         tracker_file = YT_ROOT / "channel" / "uploaded_videos.txt"
 
         past_corpus = ""
@@ -305,7 +305,7 @@ class ConceptAgent(ResearchAgent):
                         "hook_candidate": dos.get("best_hook", f"Why your brain makes the exact same error in {topic.lower()}."),
                         "character_lead": char_lead,
                         "novelty_score": 100,
-                        "series_arc": bible.get("series_title", "The Midnight Desk Chronicles"),
+                        "series_arc": bible.get("series_title", "Series Arc"),
                     })
 
         self.log(f"Brainstormed {len(candidates)} novel unexploited premises from Series Bible.")
@@ -328,7 +328,17 @@ class ConceptAgent(ResearchAgent):
                 effective_topic = str(series_bible).strip()
             if not effective_topic:
                 novel_candidates = self.brainstorm_novel_premises(count=1, episode_log=episode_log)
-                effective_topic = novel_candidates[0]["topic"] if novel_candidates else "Loss Aversion"
+                if not novel_candidates and dossier_override is None:
+                    raise MissingInputError(
+                        stage="concept",
+                        artifact="topic",
+                        cause="No explicit topic or dossier available in series_bible / scientific_dossiers.json.",
+                    )
+                effective_topic = (
+                    novel_candidates[0]["topic"]
+                    if novel_candidates
+                    else str((dossier_override or {}).get("topic") or "")
+                )
 
         # 1. Primary empirical grounding & truth verification (inherited from ResearchAgent)
         dossier, report = super().run(effective_topic, dossier_override=dossier_override)
@@ -926,14 +936,14 @@ class MetadataAgent(BaseAgent):
             f"revealed that {stat} of people freeze under the exact same conditions.\n\n"
             f"🔬 Scientific Grounding: {researchers} ({year})\n"
             f"📊 Key Finding: {stat}\n\n"
-            f"#shorts #psychology #science #cognitivecore"
+            "#shorts #psychology #science #frameforge"
         )
 
         # 3. Tags (strictly lowercase, keyword-focused)
         base_tags = [
             topic.lower(),
             f"{researchers.split('&')[0].strip().lower()} {year}",
-            "cognitive core",
+            "frameforge",
             "psychology",
             "neuroscience",
             "behavioral economics",
@@ -1373,7 +1383,7 @@ class OrchestratorAgent:
         proj_data["variant"] = resolved_variant
         proj_data["genre"] = eff_genre
         proj_data.setdefault("id", f"SH-{proj_path.parent.name[:8].upper()}")
-        proj_data.setdefault("channel_id", "cognitive_core")
+        proj_data.setdefault("channel_id", "default")
         proj_data.setdefault("format", fmt_type)
         proj_data["voice"] = _validate_kokoro_voice(proj_data.get("voice", "kokoro"))
         for idx, sc in enumerate(enriched_scenes, 1):

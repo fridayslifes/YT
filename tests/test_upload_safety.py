@@ -79,6 +79,7 @@ def upload(tmp_path, monkeypatch):
     (folder / "UPLOAD_KIT_TEST.md").write_text("kit")
     (folder / "output/short_fixture.mp4").write_bytes(b"test-media")
     service = FakeService()
+    monkeypatch.setenv("FRAMEFORGE_CHANNEL_ID", CHANNEL)
     monkeypatch.setattr(api, "YT_ROOT", tmp_path)
     monkeypatch.setattr(api, "get_authenticated_service", lambda: service)
     monkeypatch.setattr(
@@ -101,6 +102,14 @@ def test_wrong_channel_blocks_before_insert(upload):
     folder, service, _ = upload
     service.channel = "wrong"
     with pytest.raises(RuntimeError, match="channel"):
+        api.upload_via_api(folder)
+    assert not service.inserts
+
+
+def test_unconfigured_channel_refuses_upload_before_auth(upload, monkeypatch):
+    folder, service, _ = upload
+    monkeypatch.delenv("FRAMEFORGE_CHANNEL_ID", raising=False)
+    with pytest.raises(RuntimeError, match="No target YouTube channel ID configured"):
         api.upload_via_api(folder)
     assert not service.inserts
 
@@ -249,6 +258,7 @@ def test_upload_tracker_atomic_failure_leaves_original_row(tmp_path, monkeypatch
     tracker_path = tmp_path / "CONTENT_TRACKER.md"
     original = b"| ID | Live Link | Status |\n| --- | --- | --- |\n| **SH-13** | pending | ready |\n"
     tracker_path.write_bytes(original)
+    monkeypatch.setenv("FRAMEFORGE_CHANNEL_ID", CHANNEL)
     monkeypatch.setattr(api, "YT_ROOT", tmp_path)
 
     def fail(*args):
@@ -300,6 +310,7 @@ def stats_tracker(tmp_path, monkeypatch):
         f"| **SH-13** | https://youtu.be/{REMOTE} | 0 | old |\n",
         encoding="utf-8",
     )
+    monkeypatch.setenv("FRAMEFORGE_CHANNEL_ID", CHANNEL)
     monkeypatch.setattr(api, "YT_ROOT", tmp_path)
     monkeypatch.setattr(api, "get_authenticated_service", lambda: StatsService())
     return path

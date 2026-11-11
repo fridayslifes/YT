@@ -1261,7 +1261,7 @@ def create_project(
     title: str = "",
     *,
     video_id: Optional[str] = None,
-    channel_id: str = "cognitive_core",
+    channel_id: str = "default",
     voice: str = "kokoro",
     scenes: Optional[List[Dict[str, Any]]] = None,
     script: Optional[Union[str, List[str], List[Dict[str, Any]]]] = None,
