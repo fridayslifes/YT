@@ -554,6 +554,71 @@ def verify_script(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list
     return checks
 
 
+@verifier("direction")
+def verify_direction(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list[CheckResult]:
+    manifest_path = _resolve(ctx, result.artifacts.get("director_manifest"))
+    if not manifest_path or not manifest_path.exists():
+        return [_check("direction_manifest", False, "director_manifest.json missing")]
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        return [_check("direction_manifest", False, f"invalid director_manifest.json: {exc}")]
+
+    checks: list[CheckResult] = [_check("direction_manifest", True, f"valid JSON: {manifest_path.name}")]
+    scenes = manifest.get("scenes", [])
+    scene_count = len(scenes)
+    checks.append(
+        _check(
+            "direction_scenes",
+            8 <= scene_count <= 12,
+            f"{scene_count} scenes directed",
+        )
+    )
+
+    all_spatial = all(
+        isinstance(sc.get("spatial"), dict)
+        and bool(sc["spatial"].get("character_position"))
+        and bool(sc["spatial"].get("movement_vector"))
+        for sc in scenes
+    )
+    checks.append(_check("direction_spatial", all_spatial, "character positions and movement vectors specified"))
+
+    all_lighting = all(
+        isinstance(sc.get("lighting"), dict)
+        and bool(sc["lighting"].get("key_light_source"))
+        and bool(sc["lighting"].get("dominant_side"))
+        for sc in scenes
+    )
+    checks.append(_check("direction_lighting", all_lighting, "directional lighting and shadow dominance specified"))
+
+    all_camera = all(
+        isinstance(sc.get("camera"), dict)
+        and bool(sc["camera"].get("trajectory_preset"))
+        and 0.44 <= float(sc["camera"].get("safe_zone_anchor", 0.5)) <= 0.58
+        for sc in scenes
+    )
+    checks.append(_check("direction_camera", all_camera, "3D camera trajectories and safe-zone anchors within band"))
+
+    all_sound = all(
+        isinstance(sc.get("sound"), dict)
+        and bool(sc["sound"].get("score_movement"))
+        and bool(sc["sound"].get("foley_cue"))
+        for sc in scenes
+    )
+    checks.append(_check("direction_sound", all_sound, "score movement and word-aligned Foley sound cues specified"))
+
+    pitch_path = _resolve(ctx, result.artifacts.get("director_pitch"))
+    checks.append(
+        _check(
+            "direction_pitch",
+            bool(pitch_path and pitch_path.exists()),
+            "DIRECTOR_PITCH.md generated for review" if pitch_path and pitch_path.exists() else "missing DIRECTOR_PITCH.md",
+        )
+    )
+    return checks
+
+
 @verifier("project")
 def verify_project(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list[CheckResult]:
     path = _resolve(ctx, result.artifacts.get("project_json"))

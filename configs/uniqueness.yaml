@@ -1,0 +1,21 @@
+# configs/uniqueness.yaml — Global Rule C Uniqueness Thresholds
+# Every video produced must be structurally, visually, and acoustically distinct from all previous videos.
+
+thresholds:
+  # SFX Uniqueness
+  max_sfx_overlap_ratio: 0.50          # Max Jaccard similarity between SFX asset ID sets
+  max_sfx_timing_correlation: 0.60     # Max timing pattern correlation between SFX cue sequences
+
+  # Image Uniqueness (Perceptual Hashing)
+  min_phash_distance: 10               # Minimum dHash Hamming distance (0..64) between scenes
+  disallow_exact_image_reuse: true     # Distance == 0 is an immediate hard failure (zero image reuse)
+
+  # Audio Design Uniqueness
+  require_distinct_music_bed: true     # Music track must differ across videos unless explicitly branded
+  require_distinct_ambience: true      # Ambience bed must differ across videos
+  min_audio_distance: 0.20             # Minimum audio envelope/fingerprint distance
+
+  # Opening 3-Seconds Uniqueness
+  disallow_opening_line_reuse: true    # First spoken sentence / hook line must be completely unique
+  disallow_opening_subject_reuse: true # Opening visual subject in scene 1 prompt must not be duplicated
+  max_opening_text_similarity: 0.70    # Max token similarity for opening spoken sentence

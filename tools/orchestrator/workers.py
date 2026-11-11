@@ -235,6 +235,72 @@ class ScriptWorker(Worker):
         )
 
 
+class DirectorWorker(Worker):
+    kind = "director"
+    description = "Choreograph spatial blocking, movement vectors, directional lighting, and sound."
+
+    def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
+        from tools.director_agent import ShowrunnerDirector
+
+        script_record = ctx.dep_data("script") or {}
+        scenes = script_record.get("scenes", [])
+        if not scenes:
+            return WorkerResult(
+                ok=False,
+                summary="script scenes missing",
+                error="DirectorWorker requires scenes from script task.",
+                retryable=False,
+            )
+
+        dossier = (
+            script_record.get("dossier")
+            or (ctx.dep_data("research").get("dossier") if "research" in ctx.state.tasks else {})
+            or {}
+        )
+
+        channel = str(spec.params.get("channel", "cognitive_core"))
+        genre = str(spec.params.get("genre") or spec.params.get("variant") or "3d_cgi")
+        video_id = str(spec.params.get("video_id", "SH-01"))
+        topic = str(spec.params.get("topic", dossier.get("topic", "Cognitive Science")))
+
+        director = ShowrunnerDirector(channel=channel, genre=genre)
+        manifest = director.direct_video(
+            script_scenes=scenes,
+            dossier=dossier,
+            video_id=video_id,
+            topic=topic,
+        )
+
+        slug = str(spec.params.get("slug") or f"short_{video_id.lower().replace('-', '_')}")
+        target_dir = ctx.root / "shorts" / slug
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        manifest_path = target_dir / "director_manifest.json"
+        manifest_path.write_text(manifest.to_json(indent=2), encoding="utf-8")
+
+        pitch_path = target_dir / "DIRECTOR_PITCH.md"
+        pitch_path.write_text(manifest.format_director_pitch(), encoding="utf-8")
+
+        return WorkerResult(
+            ok=True,
+            summary=f"Directed {len(manifest.scenes)} scenes: spatial blocking, lighting angles & sound design",
+            artifacts={
+                "director_manifest": str(manifest_path),
+                "director_pitch": str(pitch_path),
+            },
+            metrics={
+                "scenes_directed": len(manifest.scenes),
+                "genre": genre,
+                "channel": channel,
+            },
+            facts=[
+                f"Directorial Logline: {manifest.logline}",
+                f"Pitch board: {pitch_path.relative_to(ctx.root)}",
+            ],
+            data=manifest.to_dict(),
+        )
+
+
 class ProjectWorker(Worker):
     kind = "project"
     description = "Assemble project.json and the upload kit from verified evidence."
@@ -242,8 +308,26 @@ class ProjectWorker(Worker):
     def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
         from tools import creative_engine
 
-        dossier = ctx.dep_data("script").get("dossier") or ctx.dep_data("research").get("dossier")
-        scenes = ctx.dep_data("script").get("scenes")
+        dossier = ctx.dep_data("script").get("dossier") or ctx.dep_data("research").get("dossier") or {}
+        director_data = ctx.dep_data("director") or {}
+        directed_scenes = director_data.get("scenes")
+        if directed_scenes:
+            scenes = [
+                {
+                    "id": f"s{sc['scene_index']:02d}",
+                    "text": sc["text"],
+                    "prompt": sc["synthesized_prompt"],
+                    "preset": sc["camera"]["trajectory_preset"],
+                    "motion": sc["camera"]["trajectory_preset"],
+                    "cap_y": sc["camera"]["safe_zone_anchor"],
+                    **({"overlay": sc["overlay"]} if sc.get("overlay") else {}),
+                    **({"stat_card": sc["stat_card"]} if sc.get("stat_card") else {}),
+                }
+                for sc in directed_scenes
+            ]
+        else:
+            scenes = ctx.dep_data("script").get("scenes")
+
         topic = str(spec.params.get("topic", dossier.get("topic", "")))
         video_id = str(spec.params.get("video_id", ""))
         slug = str(spec.params.get("slug", ""))
@@ -687,6 +771,7 @@ def default_workers() -> dict[str, Worker]:
     workers = [
         ResearchWorker(),
         ScriptWorker(),
+        DirectorWorker(),
         ProjectWorker(),
         BuildWorker(),
         ReleaseWorker(),

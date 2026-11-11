@@ -35,6 +35,7 @@ def produce(
     public: bool = False,
     force_motion: bool = False,
     dossier: str | None = None,
+    direct: bool = False,
 ) -> Workflow:
     if publish:
         raise ValueError(
@@ -59,6 +60,29 @@ def produce(
             verifiers=["script"],
             max_attempts=1,
         ),
+    ]
+
+    if direct:
+        tasks.append(
+            TaskSpec(
+                id="director",
+                kind="director",
+                title="Showrunner visual blocking, directional lighting & sound design",
+                params={
+                    "topic": topic,
+                    "video_id": video_id,
+                    "slug": slug,
+                    "genre": effective_genre,
+                    "variant": effective_genre,
+                    "channel": channel,
+                },
+                depends_on=["script"],
+                verifiers=["direction"],
+                max_attempts=1,
+            )
+        )
+
+    tasks.append(
         TaskSpec(
             id="project",
             kind="project",
@@ -71,11 +95,11 @@ def produce(
                 "variant": effective_genre,
                 "channel": channel,
             },
-            depends_on=["script"],
+            depends_on=["director"] if direct else ["script"],
             verifiers=["project"],
             max_attempts=1,
-        ),
-    ]
+        )
+    )
     if build:
         tasks.extend(
             [

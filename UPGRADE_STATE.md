@@ -1,7 +1,7 @@
 # UPGRADE_STATE.md — FrameForge Production Architecture Upgrade
 
-**Status:** PHASE 5 COMPLETED (Channel Governance & Pre-Upload Policy Gate); PHASE 6 (Audio/Visual QA & Rule C Uniqueness Gate) READY.  
-**Last Updated:** 2026-11-11 04:25:00 UTC  
+**Status:** PHASE 6 COMPLETED (Showrunner Director Agent, Rule C Uniqueness Gate, Frame & Audio QA); PHASE 7 (Cloud/Container Architecture & 0-to-1 Acceptance) READY.  
+**Last Updated:** 2026-11-11 05:40:00 UTC  
 **Master Protocol:** AGENTS.md + GEMINI.md  
 **Environment:** Mac Darwin 27.2.0 ARM64 (Local host) & Linux Debian Bookworm 3.11.18 ARM64 (Docker verification container)
 
@@ -237,6 +237,35 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
 - **Verification Evidence:**
   - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `1000 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
 
+### Task 6.1: Showrunner Director Agent (Option A & B) [COMPLETED]
+- **Unified Master Director (`tools/director_agent.py`):**
+  - **Mise-en-Scène & Spatial Blocking:** Directs character positioning in 3D frame coordinates `[X, Y]`, character stance/wardrobe, secondary movement vectors (e.g., characters pacing, animals moving into shadows), and focal props.
+  - **Directional Lighting & Shadow:** Explicit key light source angles, dominant brightness side (left vs. right), chiaroscuro shadow ratios (3:1 to 5:1), and volumetric rim/kicker separation.
+  - **3D Camera Optics & Trajectories:** Choreographs camera movement (`vertigo` dolly-zoom, `spiral`, `orbit`, `dolly`, `spatial_drift`), lens optics, and safe-zone anchors ($0.44$–$0.76$).
+  - **Audio & Musical Direction:** Score progression, word-aligned Foley sound cues with stereo spatialization (`stereo_pan` $-1.0$ to $+1.0$), and narrator vocal delivery notes.
+  - **Option B Interactive Pitch Board:** Generates `DIRECTOR_PITCH.md` for human creator review and sign-off before media rendering begins.
+- **Orchestrator Stage 4 Integration (`tools/orchestrator/workers.py`):**
+  - Added `DirectorWorker` (kind `"director"`).
+  - Produces `director_manifest.json` and `DIRECTOR_PITCH.md`.
+  - Upgraded `ProjectWorker` to ingest directed scenes, prompts, presets, and safe-zone anchors.
+- **Independent Direction Verifier (`tools/orchestrator/verifiers.py`):**
+  - Added `@verifier("direction")` validating spatial blocking, lighting angles, 3D camera trajectory, and sound design.
+  - 0 dangling references in `master.py impact --all`.
+  - Added 7 unit and integration tests in `tests/test_director_agent.py`.
+
+### Task 6.2: Rule C Uniqueness Gate (`tools/uniqueness_gate.py` & `configs/uniqueness.yaml`) [COMPLETED]
+- **Uniqueness Configuration (`configs/uniqueness.yaml`):**
+  - Configurable thresholds for SFX overlap (`max_sfx_overlap_ratio: 0.50`), perceptual image hash distance (`min_phash_distance: 10`), audio envelope distance (`min_audio_distance: 0.20`), and opening text/subject uniqueness.
+- **Comprehensive Cross-Video Comparison Engine (`tools/uniqueness_gate.py`):**
+  - 64-bit dHash and luminance perceptual hashing (`compute_image_phash`, `phash_distance`). Hard fails on image reuse (`distance == 0`).
+  - SFX asset Jaccard overlap tracking against all corpus projects.
+  - Music bed and ambience divergence check.
+  - First 3-seconds spoken line and visual subject non-repetition validator.
+  - Fails closed with `UniquenessGateError(stage="uniqueness_gate")`.
+  - Added 11 unit tests in `tests/test_uniqueness_gate.py`.
+- **Verification Evidence:**
+  - `./check.sh all`: **PASS** (`ruff ok`, `compile ok`, `1018 passed, 1 skipped`, `0 dangling references in impact`, `guard PASS`).
+
 ---
 
 ## 5. Master Task DAG & Implementation Order
@@ -264,19 +293,19 @@ Execution inside clean container with `PYTHONPYCACHEPREFIX` and `RUFF_CACHE_DIR`
   ├── Task 5.1: Support dynamic channel configs in `configs/channels/` [DONE]
   └── Task 5.2: Build comprehensive `policy_gate` (licensing, AI disclosure, study grounding, likeness checks) [DONE]
 
-[Phase 6: Audio/Visual QA & Rule C Uniqueness Gate] [NEXT]
-  ├── Task 6.1: Frame & audio QA gate (-14 LUFS, caption safe-zone 0.44–0.76, face avoidance, pacing)
-  └── Task 6.2: Rule C uniqueness gate (SFX overlap, image pHash distance, audio fingerprint, 3s opening)
+[Phase 6: Audio/Visual QA, Showrunner Director & Rule C Uniqueness Gate] [COMPLETED]
+  ├── Task 6.1: Showrunner Director Agent (Option A & B: Spatial blocking, lighting angles, movement vectors, sound direction) [DONE]
+  └── Task 6.2: Rule C uniqueness gate (SFX overlap, image pHash distance, audio fingerprint, 3s opening) [DONE]
 
-[Phase 7: Cloud / Container Architecture]
-  ├── Task 7.1: Dockerfile with system ffmpeg/ffprobe and complete dependencies
-  └── Task 7.2: Execution queue, secrets handling, receipt durability, and human-in-the-loop publish gate
+[Phase 7: Cloud / Container Architecture & Final 0-to-1 Production Runs] [NEXT]
+  ├── Task 7.1: Multi-stage Dockerfile with system ffmpeg/ffprobe and complete dependencies
+  └── Task 7.2: Final 0-to-1 production acceptance runs across two distinct topics per variant with 14-stage reports
 ```
 
 ---
 
 ## 5. Handoff
 
-- **Done:** Phase 1, Phase 2, Phase 3, Phase 4, and Phase 5 fully completed and verified.
-- **In Progress:** Ready for Phase 6 (Audio/Visual QA & Rule C Uniqueness Gate).
-- **Exact Next Command:** Implement `tools/uniqueness_gate.py` and frame/audio QA checks adhering to Global Rule C.
+- **Done:** Phase 1 through Phase 6 fully completed, tested, and verified. Showrunner Director Agent (`tools/director_agent.py`) and Rule C Uniqueness Gate (`tools/uniqueness_gate.py`) active and passing. `./check.sh all` 100% green with 1018 tests passing and 0 dangling references.
+- **In Progress:** Ready for Phase 7 (Cloud/Container Architecture & Final 0-to-1 Production Runs).
+- **Exact Next Command:** Build `Dockerfile` and verify containerized environment, then execute production verification runs.
