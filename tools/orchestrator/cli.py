@@ -70,6 +70,7 @@ def cmd_produce(args) -> int:
         build=not args.blueprint,
         force_motion=args.force_motion,
         dossier=args.dossier,
+        direct=getattr(args, "direct", False),
         dry_run=args.dry_run,
         approve=args.yes,
     )
@@ -89,6 +90,7 @@ def run_production_workflow(
     build: bool = True,
     force_motion: bool = False,
     dossier: str | None = None,
+    direct: bool = False,
     dry_run: bool = False,
     approve: bool = False,
 ):
@@ -106,6 +108,7 @@ def run_production_workflow(
         publish=False,
         force_motion=force_motion,
         dossier=dossier,
+        direct=direct,
     )
     if variant is not None:
         produce_kwargs["variant"] = variant
@@ -317,6 +320,7 @@ def build_parser() -> argparse.ArgumentParser:
     produce.add_argument("--hook-min", type=int, default=70)
     produce.add_argument("--dossier", help="Path to a verified dossier JSON")
     produce.add_argument("--blueprint", action="store_true", help="Research/script/project only; no render")
+    produce.add_argument("--direct", action="store_true", default=False, help="Include showrunner director agent stage")
     produce.add_argument("--publish", action="store_true", help="Deprecated; publish through release-existing")
     produce.add_argument("--public", action="store_true", help="Public instead of unlisted")
     produce.add_argument("--yes", action="store_true", help="Approve irreversible actions (publish)")

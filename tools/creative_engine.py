@@ -625,6 +625,23 @@ def generate_creative_project(
     if len(primary_title) > 58:
         primary_title = f"The {year} {dossier['topic']} Study: Why You Freeze"
 
+    import hashlib
+    topic_hash = int(hashlib.sha256(f"{video_id}_{topic}_{prof.id}".encode("utf-8")).hexdigest(), 16)
+    unique_seed = (topic_hash % 10000) + 1
+    genre_base_bpm = {
+        "3d_cgi": 72,
+        "cinematic_35mm": 68,
+        "kinetic_explainer": 98,
+        "cyberpunk_neon": 86,
+        "storybook_picturebook": 64,
+        "stickman_skeleton": 116,
+        "riddle": 66,
+        "hybrid_mixed_media": 78,
+        "photobook": 70,
+        "cutout_cartoon": 104,
+    }.get(prof.id, 74)
+    unique_bpm = genre_base_bpm + ((topic_hash // 10000) % 9) - 4
+
     proj_data = {
         **draft,
         "title": f"{dossier['topic']} - {video_id}",
@@ -645,9 +662,10 @@ def generate_creative_project(
         "music": {
             "volume": 0.18,
             "sfx_volume": 0.12,
-            "seed": 42,
-            "bpm": 74,
+            "seed": unique_seed,
+            "bpm": unique_bpm,
         },
+        "ambience": f"{prof.id}_{dossier['topic'].lower().replace(' ', '_')}_ambience",
         "metadata": {
             "cluster": dossier.get("cluster"),
             "story_arc": dossier.get("story_arc", "The Midnight Desk Chronicles"),

@@ -25,6 +25,7 @@
 numpy==2.4.6
 Pillow==13.0.0              # imported as `PIL`
 opencv-python==4.11.0.86    # imported as `cv2`
+PyYAML==6.0.3               # imported as `yaml` for configs and channels
 
 # --- Narration TTS: local Kokoro-82M ONNX only -------------------------------
 # Speech synthesis runs strictly via local Kokoro-82M ONNX (`kokoro-onnx` + `soundfile`
