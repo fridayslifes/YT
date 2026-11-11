@@ -227,17 +227,7 @@ def projects() -> list[dict]:
 # a new project is started; any discovered real slug must be recorded here deliberately.
 # Emptied: All uploaded legacy shorts verified and removed at creator instruction.
 # Clean state for new 4K60 video production.
-LOCAL_PROJECTS: tuple[str, ...] = (
-    "short_25_speckled_band",
-    "short_26_dorian_gray",
-    "short_27_loss_aversion",
-    "short_28_hedonic_treadmill",
-    "short_29_simulation_argument",
-    "short_30_paradox_of_choice",
-    "short_31_fresh_start_effect",
-    "short_32_ego_depletion",
-    "short_33_implementation_intentions",
-)
+LOCAL_PROJECTS: tuple[str, ...] = ()
 
 
 def test_the_glob_actually_finds_the_corpus(projects):

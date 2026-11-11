@@ -59,15 +59,12 @@ Tracks every long-form and short-form video created, updated and published for *
 | **SH-22** | Short (9:16) | *Why 500-Ton Clouds Don't Crash?* | [Watch](https://youtu.be/Hhrull2A988) (`Hhrull2A988`) | — | `shorts/short_18_why_clouds_dont_fall/output/short_18_why_clouds_dont_fall_4k60.mp4` · kit `shorts/short_18_why_clouds_dont_fall/UPLOAD_KIT_SH22.md` | **Live** |
 | **SH-23** | Short (9:16) | *The Entire Internet Weighs 50 Grams* | [Watch](https://youtu.be/KSw5d8We7oo) (`KSw5d8We7oo`) | 77 | `shorts/short_23_v2_emotional_audio_reactive/output/short_23_v2_emotional_audio_reactive_4k60.mp4` · kit `shorts/short_23_internet_weight/UPLOAD_KIT_SH23.md` | **Uploaded** |
 | **SH-24** | Short (9:16) | *600 Experiments Caught Rain's Smell* | [Watch](https://youtu.be/z2KkIxBSltY) (`z2KkIxBSltY`) | 1,262 | `shorts/short_24_petrichor/output/short_24_petrichor_4k60.mp4` · evidence `channel_assets/evidence/SH-24-petrichor.json` · kit `shorts/short_24_petrichor/UPLOAD_KIT_SH24.md` | **Uploaded** |
-| **SH-25** | Short (9:16) | *The Speckled Band (Sherlock Holmes, 1892)* | — | — | `shorts/short_25_speckled_band/project.json` · kit `shorts/short_25_speckled_band/UPLOAD_KIT_SH25.md` | **Blueprint (Classic Storybook)** |
-| **SH-26** | Short (9:16) | *The Picture of Dorian Gray (Oscar Wilde, 1890)* | — | — | `shorts/short_26_dorian_gray/project.json` · kit `shorts/short_26_dorian_gray/UPLOAD_KIT_SH26.md` | **Blueprint (Gothic Scrapbook)** |
-| **SH-27** | Short (9:16) | *The Midnight Coin Toss (Loss Aversion, 1979)* | — | — | `shorts/short_27_loss_aversion/output/short_27_loss_aversion.mp4` · kit `shorts/short_27_loss_aversion/UPLOAD_KIT_SH27.md` | **Ready — Gate PASS** |
-| **SH-28** | Short (9:16) | *The Man Who Won Paradise (The Hedonic Treadmill, 1978)* | — | — | `shorts/short_28_hedonic_treadmill/output/short_28_hedonic_treadmill.mp4` · kit `shorts/short_28_hedonic_treadmill/UPLOAD_KIT_SH28.md` | **Ready — Gate PASS** |
+| **SH-25** | Short (9:16) | *The Crow Grudge: Why Crows Remember Your Face For 5 Years* | [Watch](https://youtu.be/1h4MwSloqrI) (`1h4MwSloqrI`) | — | `shorts/short_25_crow_grudge/output/short_25_crow_grudge.mp4` · kit `shorts/short_25_crow_grudge/UPLOAD_KIT_SH25.md` | **Uploaded** |
+| **SH-26** | Short (9:16) | *Next Short (Style Upgrade)* | *Pending Production* | — | — | **Planned** |
 | **LV-03** | Long (16:9) | *lv_03_wall_street_investigation (Forensic Archival Investigation of the 1920 Wall Street Detonation)* | *Pending Upload* | — | `long_form/lv_03_wall_street_investigation/output/lv_03_wall_street_investigation.mp4` | **Rendered — Gate PASS** |
 | **SH-DEMO-01** | Short (9:16) | — | [Watch](https://youtu.be/D4mPUw2vyKI) (`D4mPUw2vyKI`) | 31 | — | **Uploaded** |
 | **SH-DEMO-02** | Short (9:16) | — | [Watch](https://youtu.be/iDWfBVlhkPs) (`iDWfBVlhkPs`) | 0 | — | **Uploaded** |
 | **SH-22B** | Short (9:16) | — | [Watch](https://youtu.be/DUDtKAATb_U) (`DUDtKAATb_U`) | 870 | — | **Uploaded** |
-| **SH-30** | Short (9:16) | *The Paradox of Choice - SH-30* | *Pending Upload* | — | `shorts/short_30_paradox_of_choice/output/short_30_paradox_of_choice.mp4` | **Rendered — Gate PASS** |
 
 Views are `videos.list(part=statistics)` read on 2026-11-03, after this session's metadata pass; the titles above
 are the live titles, four of which this pass changed (`SH-02`, `SH-03`, `SH-08`, `SH-11`). All 20 videos return

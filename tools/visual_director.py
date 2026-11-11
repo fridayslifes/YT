@@ -434,6 +434,16 @@ TOPIC_VISUAL_BLUEPRINTS: Dict[str, Dict[int, Dict[str, str]]] = {
             "archetype": "infinite_loop",
         },
     },
+    "the_clever_hans_effect": {
+        1: {
+            "scale": "High-tension 3D spatial medium close-up documentary shot at eye-level",
+            "subject": "a sleek black stallion standing alert in a cobblestone courtyard with intelligent focused eyes",
+            "action": "tapping a polished wooden counting board with his front hoof while spectators watch in silent tension",
+            "setting": "1904 Berlin courtyard surrounded by brick archways and gas lamps receding into morning mist",
+            "lighting": "soft morning sunlight with crisp cool rim lighting highlighting his muscular dark coat",
+            "archetype": "visceral_hook",
+        },
+    },
 }
 
 
