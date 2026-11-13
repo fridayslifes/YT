@@ -48,3 +48,15 @@ long_form/*/output/
 long_form/*/videos/
 long_form/*/cache/
 demos/
+
+# Channel-specific data (never commit)
+configs/channels/
+configs/voice_persona.md
+channel_assets/voice.md
+channel_assets/POLICY.md
+channel_assets/YOUTUBE_API_GUIDE.md
+channel_assets/scientific_dossiers.json
+channel_assets/series_bible.json
+channel/uploaded_videos.txt
+research/scientific_dossiers.json
+CONTENT_TRACKER.md

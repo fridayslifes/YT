@@ -9,7 +9,7 @@ import pytest
 
 from tools import upload_api as api
 
-CHANNEL = "UC6hwVBnsfvfUGxfZi2sFT3A"
+CHANNEL = "UCxxxxxxxxxxxxxxxxxxxxxxxxx"  # placeholder test channel
 REMOTE = "abcdefghijk"
 
 

@@ -135,7 +135,7 @@ def synthesize_dossier(topic: str) -> Dict[str, Any]:
 # newly generated Upload Kits until the operator registers new published anchors.
 LONGFORM_ANCHORS: Dict[str, str] = {}
 LONGFORM_URLS: Dict[str, str] = {}
-DEFAULT_CHANNEL_URL = "https://www.youtube.com/@FrameForgeStudio"
+DEFAULT_CHANNEL_URL = ""  # Set via configs/channels/<name>.yaml
 
 
 def _channel_identity(channel: str = "default") -> tuple[str, str, str]:
@@ -144,11 +144,11 @@ def _channel_identity(channel: str = "default") -> tuple[str, str, str]:
 
     try:
         cfg = load_channel_config(channel)
-        name = cfg.channel_name or "FrameForge Studio"
-        handle = cfg.handle or "@FrameForgeStudio"
+        name = cfg.channel_name or "My Channel"
+        handle = cfg.handle or "@MyChannel"
     except Exception:
-        name = "FrameForge Studio"
-        handle = "@FrameForgeStudio"
+        name = "My Channel"
+        handle = "@MyChannel"
     clean_handle = handle if handle.startswith("@") else f"@{handle}"
     return name, clean_handle, f"https://www.youtube.com/{clean_handle}"
 

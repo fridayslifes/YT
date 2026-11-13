@@ -35,10 +35,26 @@ def _valid_project_data() -> dict:
     }
 
 
-def test_channel_config_loads_default() -> None:
+def test_channel_config_loads_default(tmp_path, monkeypatch) -> None:
+    import tools.channel_config as cc
+
+    (tmp_path / "default.yaml").write_text(
+        'channel_name: "Test Channel"\n'
+        'channel_id: "UC_TEST_CHANNEL"\n'
+        'handle: "@TestChannel"\n'
+        'niche: "science"\n'
+        'default_variant: "cinematic_35mm"\n'
+        'supported_variants:\n'
+        '  - "cinematic_35mm"\n'
+        'voice: "kokoro"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cc, "CHANNELS_DIR", tmp_path)
+    monkeypatch.setattr(cc, "_CHANNEL_CACHE", {})
+
     cfg = load_channel_config("default")
-    assert cfg.channel_name == "FrameForge Studio"
-    assert cfg.handle == "@FrameForgeStudio"
+    assert cfg.channel_name == "Test Channel"
+    assert cfg.handle == "@TestChannel"
     assert "cinematic_35mm" in cfg.supported_variants
     assert cfg.voice == "kokoro"
     assert "default" in list_channels()

@@ -1,7 +1,7 @@
 {
   "series_title": "Empirical Behavior Series",
-  "channel_name": "FrameForge Studio",
-  "channel_handle": "@FrameForgeStudio",
+  "channel_name": "Test Channel",
+  "channel_handle": "@TestChannel",
   "version": "1.0",
   "logline": "An investigative deep dive into the hidden cognitive biases, psychological glitches, and neurological survival mechanisms that govern human behavior, grounded strictly in empirical 20th-century scientific research.",
   "target_audience": {

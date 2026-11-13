@@ -82,7 +82,7 @@ Legacy production flags in `tools/agents.py` and `tools/pipeline.py` are compati
   - `quantitative_stat` must be the study's own figure. A trilemma, ratio or effect size must not be dressed up as a percentage of people.
 - **Strict Zero-Placeholder ("No Hidden Holders") Rule**:
   - **NEVER leave silent dummy links** (such as `https://amzn.to/example`) or unverified placeholder handles inside copy-paste descriptions or Upload Kits.
-  - Always use the channel handle configured in `configs/channels/default.yaml` (default template `@FrameForgeStudio`).
+  - Always use the channel handle configured in `configs/channels/default.yaml` (default template `@yourchannel`).
   - If an Upload Kit includes an optional slot for an external affiliate link or Notion template URL that the creator must supply, **do not put a fake URL in the copy-paste block**. Instead, keep the copy-paste block 100% ready to publish as-is, and place a clearly labeled **`⚠️ CREATOR PLACEHOLDER NOTICE`** box above or below telling the creator exactly what optional link they can swap in.
 
 ---

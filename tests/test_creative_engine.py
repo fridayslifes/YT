@@ -405,7 +405,7 @@ def test_upload_kit_description_links_a_reachable_video(monkeypatch):
     block = kit.split("## 2. Humanized Description", 1)[1].split("## 3.")[0]
     for dead in ("Related Video", "bio link", "Focus Architecture OS"):
         assert dead not in block, f"{dead!r} in a description the viewer cannot act on"
-    assert "https://youtu.be/" in block and "https://www.youtube.com/@FrameForgeStudio" in block
+    assert "https://youtu.be/" in block and "https://www.youtube.com/@" in block
 
 
 def test_upload_kit_related_video_never_invents_a_title():

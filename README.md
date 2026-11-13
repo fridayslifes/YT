@@ -1,6 +1,6 @@
 # FrameForge
 
-FrameForge is the local and cloud video-production workspace and Python toolset. Its built-in production workflow creates research-grounded YouTube Shorts and long-form videos using the channel preset in `configs/channels/default.yaml` (`FrameForge Studio` / `@FrameForgeStudio` until configured for a live YouTube channel).
+FrameForge is the local and cloud video-production workspace and Python toolset. Its built-in production workflow creates research-grounded YouTube Shorts and long-form videos using the channel preset in `configs/channels/default.yaml` (`Your Channel` / `@yourchannel` until configured for a live YouTube channel).
 
 The `shorts/` and `long_form/` directories are prepared format destinations and currently contain only documentation, with no active local project. Broader format and channel-neutral production workflows remain proposed.
 

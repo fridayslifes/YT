@@ -45,7 +45,7 @@ SHORT_SCENE_BAND = (8, 12)  # GEMINI.md:29 "8-12 scene script"
 REQUIRED_PROJECT_KEYS = ("id", "title", "format", "voice", "rate", "gap", "music", "scenes", "genre", "science")
 REQUIRED_SCENE_KEYS = ("text", "image", "video")
 PATH_SCENE_KEYS = ("image", "video")
-PLACEHOLDER_TOKENS = ("TODO", "TBD", "lorem ipsum", "amzn.to/example", "@CognitiveCoreHQ", "{{", "}}")
+PLACEHOLDER_TOKENS = ("TODO", "TBD", "lorem ipsum", "amzn.to/example", "{{", "}}")
 
 # The projects that violate a GEMINI.md rule today, by slug. A count was the wrong shape for this:
 # it lets one project be fixed while another breaks and the number stays the same. Offenders must be

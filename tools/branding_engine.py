@@ -43,11 +43,11 @@ def _channel_labels() -> tuple[str, str]:
 
     try:
         cfg = load_channel_config("default")
-        name = (cfg.channel_name or "FrameForge Studio").upper()
-        handle = cfg.handle or "@FrameForgeStudio"
+        name = (cfg.channel_name or "MY CHANNEL").upper()
+        handle = cfg.handle or "@MyChannel"
     except Exception:
-        name = "FRAMEFORGE STUDIO"
-        handle = "@FrameForgeStudio"
+        name = "MY CHANNEL"
+        handle = "@MyChannel"
     return name, handle
 
 ASSETS_DIR = os.path.join(ROOT_DIR, "channel_assets")
