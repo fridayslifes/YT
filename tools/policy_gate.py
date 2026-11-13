@@ -129,6 +129,8 @@ def validate_empirical_claims(
 ) -> List[str]:
     """Verifies scientific grounding, citation presence, and empirical claims."""
     violations: List[str] = []
+    if str(project_data.get("content_type", "factual")).lower() == "fiction":
+        return violations
     if channel_cfg and not channel_cfg.topic_rules.get("require_verified_dossier", True):
         return violations
 

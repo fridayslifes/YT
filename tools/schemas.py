@@ -32,6 +32,11 @@ KOKORO_VOICES = frozenset({
     "pm_alex", "pm_santa", "zf_xiaobei", "zf_xiaoni", "zf_xiaoxiao", "zf_xiaoyi", "zm_yunjian",
     "zm_yunxi", "zm_yunxia", "zm_yunyang", "kokoro",
 })
+# A video is either factual (its claims must be verified) or fiction (an invented
+# story, exempt from fact-checking). Absent means factual, so older projects keep
+# their meaning. This is the only switch that turns the fact-check gate off.
+CONTENT_TYPES = frozenset({"factual", "fiction"})
+DEFAULT_CONTENT_TYPE = "factual"
 _ID_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]*\Z")
 _HASH_RE = re.compile(r"[0-9a-f]{64}\Z")
 
@@ -80,6 +85,8 @@ def validate_project(data: dict, *, project_path: Path | None = None) -> list[st
     voice = data.get("voice")
     if not isinstance(voice, str) or voice not in KOKORO_VOICES:
         errors.append("voice must be a known Kokoro voice or the 'kokoro' house profile")
+    if "content_type" in data and data["content_type"] not in CONTENT_TYPES:
+        errors.append("content_type must be 'factual' or 'fiction'")
 
     scenes = data.get("scenes")
     if not isinstance(scenes, list):

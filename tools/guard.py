@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FrameForge Guard & After-Effect Verification Engine (`tools/guard.py`).
 
-Runs 6 independent verification gates across the repository and measures the
+Runs 7 independent verification gates across the repository and measures the
 Before-vs-After impact of code, dossier, and storyline changes:
 
   1. Dossier & Closing-Ask Gate:
@@ -29,6 +29,10 @@ Before-vs-After impact of code, dossier, and storyline changes:
      Validates retained local projects (`shorts/*/project.json`) against schema
      and safe-zone rules, and runs `impact.find_stale(Index(ROOT))` to verify
      zero dangling references across code and documentation.
+  7. Fact-Check Layer & Fiction Exemption Gate:
+     Verifies the fact-check worker and verifier are registered, that fiction is
+     exempt from fact-checking without any network call, and that every retained
+     factual project carries verified grounding or a fact-check report.
 """
 
 from __future__ import annotations
@@ -307,6 +311,48 @@ def run_guard(root: Path = YT_ROOT, dossiers_path: Path | None = None) -> dict[s
         "passed": not corpus_failures,
         "summary": f"{len(project_files)} retained projects valid; {len(stale)} dangling references across repo",
         "failures": corpus_failures,
+    })
+
+    # ------------------------------------------------------------------ #
+    # Gate 7: Fact-Check Layer & Fiction Exemption Gate (offline-safe)
+    # ------------------------------------------------------------------ #
+    factcheck_failures: list[str] = []
+    from tools import fact_check
+    from tools.orchestrator.verifiers import VERIFIERS
+    from tools.orchestrator.workers import default_workers
+
+    if "factcheck" not in VERIFIERS:
+        factcheck_failures.append("verify_factcheck is not registered")
+    if "factcheck" not in default_workers():
+        factcheck_failures.append("FactCheckWorker is not registered")
+    # Fiction must be exempt without touching the network.
+    fiction_report = fact_check.check_script(
+        [{"text": "In 1999 the dragon burned 3 cities."}], content_type="fiction"
+    )
+    if fiction_report.get("status") != "exempt" or not fiction_report.get("passed"):
+        factcheck_failures.append("fiction is not exempt from fact-checking")
+    rejected_invalid_type = False
+    try:
+        fact_check.normalize_content_type("bogus")
+    except fact_check.FactCheckError:
+        rejected_invalid_type = True
+    if not rejected_invalid_type:
+        factcheck_failures.append("normalize_content_type accepted an invalid content_type")
+    # Retained factual projects need verified grounding or a fact-check report; fiction is exempt.
+    for pf in project_files:
+        pdata = json.loads(pf.read_text(encoding="utf-8"))
+        if str(pdata.get("content_type", "factual")).lower() == "fiction":
+            continue
+        if pdata.get("citation_verified") is not True and not (pf.parent / "fact_check.json").exists():
+            factcheck_failures.append(
+                f"{pf.parent.name}: factual project has neither a verified citation nor fact_check.json"
+            )
+
+    gates.append({
+        "gate": "factcheck_layer_and_fiction_exemption",
+        "passed": not factcheck_failures,
+        "summary": "Fact-check layer wired; fiction exempt; factual projects grounded or fact-checked",
+        "failures": factcheck_failures,
     })
 
     all_passed = all(g["passed"] for g in gates)

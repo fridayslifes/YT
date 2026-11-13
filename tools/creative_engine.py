@@ -36,7 +36,7 @@ if __name__ == "__main__":
 from tools import genre_director  # noqa: E402
 from tools import output_format as fmt  # noqa: E402
 from tools import youtube_skills  # noqa: E402
-from tools.schemas import PROJECT_SCHEMA_VERSION, validate_project  # noqa: E402
+from tools.schemas import CONTENT_TYPES, PROJECT_SCHEMA_VERSION, validate_project  # noqa: E402
 from tools.visual_director import S4VisualDirector  # noqa: E402
 
 
@@ -591,6 +591,7 @@ def generate_creative_project(
     voice: str = "kokoro",
     variant: str = "cinematic_35mm",
     channel_id: str = "default",
+    content_type: str = "factual",
 ) -> Path:
     """End-to-end dialectic blueprint synthesis: Research Dossier -> Hook Verification -> 8-Scene 3D Choreography -> Upload Kit.
 
@@ -605,6 +606,10 @@ def generate_creative_project(
     dossier = dossier or synthesize_dossier(topic)
     eff_genre = genre or dossier.get("recommended_genre", "3d_cgi")
     prof = genre_director.get_genre_profile(eff_genre)
+
+    content_type = str(content_type or "factual").strip().lower()
+    if content_type not in CONTENT_TYPES:
+        raise ValueError(f"content_type must be one of {sorted(CONTENT_TYPES)}, got {content_type!r}")
 
     if scenes is None:
         scenes = choreograph_scenes(dossier, genre=prof.id)
@@ -622,6 +627,7 @@ def generate_creative_project(
         "format": "short",
         "voice": voice,
         "channel_id": channel_id,
+        "content_type": content_type,
         "scenes": scenes,
     }
     errors = validate_project(draft, project_path=proj_path)

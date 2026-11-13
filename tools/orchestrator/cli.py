@@ -71,6 +71,7 @@ def cmd_produce(args) -> int:
         force_motion=args.force_motion,
         dossier=args.dossier,
         direct=getattr(args, "direct", False),
+        content_type=getattr(args, "content_type", "factual"),
         dry_run=args.dry_run,
         approve=args.yes,
     )
@@ -91,6 +92,7 @@ def run_production_workflow(
     force_motion: bool = False,
     dossier: str | None = None,
     direct: bool = False,
+    content_type: str = "factual",
     dry_run: bool = False,
     approve: bool = False,
 ):
@@ -109,6 +111,7 @@ def run_production_workflow(
         force_motion=force_motion,
         dossier=dossier,
         direct=direct,
+        content_type=content_type,
     )
     if variant is not None:
         produce_kwargs["variant"] = variant
@@ -302,6 +305,34 @@ def cmd_genres(_args) -> int:
     return 0
 
 
+def cmd_fact_check(args) -> int:
+    from tools import fact_check
+
+    project_path = Path(args.project)
+    try:
+        project = json.loads(project_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"Cannot read project: {exc}", file=sys.stderr)
+        return 2
+    if args.content_type:
+        project["content_type"] = args.content_type
+    try:
+        report = fact_check.check_project(project)
+    except fact_check.FactCheckError as exc:
+        print(f"Fact-check could not run: {exc}", file=sys.stderr)
+        return 2
+    output = Path(args.output) if args.output else project_path.parent / "fact_check.json"
+    output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if args.json:
+        print(json.dumps(report, indent=2))
+    else:
+        print(f"Fact-check: {report['status']} ({report['checked']} claim(s) checked)")
+        for flag in report["flags"]:
+            print(f"  ! unverified: {flag}")
+        print(f"Report: {output}")
+    return 0 if report["passed"] else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Master orchestrator: plan, delegate, verify, report.",
@@ -319,6 +350,8 @@ def build_parser() -> argparse.ArgumentParser:
     produce.add_argument("--channel", required=True, help="Target channel profile identifier")
     produce.add_argument("--hook-min", type=int, default=70)
     produce.add_argument("--dossier", help="Path to a verified dossier JSON")
+    produce.add_argument("--content-type", choices=["factual", "fiction"], default="factual",
+                         help="factual (claims verified) or fiction (exempt from fact-checking)")
     produce.add_argument("--blueprint", action="store_true", help="Research/script/project only; no render")
     produce.add_argument("--direct", action="store_true", default=False, help="Include showrunner director agent stage")
     produce.add_argument("--publish", action="store_true", help="Deprecated; publish through release-existing")
@@ -390,6 +423,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     genres = sub.add_parser("genres", help="Display visual genres and storybook production catalog")
     genres.set_defaults(func=cmd_genres)
+
+    factcheck = sub.add_parser("fact-check", help="Fact-check a script's factual claims via live web research (fiction exempt)")
+    factcheck.add_argument("--project", required=True, help="Path to project.json")
+    factcheck.add_argument("--content-type", choices=["factual", "fiction"], default=None,
+                           help="Override the project's content_type")
+    factcheck.add_argument("--output", help="Write the JSON report here (default: beside project.json)")
+    factcheck.add_argument("--json", action="store_true")
+    factcheck.set_defaults(func=cmd_fact_check)
     return parser
 
 

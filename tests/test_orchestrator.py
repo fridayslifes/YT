@@ -328,7 +328,14 @@ def test_the_release_gate_verifies_render_packaging_precompose_and_consistency()
     repo itself: a change that leaves a dangling reference behind must not reach an upload.
     """
     wf = produce(topic="Loss Aversion", video_id="SH-99", slug="short_99_loss_aversion", build=True)
-    assert [t.id for t in wf.tasks] == ["research", "script", "project", "build", "release"]
+    assert [t.id for t in wf.tasks] == ["research", "script", "project", "factcheck", "build", "release"]
+
+    factcheck = next(t for t in wf.tasks if t.id == "factcheck")
+    assert factcheck.verifiers == ["factcheck"]
+    assert factcheck.depends_on == ["project"]
+    assert next(t for t in wf.tasks if t.id == "build").depends_on == ["factcheck"], (
+        "a flagged fact-check must block the render"
+    )
 
     release = next(t for t in wf.tasks if t.id == "release")
     assert release.verifiers == ["render", "packaging", "precompose", "consistency"], (

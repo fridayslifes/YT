@@ -36,6 +36,7 @@ def produce(
     force_motion: bool = False,
     dossier: str | None = None,
     direct: bool = False,
+    content_type: str = "factual",
 ) -> Workflow:
     if publish:
         raise ValueError(
@@ -56,7 +57,7 @@ def produce(
             id="research",
             kind="research",
             title="Resolve verified primary-source dossier",
-            params={"topic": topic, **({"dossier": dossier} if dossier else {})},
+            params={"topic": topic, "content_type": content_type, **({"dossier": dossier} if dossier else {})},
             verifiers=["research"],
             max_attempts=1,
         ),
@@ -103,9 +104,21 @@ def produce(
                 "genre": effective_genre,
                 "variant": effective_variant,
                 "channel": channel,
+                "content_type": content_type,
             },
             depends_on=["director"] if direct else ["script"],
             verifiers=["project"],
+            max_attempts=1,
+        )
+    )
+    tasks.append(
+        TaskSpec(
+            id="factcheck",
+            kind="factcheck",
+            title="Fact-check factual claims via live web research (fiction exempt)",
+            params={"content_type": content_type},
+            depends_on=["project"],
+            verifiers=["factcheck"],
             max_attempts=1,
         )
     )
@@ -117,7 +130,7 @@ def produce(
                     kind="build",
                     title="Render images, 3D clips and mastered MP4",
                     params={"force_motion": force_motion},
-                    depends_on=["project"],
+                    depends_on=["factcheck"],
                     verifiers=["render"],
                     max_attempts=2,
                     timeout_s=3600,
@@ -143,6 +156,7 @@ def produce(
         "publish": publish,
         "public": public,
         "hook_min": hook_min,
+        "content_type": content_type,
     }
     goal = f"Produce {video_id} '{topic}'"
     return Workflow(name="produce", goal=goal, tasks=tasks, params=params)

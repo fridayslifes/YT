@@ -73,11 +73,13 @@ Legacy production flags in `tools/agents.py` and `tools/pipeline.py` are compati
 
 ---
 
-### 1. Mandatory Pre-Production Research & Zero-Placeholder Rule
-- **Never generate scripts in a vacuum**: Ground every topic in (1) a visceral 2nd-person real-life symptom (`"You..."`), (2) a verified scientific study, researcher, year, and quantitative stat, and (3) a punchy 5-second behavioral reset.
+### 1. Pre-Production Fact-Check & Zero-Placeholder Rule
+- **Verify factual claims; exempt fiction**: Every video declares `content_type` (`factual` or `fiction`, default `factual`). Factual scripts are fact-checked — their claims must be grounded in a verified study or corroborated by live web research (`tools/fact_check.py`, Exa). Fiction (invented stories, novels, skits) is exempt: no dossier and no fact-check is required. The goal is to catch false, fake, or unsupported claims, not to force a scientific study onto every video.
+- **Factual science videos** still ground every topic in (1) a visceral 2nd-person real-life symptom (`"You..."`), (2) a verified scientific study, researcher, year, and quantitative stat, and (3) a punchy 5-second behavioral reset.
 - **The Citation Contract (machine-enforced since v4.1)**:
   - Every `project.json` carries `science` (researcher + year exactly as the channel will cite it on camera), optional `citation_stat` (a number the study really reported), and `citation_verified` (`true` only when the claim has been matched to the paper).
-  - `tools/creative_engine.py` **raises `MissingDossier`** for any topic with no entry in `channel_assets/scientific_dossiers.json`. It no longer invents one. Add the real study; do not restore the fallback.
+  - `tools/creative_engine.py` **raises `MissingDossier`** for any factual science topic with no entry in `channel_assets/scientific_dossiers.json`. It no longer invents one. Add the real study; do not restore the fallback.
+  - The `factcheck` worker and `verify_factcheck` gate run after the project is assembled and before the render. Fiction returns `exempt`; a factual video passes via its verified dossier (`satisfied_by_dossier`) or a passing live-web report. A factual claim with no corroborating HTTPS source is flagged and blocks the render. A missing `EXA_API_KEY` fails closed with the fix command — there is no offline fallback.
   - On-screen telemetry cards and description stats render **only** from `science` / `citation_stat`. No citation means **no card** — never a placeholder institution. Headline copy must not contain a number that `citation_stat` does not support.
   - `quantitative_stat` must be the study's own figure. A trilemma, ratio or effect size must not be dressed up as a percentage of people.
 - **Strict Zero-Placeholder ("No Hidden Holders") Rule**:
@@ -347,7 +349,8 @@ The production control plane lives in `tools/orchestrator/` and is entered throu
 ```
 
 **Rules:**
-- Research fails closed: no verified dossier in `channel_assets/scientific_dossiers.json` and no `--dossier` means no script. Never synthesize a study, statistic, researcher or year.
+- Research fails closed for factual science videos: no verified dossier in `channel_assets/scientific_dossiers.json` and no `--dossier` means no script. Never synthesize a study, statistic, researcher or year. Fiction (`content_type=fiction`) is exempt from research and fact-checking.
+- The `factcheck` gate verifies factual claims via live web research (Exa) before rendering; fiction is exempt. Run it standalone with `python tools/master.py fact-check --project <path>`.
 - A task passes only if its declared artifacts exist and every critical verifier passes. Warnings do not become success.
 - The release gate checks the MP4, packaging, pre-compose state and that the repo carries no dangling reference. Upload requires `--publish --yes`; the master never publishes on its own.
 - Run ledgers and reports live in `.orchestrator/runs/<run_id>/` (`run.json`, `events.jsonl`, `REPORT.md`).

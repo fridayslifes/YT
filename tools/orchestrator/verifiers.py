@@ -250,6 +250,11 @@ def _strict_evidence_checks(spec: TaskSpec, result: WorkerResult, ctx: RunContex
 
 @verifier("research")
 def verify_research(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list[CheckResult]:
+    content_type = str(
+        spec.params.get("content_type") or result.data.get("content_type") or "factual"
+    ).strip().lower()
+    if content_type == "fiction":
+        return [_check("research_fiction_exempt", True, "fiction: no dossier or fact-check required")]
     dossier = result.data.get("dossier") or {}
     strict_checks: list[CheckResult] = []
     if spec.params.get("strict_evidence"):
@@ -342,6 +347,81 @@ def verify_research(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> li
         )
     )
     checks.extend(strict_checks)
+    return checks
+
+
+@verifier("factcheck")
+def verify_factcheck(spec: TaskSpec, result: WorkerResult, ctx: RunContext) -> list[CheckResult]:
+    """Read the written fact-check report independently; never trust the worker's claim.
+
+    Offline-safe: this gate inspects the report artifact, it does not call the web.
+    Fiction must be exempt; factual claims must be corroborated by a retrieved HTTPS
+    source or grounded in a verified dossier, with zero unverified flags.
+    """
+    content_type = str(
+        spec.params.get("content_type") or result.data.get("content_type") or "factual"
+    ).strip().lower()
+    report_path = _resolve(ctx, result.artifacts.get("fact_check"))
+    if report_path is None or not report_path.exists():
+        return [_check("factcheck_report", False, "fact_check.json missing")]
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return [_check("factcheck_report", False, f"invalid fact_check.json: {exc}")]
+    if not isinstance(report, dict):
+        return [_check("factcheck_report", False, "fact-check report must be an object")]
+
+    checks = [_check("factcheck_report", True, f"valid report: {report_path.name}")]
+    status = report.get("status")
+    if content_type == "fiction" or status == "exempt":
+        checks.append(
+            _check(
+                "factcheck_fiction_exempt",
+                status == "exempt" and content_type == "fiction",
+                "fiction is exempt from fact-checking"
+                if status == "exempt"
+                else "exempt report is only valid for fiction",
+            )
+        )
+        return checks
+
+    checks.append(
+        _check(
+            "factcheck_status",
+            status in {"passed", "satisfied_by_dossier"} and report.get("passed") is True,
+            f"factual fact-check status={status}",
+        )
+    )
+    flags = report.get("flags") or []
+    checks.append(
+        _check(
+            "factcheck_no_flags",
+            not flags,
+            "no unverified factual claims" if not flags else f"unverified claims: {flags[:5]}",
+            metrics={"flags": flags},
+        )
+    )
+    bad: list[str] = []
+    for claim in report.get("claims") or []:
+        if not isinstance(claim, dict):
+            bad.append("malformed claim")
+            continue
+        if claim.get("verdict") != "corroborated":
+            bad.append(str(claim.get("text", ""))[:60])
+            continue
+        sources = claim.get("sources") or []
+        if not any(isinstance(s, dict) and str(s.get("url", "")).startswith("https://") for s in sources):
+            bad.append(f"no HTTPS source: {str(claim.get('text', ''))[:50]}")
+    checks.append(
+        _check(
+            "factcheck_claim_sources",
+            not bad,
+            "every factual claim has a corroborating HTTPS source"
+            if not bad
+            else f"claims lacking corroboration: {bad[:5]}",
+            metrics={"bad": bad},
+        )
+    )
     return checks
 
 

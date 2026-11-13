@@ -77,14 +77,24 @@ class Worker(ABC):
 
 class ResearchWorker(Worker):
     kind = "research"
-    description = "Resolve a verified primary-source dossier; never synthesize evidence."
+    description = "Resolve a verified primary-source dossier for factual videos; fiction is exempt."
 
     def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
-        from tools import creative_engine
+        from tools import creative_engine, fact_check
 
         topic = str(spec.params.get("topic", "")).strip()
         if not topic:
             return WorkerResult(ok=False, summary="missing topic", error="topic is required", retryable=False)
+
+        content_type = fact_check.normalize_content_type(spec.params.get("content_type", "factual"))
+        if content_type == "fiction":
+            return WorkerResult(
+                ok=True,
+                summary="fiction: research/fact-check exempt",
+                facts=["Fiction asserts no factual claims; no dossier or web verification required."],
+                metrics={"content_type": "fiction"},
+                data={"content_type": "fiction", "dossier": {}, "fact_check": fact_check.exempt_report("fiction")},
+            )
 
         custom = spec.params.get("dossier")
         if custom:
@@ -150,7 +160,7 @@ class ResearchWorker(Worker):
                 "year": dossier.get("year"),
                 "stat": dossier.get("quantitative_stat"),
             },
-            data={"dossier": dossier},
+            data={"dossier": dossier, "content_type": "factual"},
         )
 
 
@@ -355,6 +365,7 @@ class ProjectWorker(Worker):
                 dossier=dossier,
                 scenes=scenes,
                 overwrite=bool(spec.params.get("overwrite", False)),
+                content_type=str(spec.params.get("content_type", "factual")),
             )
         except FileExistsError as exc:
             return WorkerResult(ok=False, summary="project collision", error=str(exc), retryable=False)
@@ -369,6 +380,58 @@ class ProjectWorker(Worker):
             },
             facts=[f"Blueprint assembled at {proj_path.relative_to(ctx.root)}"],
             data={"project_json": str(proj_path)},
+        )
+
+
+class FactCheckWorker(Worker):
+    kind = "factcheck"
+    description = "Fact-check the script's factual claims via live web research; fiction is exempt."
+
+    def run(self, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
+        from tools import fact_check
+
+        project_json = _project_json_from_ctx(ctx, spec)
+        if not project_json or not project_json.exists():
+            return WorkerResult(ok=False, summary="project missing", error=str(project_json), retryable=False)
+        try:
+            project = json.loads(project_json.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            return WorkerResult(ok=False, summary="invalid project", error=str(exc), retryable=False)
+
+        content_type = fact_check.normalize_content_type(
+            spec.params.get("content_type") or project.get("content_type", "factual")
+        )
+        report_path = project_json.parent / "fact_check.json"
+
+        if content_type == "fiction":
+            report = fact_check.exempt_report("fiction")
+        else:
+            dossier = ctx.dep_data("script").get("dossier") or ctx.dep_data("research").get("dossier") or {}
+            if dossier and dossier.get("_verified") is True and dossier.get("_synthetic", False) is False:
+                # A verified primary-source dossier already grounds the factual claims.
+                report = fact_check.dossier_report()
+            else:
+                try:
+                    report = fact_check.check_project({**project, "content_type": "factual"})
+                except fact_check.FactCheckError as exc:
+                    return WorkerResult(ok=False, summary="fact-check cannot run", error=str(exc), retryable=False)
+
+        report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        ok = bool(report.get("passed"))
+        return WorkerResult(
+            ok=ok,
+            summary=f"fact-check {report['status']} ({report.get('checked', 0)} claim(s))",
+            artifacts={"fact_check": str(report_path)},
+            facts=[report.get("note", "")] + [f"unverified: {f}" for f in report.get("flags", [])[:5]],
+            metrics={
+                "content_type": content_type,
+                "status": report["status"],
+                "checked": report.get("checked", 0),
+                "flags": len(report.get("flags", [])),
+            },
+            data={"fact_check": report, "content_type": content_type},
+            error="" if ok else "factual claims unverified by live web research",
+            retryable=False,
         )
 
 
@@ -782,6 +845,7 @@ def default_workers() -> dict[str, Worker]:
         ScriptWorker(),
         DirectorWorker(),
         ProjectWorker(),
+        FactCheckWorker(),
         BuildWorker(),
         ReleaseWorker(),
         PublishWorker(),
