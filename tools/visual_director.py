@@ -7,7 +7,7 @@ Replaces legacy template middlemen (`prompt_architect.py`) with a 4-stage Semant
         historical year/era, setting, physical props, and human action. No named person and no
         neurological mechanism reaches a FLUX prompt unless the dossier states it (see the
         method_claims and named_subject checks in tools/orchestrator/verifiers.py). Covers both
-        8-scene 9:16 Shorts and 26+ scene 16:9 Long-Form videos like LV-02 with zero truncation.
+        8-scene 9:16 Shorts and 26+ scene 16:9 Long-Form videos with zero truncation.
   - S2: 6-Layer 3D Multi-Plane Cinematographic Composition:
         Explicitly structures every FLUX prompt into 3 distinct Z-depth planes (`Foreground Z-Near`, `Midground Subject Z-Mid`,
         `Background Z-Far`) so `Depth-Anything-V2` and `ISNet` extract maximum 3D spatial parallax:
@@ -562,7 +562,7 @@ class S4VisualDirector:
         clean_t = re.sub(r"\*", "", text).strip()
         low = (clean_t + " " + note + " " + (overlay.get("text", "") if overlay else "")).lower()
 
-        # 1. Detect specific narrative/scientific scenes from script keywords (works across Shorts & 26-scene Long-Form LV-02)
+        # 1. Detect specific narrative/scientific scenes from script keywords (works across Shorts & 26-scene Long-Form)
         if any(k in low for k in ["twenty browser tabs", "sit down at your desk with coffee", "ninety seconds"]):
             return {
                 "scale": "High-tension 3D multi-plane medium close-up shot",

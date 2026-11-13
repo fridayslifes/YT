@@ -27,10 +27,6 @@ import wave
 from dataclasses import dataclass
 from pathlib import Path
 
-for _bin_dir in ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin"):
-    if os.path.isdir(_bin_dir) and _bin_dir not in os.environ.get("PATH", ""):
-        os.environ["PATH"] = f"{_bin_dir}:{os.environ.get('PATH', '')}"
-
 TOOLS_DIR = Path(__file__).resolve().parent
 YT_ROOT = TOOLS_DIR.parent
 
@@ -50,9 +46,9 @@ import cv2  # noqa: E402
 import numpy as np  # noqa: E402
 from PIL import Image, ImageDraw, ImageFilter, ImageFont  # noqa: E402
 
-VENV_SITE = YT_ROOT / ".venv" / "lib" / "python3.11" / "site-packages"
-if VENV_SITE.exists() and str(VENV_SITE) not in sys.path:
-    sys.path.append(str(VENV_SITE))
+for _venv_site in sorted((YT_ROOT / ".venv" / "lib").glob("python*/site-packages")):
+    if str(_venv_site) not in sys.path:
+        sys.path.append(str(_venv_site))
 
 from tools import audio_bank  # noqa: E402
 from tools import visual_engine  # noqa: E402

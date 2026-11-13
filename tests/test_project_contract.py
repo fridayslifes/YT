@@ -494,13 +494,11 @@ def headline_number_offenders(titles: dict[str, str], citations: dict[str, str])
 
 
 def test_a_headline_number_is_supported_by_the_citation_it_ships_with(projects):
-    # Fixed 2026-11-01: this pinned a KNOWN BUG ("CURRENT BEHAVIOR - BUG") in which
-    # creative_engine.LONGFORM_ANCHORS["LV-02"] read "80% of Your Focus" while nothing in the repo -
-    # no dossier, no script, no citation_stat - stated 80%. The owner re-titled the live video on
-    # 2026-10-31 to "The 3 Hidden Brain Traps Destroying Your Focus" and the anchor table now matches
-    # it, so the assertion is flipped to what the rule requires: no offender at all.
-    # GEMINI.md:71 "Headline copy must not contain a number that citation_stat does not support."
-    # LV-02's anchor string is also the default related-video target for every Short, so the anchor
+    # This pins the rule that no headline may state a number the citation cannot back: an anchor
+    # title once read "80%" while nothing in the repo - no dossier, no script, no citation_stat -
+    # stated it, so the assertion requires no offender at all.
+    # GEMINI.md: "Headline copy must not contain a number that citation_stat does not support."
+    # An anchor string is also the default related-video target for every Short, so the anchor
     # table is scanned with the projects: a number invented there reaches every UPLOAD_KIT in the repo.
     titles = {p["slug"]: str(p["data"].get("title") or "") for p in projects}
     citations = {p["slug"]: str(p["data"].get("citation_stat") or "") for p in projects}
@@ -512,19 +510,19 @@ def test_a_headline_number_is_supported_by_the_citation_it_ships_with(projects):
 
 
 def test_no_headline_should_state_a_number_the_dossier_cannot_back(projects):
-    # Was an expected-failure pin on the LV-02 "80%" headline; the anchor is corrected, so this is now
-    # a plain hard assert over the projects. The LONGFORM_ANCHORS copy is covered by the test above and
-    # by tests/test_creative_engine.py::test_no_longform_anchor_headline_states_a_percentage.
+    # Was an expected-failure pin on an invented "80%" headline; the anchor is corrected, so this is
+    # now a plain hard assert over the projects. The LONGFORM_ANCHORS copy is covered by the test above
+    # and by tests/test_creative_engine.py::test_no_longform_anchor_headline_states_a_percentage.
     titles = {p["slug"]: str(p["data"].get("title") or "") for p in projects}
     citations = {p["slug"]: str(p["data"].get("citation_stat") or "") for p in projects}
     assert headline_number_offenders(titles, citations) == []
 
 
 def test_a_dossier_related_title_is_the_anchor_string_verbatim():
-    # Fixed 2026-11-03: LONGFORM_ANCHORS was cleaned to the live LV-02 title, but two dossiers still
-    # carried related_title "The 3 Hidden Brain Traps Destroying 80% of Your Focus". The headline test
-    # above only reads the anchor table, so the invented 80% sat in the field that build_project
-    # copies into a new Short's related-video title and upload kit.
+    # LONGFORM_ANCHORS was cleaned to the corrected title, but two dossiers still carried a
+    # related_title with an invented "80%". The headline test above only reads the anchor table, so
+    # the invented number sat in the field that build_project copies into a new Short's related-video
+    # title and upload kit.
     from tools import creative_engine
 
     dossiers = json.loads(

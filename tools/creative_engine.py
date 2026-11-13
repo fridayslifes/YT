@@ -160,8 +160,8 @@ def _search_tag(text: str) -> str:
     ("Philip Brickman, Dan Coates & Ronnie Janoff-Bulman (1978)") used to reach the kit as two
     oversized fragments that YouTube drops silently — and every kit inherits its tag block from
     here, so the fix belongs in this function rather than in one hand-edited kit. Surnames plus
-    the year is what actually searches ("kahneman tversky 1979" is what SH-15 carries live), so
-    build that and shed surnames from the right until the tag fits.
+    the year is what actually searches (e.g. "kahneman tversky 1979"), so build that and shed
+    surnames from the right until the tag fits.
     """
     raw = str(text or "")
     body = re.sub(r"\s+", " ", raw.strip().lower().split("(")[0])
@@ -184,12 +184,10 @@ def resolve_related_target(topic: str) -> tuple[str, str]:
     if not LONGFORM_ANCHORS:
         return "", ""
     t_low = topic.lower()
-    if "LV-01" in LONGFORM_ANCHORS and any(
-        k in t_low for k in ["dopamine", "exhaustion", "screen", "scrolling", "phone", "burnout", "sleep", "baseline"]
-    ):
-        return "LV-01", LONGFORM_ANCHORS["LV-01"]
-    if "LV-02" in LONGFORM_ANCHORS:
-        return "LV-02", LONGFORM_ANCHORS["LV-02"]
+    for anchor_id, anchor_title in LONGFORM_ANCHORS.items():
+        keywords = [w for w in re.findall(r"[a-z]+", str(anchor_title).lower()) if len(w) > 4]
+        if any(k in t_low for k in keywords):
+            return anchor_id, anchor_title
     first_key = next(iter(LONGFORM_ANCHORS))
     return first_key, LONGFORM_ANCHORS[first_key]
 

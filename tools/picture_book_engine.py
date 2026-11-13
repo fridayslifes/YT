@@ -1493,7 +1493,7 @@ def produce_picture_book_video(
 
     doc_title = str((project_data or {}).get("title") or (elements[0].title if elements else project_slug))
     doc_topic = str((project_data or {}).get("topic") or doc_title)
-    doc_id = str((project_data or {}).get("id") or "LV-01-FORENSIC")
+    doc_id = str((project_data or {}).get("id") or project_slug)
 
     record_ledger_event(
         slug=project_slug,

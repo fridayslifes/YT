@@ -9,16 +9,17 @@ export RUFF_CACHE_DIR="${RUFF_CACHE_DIR:-/tmp/.ruff_cache}"
 
 PY=".venv/bin/python"
 if [ ! -x "$PY" ] || ! "$PY" -c "import sys" &>/dev/null; then
-  if [ -x "/opt/homebrew/bin/python3.14" ]; then
-    PY="/opt/homebrew/bin/python3.14"
-    export PYTHONPATH=".:/opt/homebrew/lib/python3.14/site-packages:.venv/lib/python3.11/site-packages:${PYTHONPATH:-}"
-    export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-  elif [ -x "/opt/homebrew/bin/python3" ]; then
-    PY="/opt/homebrew/bin/python3"
-    export PYTHONPATH=".:.venv/lib/python3.11/site-packages:${PYTHONPATH:-}"
+  if command -v python3 >/dev/null 2>&1; then
+    PY="$(command -v python3)"
+    export PYTHONPATH=".:${PYTHONPATH:-}"
+    for site in .venv/lib/python*/site-packages; do
+      if [ -d "$site" ]; then
+        export PYTHONPATH="$site:${PYTHONPATH}"
+      fi
+    done
     export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
   else
-    echo "check.sh: $PY is missing. Create the venv first: uv venv --python 3.11 .venv" >&2
+    echo "check.sh: $PY is missing. Create the venv first: python3 -m venv .venv" >&2
     exit 2
   fi
 fi

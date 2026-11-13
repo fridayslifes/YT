@@ -75,7 +75,7 @@ def run_worker(worker, spec: TaskSpec, ctx: RunContext) -> WorkerResult:
     group_reader, group_writer = os.pipe()
     deadline = time.monotonic() + spec.timeout_s
     # macOS SIGABRTs a forked child that touches the parent's Obj-C runtime (numpy/Accelerate load it
-    # during the release task); this killed the first SH-17 publish before any receipt could be written.
+    # during the release task); this killed a publish before any receipt could be written.
     if sys.platform == "darwin":
         os.environ.setdefault("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "YES")
     try:

@@ -129,7 +129,7 @@ def test_the_upload_writer_finds_the_current_row_shape(copy, monkeypatch):
 def test_mapping_is_by_name_not_by_position(copy):
     legacy = "| ID | Format | Title | Concept | Science | Live Link | Local MP4 | Upload Kit | Status | Views | Related |\n"
     legacy += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
-    legacy += "| **SH-99** | Short (9:16) | *Old* | c | s | *Pending Upload* | `old.mp4` | `KIT.md` | **Ready** | 7 | Link to LV-02 |\n"
+    legacy += "| **SH-99** | Short (9:16) | *Old* | c | s | *Pending Upload* | `old.mp4` | `KIT.md` | **Ready** | 7 | Link to related |\n"
     copy.write_text(copy.read_text(encoding="utf-8") + "\n## Legacy table\n\n" + legacy, encoding="utf-8")
     tracker.update_tracker_row("SH-99", {"rel_mp4": "`new.mp4`"}, tracker_path=copy)
     cells = tracker.split_row(row_of(copy, "SH-99"))

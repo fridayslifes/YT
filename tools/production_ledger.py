@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tools.errors import MissingInputError, RenderingError
+from tools.tracker import update_tracker_row
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LEDGER_JSONL = REPO_ROOT / "channel_assets" / "production_ledger.jsonl"
@@ -405,23 +406,30 @@ def sync_to_content_tracker(audit_data: Dict[str, Any]) -> None:
     if not CONTENT_TRACKER.exists():
         return
 
-    content = CONTENT_TRACKER.read_text(encoding="utf-8")
     slug = audit_data["slug"]
+    video_id = slug
+    proj_dir = find_project_path(slug)
+    if proj_dir is not None and (proj_dir / "project.json").exists():
+        try:
+            proj_data = json.loads((proj_dir / "project.json").read_text(encoding="utf-8"))
+            video_id = str(proj_data.get("id") or slug)
+        except (json.JSONDecodeError, OSError):
+            video_id = slug
 
-    # Check if slug is already in table
-    if slug in content:
-        return
+    fmt_label = "Short (9:16)" if str(audit_data.get("format", "short")) == "short" else "Long (16:9)"
+    title = str(audit_data.get("title") or slug)
+    status = "**Uploaded**" if audit_data.get("status") == "UPLOADED" else "**Ready**"
 
-    # Append row to Section 2 (Master Production Table)
-    table_anchor = "| **SH-21** | Short (9:16) |"
-    if table_anchor in content:
-        new_row = (
-            f"| **LV-01-PB** | Long (16:9) | *The Skyjacker Who Vanished at 10,000 Feet* (`{slug}`) "
-            f"| [Local Master](output/{slug}_picture_book_16x9.mp4) | — | `{audit_data['master_mp4']}` "
-            f"| **Ready** |\n"
-        )
-        content = content.replace(table_anchor, new_row + table_anchor)
-        CONTENT_TRACKER.write_text(content, encoding="utf-8")
+    update_tracker_row(
+        video_id,
+        {
+            "fmt_label": fmt_label,
+            "title": f"*{title}* (`{slug}`)",
+            "rel_mp4": f"`{audit_data['master_mp4']}`",
+            "status": status,
+        },
+        tracker_path=CONTENT_TRACKER,
+    )
 
 
 def main() -> int:

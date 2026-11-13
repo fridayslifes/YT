@@ -411,8 +411,8 @@ def test_upload_kit_description_links_a_reachable_video(monkeypatch):
 def test_upload_kit_related_video_never_invents_a_title():
     kit = _kit(related_target="LV-01", related_target_title="Dopamine Exhaustion")
     assert "LV-01" in kit and "Dopamine Exhaustion" in kit
-    # With no explicit target the resolver picks one of the two long-form anchors: it is a hardcoded
-    # string, not a lookup, so at minimum it must not say "None".
+    # With no explicit target the resolver picks from the registered long-form anchors (or none
+    # when the table is empty); at minimum it must not say "None".
     fallback = _kit(related_target=None, related_target_title=None)
     assert "None" not in fallback
 
@@ -420,14 +420,19 @@ def test_upload_kit_related_video_never_invents_a_title():
 @pytest.mark.parametrize(
     "topic, expected_target",
     [
-        ("Dopamine Exhaustion and scrolling", "LV-01"),
-        ("Phone burnout", "LV-01"),
-        ("Loss Aversion", "LV-02"),
-        ("The Paradox of Choice", "LV-02"),
+        ("Dopamine Exhaustion and scrolling", "LV-A"),
+        ("Phone burnout", "LV-A"),
+        ("Loss Aversion", "LV-B"),
+        ("The Paradox of Choice", "LV-B"),
+        ("An Unrelated Subject", "LV-A"),
     ],
 )
-def test_related_target_resolution_follows_the_documented_clusters(monkeypatch, topic, expected_target):
-    monkeypatch.setattr(ce, "LONGFORM_ANCHORS", {"LV-01": "Anchor 1", "LV-02": "Anchor 2"})
+def test_related_target_resolution_matches_anchor_titles(monkeypatch, topic, expected_target):
+    monkeypatch.setattr(
+        ce,
+        "LONGFORM_ANCHORS",
+        {"LV-A": "Dopamine Exhaustion Phone Burnout", "LV-B": "Loss Aversion Paradox Choice"},
+    )
     assert ce.resolve_related_target(topic)[0] == expected_target
 
 

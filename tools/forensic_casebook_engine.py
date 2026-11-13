@@ -1244,7 +1244,7 @@ def produce_forensic_documentary(
         stage="render",
         status="PASS",
         details={
-            "video_id": project_data.get("id", "LV-01"),
+            "video_id": project_data.get("id", project_slug),
             "title": project_data.get("title", project_slug),
             "topic": project_data.get("topic", project_slug),
             "output_file": str(output_mp4),

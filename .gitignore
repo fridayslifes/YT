@@ -50,7 +50,8 @@ long_form/*/cache/
 demos/
 
 # Channel-specific data (never commit)
-configs/channels/
+configs/channels/*
+!configs/channels/default.yaml
 configs/voice_persona.md
 channel_assets/voice.md
 channel_assets/POLICY.md

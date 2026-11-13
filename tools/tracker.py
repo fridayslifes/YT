@@ -56,7 +56,7 @@ TRACKER_DEFAULTS: dict[str, str] = {
     "live_link": "*Pending Upload*",
     "status": "**Ready**",
     "views": "—",
-    "related_target": "Link to LV-02",
+    "related_target": "—",
 }
 
 

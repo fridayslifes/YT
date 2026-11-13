@@ -1,14 +1,10 @@
 # FrameForge
 
-FrameForge is the local and cloud video-production workspace and Python toolset. Its built-in production workflow creates research-grounded YouTube Shorts and long-form videos using the channel preset in `configs/channels/default.yaml` (`Your Channel` / `@yourchannel` until configured for a live YouTube channel).
-
-The `shorts/` and `long_form/` directories are prepared format destinations and currently contain only documentation, with no active local project. Broader format and channel-neutral production workflows remain proposed.
+FrameForge is a local and cloud video-production workspace and Python toolset. Its built-in production workflow creates research-grounded YouTube Shorts and long-form videos using the channel preset in `configs/channels/default.yaml` (a neutral `Your Channel` / `@yourchannel` template until configured for a live YouTube channel).
 
 ## Working here
 
-The canonical project directory is `/Users/friday/Desktop/FrameForge`.
-
-Use the master orchestrator for production workflows. From the project directory, list the registered workers and run the repository gate with:
+Run all commands from the repository root. Use the master orchestrator for production workflows; list the registered workers and run the repository gate with:
 
 ```bash
 .venv/bin/python tools/master.py workers
@@ -20,12 +16,17 @@ Use the master orchestrator for production workflows. From the project directory
 ## Workspace contents
 
 - `tools/` contains the production pipeline, rendering tools, and orchestrator.
-- `shorts/` and `long_form/` currently contain format documentation; no local video projects are retained.
-- `channel_assets/` holds the channel voice profile (`channel_assets/voice.md`), research dossiers (`channel_assets/scientific_dossiers.json`), and policy ledger.
-- `configs/channels/default.yaml` holds the configurable channel identity and narration defaults.
-- `CONTENT_TRACKER.md` tracks the channel's videos.
+- `configs/` holds encoder settings, uniqueness thresholds, and channel presets (`configs/channels/`).
+- `assets/` holds shared fonts, emoji plates, and sound cues.
+- `channel_assets/` holds local-only channel data: voice profile, research dossiers, policy ledger, and upload receipts (gitignored).
+- `CONTENT_TRACKER.md` is the local-only video inventory (gitignored).
 - `.venv/` contains the single project Python virtual environment.
 
-## Compatibility path
+## Setup
 
-`/Users/friday/Desktop/Yt` is not present in this workspace. Use `/Users/friday/Desktop/FrameForge` for commands and update any external launcher that still points to the old path. Pipeline module names, commands, channel branding, and video assets retain their existing roles.
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+`ffmpeg` and `ffprobe` must be on PATH. Blender is optional (true-3D camera paths); without it the pipeline renders 2.5D parallax. Local Kokoro-82M ONNX weights live in `tools/kokoro_models/` (gitignored; see requirements-optional.txt).

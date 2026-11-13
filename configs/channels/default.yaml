@@ -1,0 +1,16 @@
+# Neutral channel preset shipped with the repository.
+# Copy to configs/channels/<your-channel>.yaml and fill in your real identity before
+# uploading. channel_id stays empty until then: upload preflight fails closed when no
+# target channel is configured (or set FRAMEFORGE_CHANNEL_ID).
+channel_name: "Your Channel"
+channel_id: ""
+handle: "@yourchannel"
+niche: "science"
+default_variant: "cinematic_35mm"
+supported_variants:
+  - "cinematic_35mm"
+  - "3d_cgi"
+  - "3d_minimalist"
+voice: "kokoro"
+rate: "+1%"
+pitch: "-2Hz"

@@ -1,10 +1,10 @@
 """tests/test_visual_prompts.py - the image-prompt uniqueness rule behind tools/visual_director.py.
 
-Two Shorts that open on the same plate read as one video, and the previous SH-18 was withdrawn for
-exactly that: its scene 1 shared a byte-identical opening with SH-17 and its scene 8 was identical
-end to end. Scene 1 was fixed at the time; scene 8 was not, because the role-8 fallback template
-named no topic, no dossier field and no project, so every generic-path topic got the same dusk
-window. That is the regression this file holds shut.
+Two Shorts that open on the same plate read as one video, and a previous release was withdrawn for
+exactly that: its scene 1 shared a byte-identical opening with an earlier Short and its scene 8 was
+identical end to end. Scene 1 was fixed at the time; scene 8 was not, because the role-8 fallback
+template named no topic, no dossier field and no project, so every generic-path topic got the same
+dusk window. That is the regression this file holds shut.
 
 Only prompt text is built here - no image model, no render, no network.
 """

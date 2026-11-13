@@ -2,7 +2,7 @@
 #
 # PROVENANCE (read this first): every line below was discovered by grepping the real
 # `import` statements in tools/**/*.py, then pinned to the version currently installed in
-# .venv (read with importlib.metadata, since this venv has no `pip` binary).
+# .venv (read with importlib.metadata).
 # Nothing here is a generic guess; nothing here is a package tools/ does not import.
 #
 # This file is the CORE layer only: the packages that tools/*.py imports at module scope
@@ -13,9 +13,8 @@
 #
 #   uv pip install --python .venv/bin/python -r requirements.txt          # core + test tooling
 #   uv pip install --python .venv/bin/python -r requirements-optional.txt # full render/upload env
-#   (`python -m pip` does not work here: this venv was created without a pip binary.)
 #
-# Python: 3.11 (the venv is 3.11.14). System binaries are NOT pip-installable, see bottom.
+# Python: 3.11+. System binaries are NOT pip-installable, see bottom.
 
 # --- Core: required at module import time -------------------------------------
 # Imported at module scope, unguarded, by tools/pipeline.py, tools/build_video.py,
@@ -38,13 +37,12 @@ pytest==9.1.1
 ruff==0.15.21
 
 # --- System binaries (NOT in pip; the pipeline shells out to these) ----------
-# ffmpeg / ffprobe 9.0.1  -> /opt/homebrew/bin/ffmpeg (visual_engine.py:158 probes
-#                            `h264_videotoolbox` and self-heals to libx264 High Profile)
-# Blender                  -> OPTIONAL and currently MISSING on this machine.
-#                            tools/visual_engine.py:1408 runs `[blender_bin, "-b", "-P", ...]`
-#                            behind BlenderBridge.is_available(); without it the true-3D
-#                            studio camera paths are skipped, 2.5D parallax still renders.
-# Node/npx                 -> present but NOT used: the "Remotion" caption springs are a
-#                            pure-Python reimplementation (visual_engine.py:86 remotion_spring).
+# ffmpeg / ffprobe         -> must be on PATH. visual_engine probes `h264_videotoolbox`
+#                            and self-heals to libx264 High Profile when unavailable.
+# Blender                  -> OPTIONAL. Runs behind BlenderBridge.is_available(); without
+#                            it the true-3D studio camera paths are skipped, 2.5D parallax
+#                            still renders.
+# Node/npx                 -> NOT used: the "Remotion" caption springs are a pure-Python
+#                            reimplementation (remotion_spring in visual_engine).
 # Local model weights      -> tools/kokoro_models/kokoro-v1.0.onnx + voices-v1.0.bin
 #                            (.gitignore'd; git-lfs/manual fetch, see requirements-optional.txt)

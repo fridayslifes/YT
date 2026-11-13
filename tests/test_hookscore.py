@@ -24,9 +24,9 @@ from tools.youtube_skills import score_hook
 
 HOOKS_JSON = Path(hookscore.HERE) / "hooks.json"
 
-# The canonical GEMINI.md section 6 example hook, and the shipped SH-11 hook.
+# The canonical GEMINI.md section 6 example hook, plus a shipped-style variant.
 HOOK_STRONG = "If you collapse on a busy sidewalk, why do 85% of people walk past you?"
-HOOK_SH11 = "If you collapse on a Manhattan sidewalk, why do eighty-five percent of strangers stop and watch you die?"
+HOOK_SHIPPED = "If you collapse on a Manhattan sidewalk, why do eighty-five percent of strangers stop and watch you die?"
 HOOK_VAGUE = (
     "Today we are going to talk about a really amazing and incredible habit "
     "that will change your life forever guys."
@@ -54,7 +54,7 @@ def test_score_returns_exactly_the_five_documented_properties():
     assert isinstance(hits, int)
 
 
-@pytest.mark.parametrize("hook", [HOOK_STRONG, HOOK_SH11, HOOK_VAGUE, "", "word", "a" * 400])
+@pytest.mark.parametrize("hook", [HOOK_STRONG, HOOK_SHIPPED, HOOK_VAGUE, "", "word", "a" * 400])
 def test_every_property_stays_in_the_0_100_band_for_any_input(hook):
     parts, verdict, _, _ = hookscore.score(hook)
     for name, value in parts.items():
@@ -123,7 +123,7 @@ def test_brevity_plateaus_between_9_and_24_words_and_decays_outside_it():
     "hook",
     [
         HOOK_STRONG,
-        HOOK_SH11,
+        HOOK_SHIPPED,
         HOOK_VAGUE,
         "You keep losing the first hour of every workday before you even open your laptop.",
         "Why does nobody help you?",
@@ -206,7 +206,7 @@ def test_the_pass_mark_is_the_same_constant_everywhere_in_the_repo():
 
 
 def test_strong_second_person_numbered_stakes_hook_beats_a_vague_one():
-    parts_s, verdict_s, formula_s, _ = hookscore.score(HOOK_SH11)
+    parts_s, verdict_s, formula_s, _ = hookscore.score(HOOK_SHIPPED)
     parts_v, verdict_v, _, _ = hookscore.score(HOOK_VAGUE)
     assert verdict_s > verdict_v
     assert hookscore.band(verdict_s) == "STRONG"
@@ -218,7 +218,7 @@ def test_strong_second_person_numbered_stakes_hook_beats_a_vague_one():
 
 def test_emphasis_asterisks_do_not_change_the_score():
     """project.json wraps spoken words in *asterisks*; scoring must ignore the markup."""
-    bare = hookscore.score(HOOK_SH11)
+    bare = hookscore.score(HOOK_SHIPPED)
     marked = hookscore.score(
         "If you collapse on a *Manhattan* sidewalk, why do *eighty-five* *percent* of "
         "strangers stop and watch you die?"
